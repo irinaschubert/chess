@@ -60,8 +60,6 @@ h1, h2, h3 {
     width: inherit;
     height: inherit;
     background-repeat: no-repeat;
-    background-size: contain;
-
 }
 
 .pawn{
