@@ -1,9 +1,21 @@
-export default class Figure{
-    constructor(type, color, startPositionI, startPositionJ){
+/*
+ Author: Irina Schubert
+ Url: https://git.ffhs.ch/irina.schubert/chess.git
+ */
+
+'use strict';
+
+export default class Piece{
+    constructor(name, type, color, startPositionI, startPositionJ){
+        this.name = name;
         this.type = type;
         this.color = color;
         this.startPositionI = startPositionI;
         this.startPositionJ = startPositionJ;
+    }
+
+    getName(){
+        return this.name;
     }
 
     getStartPositionI(){
@@ -20,12 +32,6 @@ export default class Figure{
 
     getColor(){
         return this.color;
-    }
-
-    initialize() {
-        const $startfield = $(`.field[data-row=${this.startPositionI}][data-col=${this.startPositionJ}]`);
-        $startfield.addClass(this.type);
-        $startfield.addClass(this.color);
     }
 }
 

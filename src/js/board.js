@@ -1,9 +1,20 @@
+/*
+ Author: Irina Schubert
+ Url: https://git.ffhs.ch/irina.schubert/chess.git
+ */
+
+'use strict';
+
 export default class Board{
-    createBoard(board) {
+    constructor(boardElement){
+        this.boardElement = boardElement;
+    }
+
+    createBoard() {
         this.rows = 8;
         this.cols = 8;
 
-        board.empty();
+        this.boardElement.empty();
 
         for (let i = this.rows; i > 0; i--) {
             const $row = $('<div>').addClass('row');
@@ -30,18 +41,9 @@ export default class Board{
 
                 $row.append($field);
             }
-            board.append($row);
+            this.boardElement.append($row);
+            console.log(this.boardElement);
         }
-    }
-
-    placeFigureOnBoard(figure){
-        const i = figure.getStartPositionI();
-        const j = figure.getStartPositionJ();
-        const $field = $(`.field[data-row = ${i}][data-col = ${j}]`);
-        const $figure = $('<div>').addClass('figure');
-        $figure.addClass(figure.getType());
-        $figure.addClass(figure.getColor());
-        $field.append($figure);
     }
 }
 
