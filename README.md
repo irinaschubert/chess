@@ -8,4 +8,4 @@ Die Webapplikation stellt eine browserbasierte Version des Schachspiels dar.
 Version 0.1<br/>
 ![first version][version1]<br/>
 
-[version1]: /images/v1.PNG "first version"
+[version1]: /src/images/v1.PNG "first version"
