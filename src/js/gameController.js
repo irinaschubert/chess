@@ -81,13 +81,13 @@ function setupGame(boardElement){
 }
 
 function placePieceOnBoard(piece){
-    const i = piece.getStartPositionI();
-    const j = piece.getStartPositionJ();
+    const i = piece.startPositionI;
+    const j = piece.startPositionJ;
     const $field = $(`.field[data-row = ${i}][data-col = ${j}]`);
     const $piece = $('<div>').addClass('piece');
-    $piece.addClass(piece.getType());
-    $piece.addClass(piece.getColor());
-    $piece.attr("id", piece.getName());
+    $piece.addClass(piece.type);
+    $piece.addClass(piece.color);
+    $piece.attr("id", piece.name);
     $piece.click(piece.move);
     $field.append($piece);
 }

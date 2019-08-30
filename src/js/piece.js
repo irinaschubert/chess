@@ -7,35 +7,56 @@
 
 export default class Piece{
     constructor(name, type, color, startPositionI, startPositionJ){
-        this.name = name;
-        this.type = type;
-        this.color = color;
-        this.startPositionI = startPositionI;
-        this.startPositionJ = startPositionJ;
+        this._name = name;
+        this._type = type;
+        this._color = color;
+        this._startPositionI = startPositionI;
+        this._startPositionJ = startPositionJ;
+        this.move = this.move.bind(this);
     }
 
     move(){
         return console.log("hello, I am ", this.name);
     }
 
-    getName(){
-        return this.name;
+    get name(){
+        return this._name;
     }
 
-    getStartPositionI(){
-        return this.startPositionI;
+    set name(name){
+        this._name = name;
     }
 
-    getStartPositionJ(){
-        return this.startPositionJ;
+    get startPositionI(){
+        return this._startPositionI;
     }
 
-    getType(){
-        return this.type;
+    set startPositionI(startPositionI){
+        this._startPositionI = startPositionI;
     }
 
-    getColor(){
-        return this.color;
+    get startPositionJ(){
+        return this._startPositionJ;
+    }
+
+    set startPositionJ(startPositionJ){
+        this._startPositionJ = startPositionJ;
+    }
+
+    get type(){
+        return this._type;
+    }
+
+    set type(type){
+        this._type = type;
+    }
+
+    get color(){
+        return this._color;
+    }
+
+    set color(color){
+        this._color = color;
     }
 
     getAllowedMoves(){

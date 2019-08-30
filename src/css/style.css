@@ -44,14 +44,6 @@ h1, h2, h3 {
     padding: 0.2rem;
 }
 
-.piece.white:hover{
-    opacity: 0.5;
-}
-
-.piece.black:hover{
-    opacity: 0.5;
-}
-
 .bg-black {
     background-color: rgb(42, 87, 130);
 }
@@ -76,7 +68,10 @@ h1, h2, h3 {
     position: absolute;
     width: inherit;
     height: inherit;
-    background-repeat: no-repeat;
+}
+
+.piece:hover{
+    opacity: 0.5;
 }
 
 .pawn.white{
