@@ -23,10 +23,10 @@ export default class Board{
                     .addClass('field')
                     .attr('data-row', i)
                     .attr('data-col', j);
-                if( i % 2 === 0 && j % 2 === 0 ){ $field.addClass('bg-white') }
-                else if( i % 2 === 0 && j % 2 !== 0 ){ $field.addClass('bg-black') }
-                else if( i % 2 !== 0 && j % 2 === 0 ){ $field.addClass('bg-black') }
-                else if( i % 2 !== 0 && j % 2 !== 0 ){ $field.addClass('bg-white') }
+                if( i % 2 === 0 && j % 2 === 0 ){ $field.addClass('bg-black') }
+                else if( i % 2 === 0 && j % 2 !== 0 ){ $field.addClass('bg-white') }
+                else if( i % 2 !== 0 && j % 2 === 0 ){ $field.addClass('bg-white') }
+                else if( i % 2 !== 0 && j % 2 !== 0 ){ $field.addClass('bg-black') }
                 if( i === 1 ){
                     const $div = $('<div>').addClass('first-row');
                     let letter = (j+9).toString(36);
@@ -42,7 +42,6 @@ export default class Board{
                 $row.append($field);
             }
             this.boardElement.append($row);
-            console.log(this.boardElement);
         }
     }
 }

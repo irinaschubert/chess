@@ -14,6 +14,10 @@ export default class Piece{
         this.startPositionJ = startPositionJ;
     }
 
+    move(){
+        return console.log("hello, I am ", this.name);
+    }
+
     getName(){
         return this.name;
     }
@@ -32,6 +36,10 @@ export default class Piece{
 
     getColor(){
         return this.color;
+    }
+
+    getAllowedMoves(){
+
     }
 }
 

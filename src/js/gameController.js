@@ -28,8 +28,8 @@ function setupGame(boardElement){
     let w_knight_2 = new Piece("w_knight_2", "knight", "white", 1, 7);
     let w_rook_1 = new Piece("w_rook_1", "rook", "white", 1, 1);
     let w_rook_2 = new Piece("w_rook_2", "rook", "white", 1, 8);
-    let w_king = new Piece("w_king", "king", "white", 1, 4);
-    let w_queen = new Piece("w_queen", "queen", "white", 1, 5);
+    let w_king = new Piece("w_king", "king", "white", 1, 5);
+    let w_queen = new Piece("w_queen", "queen", "white", 1, 4);
     let b_pawn_1 = new Piece("b_pawn_1", "pawn", "black", 7, 1);
     let b_pawn_2 = new Piece("b_pawn_2", "pawn", "black", 7, 2);
     let b_pawn_3 = new Piece("b_pawn_3", "pawn", "black", 7, 3);
@@ -88,6 +88,7 @@ function placePieceOnBoard(piece){
     $piece.addClass(piece.getType());
     $piece.addClass(piece.getColor());
     $piece.attr("id", piece.getName());
+    $piece.click(piece.move);
     $field.append($piece);
 }
 
