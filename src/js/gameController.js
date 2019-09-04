@@ -62,10 +62,8 @@ function placePieceOnBoard(piece){
     const $piece = $('<div>').addClass('piece');
     $piece.addClass(piece.constructor.name.toLowerCase());
     $piece.addClass(piece.color);
-    //$piece.click($piece.addClass('clicked'));
-    $piece.click(piece.move);
+    $piece.click(piece.prepareForMove);
     $field.append($piece);
-
 }
 
 
