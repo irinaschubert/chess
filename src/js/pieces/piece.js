@@ -9,6 +9,7 @@ export default class Piece{
     constructor(color, startPosition){
         this._color = color;
         this._startPosition = startPosition;
+        this._position = startPosition;
     }
 
     get color(){
@@ -25,6 +26,10 @@ export default class Piece{
 
     set startPosition(startPosition){
         this._startPosition = startPosition;
+    }
+
+    getPosition(){
+        return this._position;
     }
 }
 

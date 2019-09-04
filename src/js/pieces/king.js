@@ -7,7 +7,8 @@ export default class King extends Piece {
     }
 
     move(){
-        return console.log("hello, I am a ", this.constructor.name);
+        console.log("hello, I am a ", this.constructor.name);
+        console.log("my start position is: ", super.getPosition())
     }
 
     isMovePossible(src, dest){

@@ -71,6 +71,10 @@ h1, h2, h3 {
     height: inherit;
 }
 
+.clicked{
+    background-color:red;
+}
+
 .piece:hover{
     opacity: 0.5;
 }
