@@ -6,12 +6,11 @@
 'use strict';
 
 export default class Piece{
-    constructor(name, type, color, startPositionI, startPositionJ){
+    constructor(name, type, color, startPosition){
         this._name = name;
         this._type = type;
         this._color = color;
-        this._startPositionI = startPositionI;
-        this._startPositionJ = startPositionJ;
+        this._startPosition = startPosition;
         this.move = this.move.bind(this);
     }
 
@@ -27,20 +26,12 @@ export default class Piece{
         this._name = name;
     }
 
-    get startPositionI(){
-        return this._startPositionI;
+    get startPosition(){
+        return this._startPosition;
     }
 
-    set startPositionI(startPositionI){
-        this._startPositionI = startPositionI;
-    }
-
-    get startPositionJ(){
-        return this._startPositionJ;
-    }
-
-    set startPositionJ(startPositionJ){
-        this._startPositionJ = startPositionJ;
+    set startPosition(startPosition){
+        this._startPosition = startPosition;
     }
 
     get type(){
@@ -57,10 +48,6 @@ export default class Piece{
 
     set color(color){
         this._color = color;
-    }
-
-    getAllowedMoves(){
-
     }
 }
 
