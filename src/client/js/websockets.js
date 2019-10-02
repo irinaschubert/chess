@@ -1,17 +1,24 @@
+/*
+ Author: Irina Schubert
+ Url: https://git.ffhs.ch/irina.schubert/chess.git
+ */
+
+'use strict';
+
 let websocketGame = {
-    isDrawing : false,
-    startX : 0,
-    startY : 0,
-    LINE_SEGMENT : 0,
+    playersTurn : 0,
     CHAT_MESSAGE : 1,
     GAME_LOGIC : 2,
     WAITING_TO_START : 0,
     GAME_START : 1,
     GAME_OVER : 2,
     GAME_RESTART : 3,
-    isTurnToDraw: false,
+    NORMAL : 0,
+    CHECK : 1,
+    CHECKMATE : 2,
+    REMIS : 3,
+    PATT : 4
 };
-
 
 $(function(){
     if(window["WebSocket"]){
@@ -28,9 +35,8 @@ $(function(){
             console.log("Got message: ", e.data);
             let data = JSON.parse(e.data);
             if(data.dataType === websocketGame.CHAT_MESSAGE){
-                $("#chat-history").append("<li>" + data.sender + " said: " + data.message + "</li>");
+                $("#chat-history").append("<li>" + data.sender + ": " + data.message + "</li>");
             }
-
         };
 
         // on close event
@@ -38,11 +44,7 @@ $(function(){
             console.log('WebSocket connection closed.');
         };
     }
-
-
-
 });
-
 
 $("#send").click(sendMessage);
 
@@ -61,17 +63,3 @@ function sendMessage(){
     websocketGame.socket.send(JSON.stringify(data));
     $("#chat-input").val("");
 }
-
-$("#restart").hide();
-$("#restart").click(function(){
-    canvas.width = canvas.width;
-    $("#chat-history").html("");
-    $("#chat-history").append("<li>Restarting Game.</li>");
-
-    let data = {};
-    data.dataType = websocketGame.GAME_LOGIC;
-    data.gameState = websocketGame.GAME_RESTART;
-    websocketGame.socket.send(JSON.stringify(data));
-
-    $("#restart").hide();
-});

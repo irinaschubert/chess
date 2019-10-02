@@ -1,21 +1,30 @@
 body {
     font-family: 'Amatic SC', cursive;
     font-size: 18px;
-    text-align: center;
     background: #e6e6ff;
     min-width: 35rem;
     min-height: 35rem;
 }
 
-footer {
-    font-size: 12px;
+#header {
+    padding: 10px;
+    margin: 10px;
+    text-align: center;
+    font-size: 30px;
+}
+
+#footer {
+    font-size: 15px;
     text-align: right;
     bottom: 0;
-    width:98%;
-    height:20px;
+    padding: 10px;
+    margin: 10px;
+    width: 100%;
+    position: absolute;
 }
 
 .container {
+    float:left;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -26,9 +35,22 @@ h1, h2, h3 {
     font-family: 'Amatic SC', cursive;
 }
 
+#main {
+    width: 100%;
+}
+
 #board {
-    display: inline-block;
-    box-shadow: 8px 8px 26px 0 rgba(46, 61, 73, 0.5);
+    width: 50%;
+    position: relative;
+}
+
+#chat{
+    width: 50%;
+    position: relative;
+}
+
+#login-form{
+    position: relative;
 }
 
 .field {
@@ -41,6 +63,10 @@ h1, h2, h3 {
     color: #00cc00;
     font-size: 25px;
     padding: 0.2rem;
+}
+
+.row{
+    box-shadow: 8px 8px 26px 0 rgba(46, 61, 73, 0.5);
 }
 
 .bg-black {
@@ -123,4 +149,21 @@ h1, h2, h3 {
 
 .rook.black{
     background: url(../images/b_rook.png);
+}
+
+#chat-history{
+    display: inline-block;
+    list-style-type: none;
+}
+
+#chat-input{
+    padding: 4px;
+    margin: 4px;
+    border-radius: 4px;
+}
+
+.button{
+    padding: 4px;
+    margin: 4px;
+    border-radius: 4px;
 }

@@ -6,10 +6,9 @@
 'use strict';
 
 export default class Piece{
-    constructor(color, startPosition){
+    constructor(color, position){
         this._color = color;
-        this._startPosition = startPosition;
-        this._position = startPosition;
+        this._position = position;
     }
 
     get color(){
@@ -20,16 +19,12 @@ export default class Piece{
         this._color = color;
     }
 
-    get startPosition(){
-        return this._startPosition;
-    }
-
-    set startPosition(startPosition){
-        this._startPosition = startPosition;
-    }
-
-    getPosition(){
+    get position(){
         return this._position;
+    }
+
+    set position(position){
+        this._position = position;
     }
 }
 

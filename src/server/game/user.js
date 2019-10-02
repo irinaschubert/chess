@@ -1,3 +1,10 @@
+/*
+ Author: Irina Schubert
+ Url: https://git.ffhs.ch/irina.schubert/chess.git
+ */
+
+'use strict';
+
 export default class User {
     constructor(socket){
         this.socket = socket;

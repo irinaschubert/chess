@@ -1,3 +1,10 @@
+/*
+ Author: Irina Schubert
+ Url: https://git.ffhs.ch/irina.schubert/chess.git
+ */
+
+'use strict';
+
 import User from './game/user.js';
 import GameRoom from './game/gameRoom.js';
 

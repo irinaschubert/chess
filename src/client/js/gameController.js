@@ -15,6 +15,7 @@ import Rook from './pieces/rook.js';
 
 const $board = $('#board');
 window.addEventListener("load", setupGame($board), false);
+let moveObject = [];
 
 function setupGame(boardElement){
     let board = new Board(boardElement);
@@ -56,8 +57,8 @@ function setupGame(boardElement){
 }
 
 function placePieceOnBoard(piece){
-    const i = piece.startPosition[0];
-    const j = piece.startPosition[1];
+    const i = piece.position[0];
+    const j = piece.position[1];
     const $field = $(`.field[data-row = ${i}][data-col = ${j}]`);
     const $piece = $('<div>').addClass('piece');
     $piece.addClass(piece.constructor.name.toLowerCase());
@@ -66,6 +67,104 @@ function placePieceOnBoard(piece){
     $field.append($piece);
 }
 
+function move(moveObject){
+    let fromNode = moveObject[0];
+    let from = moveObject[1];
+    let to = moveObject[2];
+    let toNode = moveObject[3];
+
+    console.log(fromNode);
+    console.log(toNode);
+
+    let color = '';
+    let type = '';
+    let piece = {};
+
+    // get the color
+    if(fromNode.classList.contains('white')){
+        color = "white";
+    }
+    else if(fromNode.classList.contains('black')){
+        color = "black";
+    }
+
+    // get the piece type
+    if(fromNode.classList.contains("bishop")){
+        type = "bishop";
+        piece = new Bishop(color, from);
+    }
+    else if(fromNode.classList.contains("king")){
+        type = "king";
+        piece = new King(color, from);
+    }
+    else if(fromNode.classList.contains("knight")){
+        type = "knight";
+        piece = new Knight(color, from);
+    }
+    else if(fromNode.classList.contains("pawn")){
+        type = "pawn";
+        piece = new Pawn(color, from);
+    }
+    else if(fromNode.classList.contains("queen")){
+        type = "queen";
+        piece = new Queen(color, from);
+    }
+    else if(fromNode.classList.contains("rook")){
+        type = "rook";
+        piece = new Rook(color, from);
+    }
+
+    // validate move
+    let valid = piece.validateMove(from, to);
+
+    if(valid){
+        // TODO
+        toNode.appendChild(fromNode);
+        fromNode.remove();
+        console.log("move");
+    }
+    else{
+        console.log("move not allowed");
+    }
+}
+
+// click on a piece and move
+$(document).click(function(e) {
+    if(e.target.classList.contains("piece") || e.target.classList.contains("field")){
+        // from
+        if(document.querySelectorAll('.clicked').length === 0){
+            moveObject = [];
+            if(e.target.classList.contains("piece")){
+                $(e.target.parentNode.classList.toggle('clicked')) ;
+                moveObject.push(e.target);
+                moveObject.push([$(e.target.parentNode).data('col'), $(e.target.parentNode).data('row')]);
+                console.log("from: " + [$(e.target.parentNode).data('col'), $(e.target.parentNode).data('row')]);
+            }
+        }
+
+        // to
+        else if(document.querySelectorAll('.clicked').length === 1){
+            $(e.target.classList.toggle('clicked')) ;
+
+            if(e.target.classList.contains("piece")){
+                moveObject.push([$(e.target.parentNode).data('col'), $(e.target.parentNode).data('row')]);
+                moveObject.push(e.target);
+                console.log("to: " + [$(e.target.parentNode).data('col'), $(e.target.parentNode).data('row')]);
+            }
+            else if(e.target.classList.contains("field")){
+                moveObject.push([$(e.target).data('col'), $(e.target).data('row')]);
+                moveObject.push(e.target);
+                console.log("to: " + [$(e.target).data('col'), $(e.target).data('row')]);
+            }
+            let elements = document.querySelectorAll('.clicked');
+            [].forEach.call(elements, function(el) {
+                el.classList.remove('clicked');
+            });
+
+            move(moveObject);
 
 
+        }
+    }
+});
 

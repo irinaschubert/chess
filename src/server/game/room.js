@@ -1,4 +1,10 @@
-const LINE_SEGMENT = 0;
+/*
+ Author: Irina Schubert
+ Url: https://git.ffhs.ch/irina.schubert/chess.git
+ */
+
+'use strict';
+
 const CHAT_MESSAGE = 1;
 const GAME_LOGIC = 2;
 const WAITING_TO_START = 0;

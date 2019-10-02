@@ -22,8 +22,7 @@ export default class Board{
                 const $field = $('<div>')
                     .addClass('field')
                     .attr('data-row', i)
-                    .attr('data-col', j)
-                    .click(e => console.log([$(e.currentTarget).data('row'), $(e.currentTarget).data('col')]));
+                    .attr('data-col', j);
                 if( i % 2 === 0 && j % 2 === 0 ){ $field.addClass('bg-black') }
                 else if( i % 2 === 0 && j % 2 !== 0 ){ $field.addClass('bg-white') }
                 else if( i % 2 !== 0 && j % 2 === 0 ){ $field.addClass('bg-white') }
