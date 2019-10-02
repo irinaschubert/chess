@@ -1,5 +1,6 @@
-let User = require('./game').User;
-let GameRoom = require('./game').GameRoom;
+import User from './game/user.js';
+import GameRoom from './game/gameRoom.js';
+
 let room1 = new GameRoom();
 
 let port = 8000;
@@ -7,7 +8,7 @@ let port = 8000;
 let WebSocketServer = require('ws').Server;
 let server = new WebSocketServer({port:port});
 
-// Is executed when a new socket connects to the server.
+// Is executed when a new socket connects to the server. Adds user only up until 2 users.
 server.on('connection', function(socket){
     if(room1.users.length < 2){
         let user = new User(socket);
@@ -15,9 +16,6 @@ server.on('connection', function(socket){
         console.log("A new connection was established. " + user.id + " has joined the game. " +
             "Total connections: " + room1.users.length);
     }
-
-    //let message = user.id + " has joined the game. Total connections: " + room1.users.length;
-    //room1.sendAll(message);
 });
 
 console.log("WebSocket server is running.");
