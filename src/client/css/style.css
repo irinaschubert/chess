@@ -10,11 +10,9 @@ body {
 footer {
     font-size: 12px;
     text-align: right;
-    position:absolute;
-    bottom:0;
+    bottom: 0;
     width:98%;
     height:20px;
-
 }
 
 .container {

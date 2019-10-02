@@ -3,7 +3,7 @@
 <head>
     <title>Chess</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8">
-    <link rel="stylesheet" href="css/style.css" type="text/css"/>
+    <link rel="stylesheet" href="client/css/style.css" type="text/css"/>
     <link href="https://fonts.googleapis.com/css?family=Amatic+SC" rel="stylesheet">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 </head>
@@ -18,11 +18,17 @@
 <div class="container" id="board">
     <!-- in here the fields are appended -->
 </div>
+<div class="container" id="chat">
+    <ul id="chat-history"/>
+    <input type="text" id="chat-input" autocomplete="off">
+    <input type="button" id="send"  value="Send">
+</div>
 <footer>Images for Chess Pieces by en:User:Cburnett [<a href="https://creativecommons.org/licenses/by-sa/3.0">CC BY-SA 3.0</a>], <a href="https://commons.wikimedia.org/wiki/File:Chess_bdt60.png">via Wikimedia Commons</a></footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<script type="module" src="js/gameController.js"></script>
-<script type="module" src="js/board.js"></script>
-<script type="module" src="js/pieces/piece.js"></script>
+<script src="client/js/websockets.js"></script>
+<script type="module" src="client/js/gameController.js"></script>
+<script type="module" src="client/js/board.js"></script>
+<script type="module" src="client/js/pieces/piece.js"></script>
 </body>
 </html>
