@@ -34,8 +34,12 @@ $(function(){
         websocketGame.socket.onmessage = function(e){
             console.log("Got message: ", e.data);
             let data = JSON.parse(e.data);
+            // print on chat panel if it is a chat message
             if(data.dataType === websocketGame.CHAT_MESSAGE){
                 $("#chat-history").append("<li>" + data.sender + ": " + data.message + "</li>");
+            }
+            else if (data.dataType === websocketGame.GAME_LOGIC){
+
             }
         };
 

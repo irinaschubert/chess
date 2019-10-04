@@ -67,6 +67,13 @@ function placePieceOnBoard(piece){
     $field.append($piece);
 }
 
+function checkForPiecesInbetween(piece, from, to){
+    // if piece inbetween --> move not allowed
+
+
+    // else --> move allowed
+}
+
 function move(moveObject){
     let fromNode = moveObject[0];
     let from = moveObject[1];
@@ -76,52 +83,93 @@ function move(moveObject){
     console.log(fromNode);
     console.log(toNode);
 
-    let color = '';
-    let type = '';
-    let piece = {};
+    let fromColor = '';
+    let fromPiece = {};
 
-    // get the color
+    let toColor = '';
+    let toPiece = {};
+
+    // get the from-color
     if(fromNode.classList.contains('white')){
-        color = "white";
+        fromColor = "white";
     }
     else if(fromNode.classList.contains('black')){
-        color = "black";
+        fromColor = "black";
     }
-
-    // get the piece type
+    // get the from-piece type and make from-piece
     if(fromNode.classList.contains("bishop")){
-        type = "bishop";
-        piece = new Bishop(color, from);
+        fromPiece = new Bishop(fromColor, from);
     }
     else if(fromNode.classList.contains("king")){
-        type = "king";
-        piece = new King(color, from);
+        fromPiece = new King(fromColor, from);
     }
     else if(fromNode.classList.contains("knight")){
-        type = "knight";
-        piece = new Knight(color, from);
+        fromPiece = new Knight(fromColor, from);
     }
     else if(fromNode.classList.contains("pawn")){
-        type = "pawn";
-        piece = new Pawn(color, from);
+        fromPiece = new Pawn(fromColor, from);
     }
     else if(fromNode.classList.contains("queen")){
-        type = "queen";
-        piece = new Queen(color, from);
+        fromPiece = new Queen(fromColor, from);
     }
     else if(fromNode.classList.contains("rook")){
-        type = "rook";
-        piece = new Rook(color, from);
+        fromPiece = new Rook(fromColor, from);
+    }
+
+    // get the to-color
+    if(toNode.classList.contains('piece')){
+        if(toNode.classList.contains('white')){
+            toColor = "white";
+        }
+        else if(toNode.classList.contains('black')){
+            toColor = "black";
+        }
+        // get the to-piece type and make to-piece
+        if(toNode.classList.contains("bishop")){
+            toPiece = new Bishop(toColor, to);
+        }
+        else if(toNode.classList.contains("king")){
+            toPiece = new King(toColor, to);
+        }
+        else if(toNode.classList.contains("knight")){
+            toPiece = new Knight(toColor, to);
+        }
+        else if(toNode.classList.contains("pawn")){
+            toPiece = new Pawn(toColor, to);
+        }
+        else if(toNode.classList.contains("queen")){
+            toPiece = new Queen(toColor, to);
+        }
+        else if(toNode.classList.contains("rook")){
+            toPiece = new Rook(toColor, to);
+        }
     }
 
     // validate move
-    let valid = piece.validateMove(from, to);
+    let validMove = fromPiece.validateMove(from, to);
+    let piecesInbetween = true;
+    if(!(fromPiece instanceof Knight)){
+        piecesInbetween = checkForPiecesInbetween(toPiece, from, to);
+        if(!piecesInbetween){
+            console.log("no pieces inbetween, move is valid")
+        }
 
-    if(valid){
-        // TODO
-        toNode.appendChild(fromNode);
-        fromNode.remove();
+    }
+
+    if(validMove && !piecesInbetween){
         console.log("move");
+        // capture piece
+        if(toColor !== ''){
+            let parent = toNode.parentNode;
+            parent.appendChild(fromNode);
+            if(toColor !== fromColor){
+                toNode.remove();
+            }
+        }
+        else{
+            toNode.appendChild(fromNode);
+            // TODO send move to server
+        }
     }
     else{
         console.log("move not allowed");

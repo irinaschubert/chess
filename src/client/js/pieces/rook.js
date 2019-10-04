@@ -7,7 +7,7 @@ export default class Rook extends Piece {
     }
 
     validateMove(from, to){
-        if(from[0] === to[0] | from[1] === to[1]){
+        if(from[0] === to[0] || from[1] === to[1]){
             console.log("valid");
             return true;
         }
