@@ -9,31 +9,51 @@ export default class Pawn extends Piece {
     validateMove(from, to){
         let distX = to[0] - from[0];
         let distY = to[1] - from[1];
+
+        let touchedFields = [];
+
+
+
         if(this.color === "white"){
-            if(distY === 1 && distX === 0){
-                console.log("valid");
-                return true;
+            // capture another piece diagonally
+            if(distX === 1 && distY === 1){
+                return touchedFields;
             }
+            if(distX === -1 && distY === 1){
+                return touchedFields;
+            }
+            // move one forward
+            if(distY === 1 && distX === 0){
+                return touchedFields;
+            }
+            // allow move of 2 when on start position
             else if(distY === 2 && distX === 0 && from[1] === 2){
-                console.log("valid");
-                return true;
+                touchedFields.push([from[0],from[1]+1]);
+                return touchedFields;
             }
             else{
-                console.log("not valid");
                 return false;
             }
         }
+
         else if(this.color === "black"){
-            if(distY === -1 && distX === 0){
-                console.log("valid");
-                return true;
+            // capture another piece diagonally
+            if(distX === 1 && distY === -1){
+                return touchedFields;
             }
+            if(distX === -1 && distY === -1){
+                return touchedFields;
+            }
+            // move one forward
+            if(distY === -1 && distX === 0){
+                return touchedFields;
+            }
+            // allow move of 2 when on start position
             else if(distY === -2 && distX === 0 && from[1] === 7){
-                console.log("valid");
-                return true;
+                touchedFields.push([from[0],from[1]-1]);
+                return touchedFields;
             }
             else{
-                console.log("not valid");
                 return false;
             }
         }

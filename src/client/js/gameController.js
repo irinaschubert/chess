@@ -67,14 +67,26 @@ function placePieceOnBoard(piece){
     $field.append($piece);
 }
 
-function checkForPiecesInbetween(piece, from, to){
-    // if piece inbetween --> move not allowed
-
-
-    // else --> move allowed
+function checkForPiecesInbetween(fieldsToCheck){
+    // if piece is inbetween, move should not be allowed
+    let pieceInbetween = false;
+    console.log("fields to check: ", fieldsToCheck);
+    for(let i in fieldsToCheck){
+        let field = fieldsToCheck[i];
+        let col = field[0];
+        let row = field[1];
+        $('.field').each(function(){
+            if ($(this).data('row') === row && $(this).data('col') === col){
+                if($(this).find('.piece').length){
+                    pieceInbetween = true;
+                }
+            }
+        });
+    }
+    return pieceInbetween;
 }
 
-function move(moveObject){
+function validateMove(moveObject){
     let fromNode = moveObject[0];
     let from = moveObject[1];
     let to = moveObject[2];
@@ -147,32 +159,39 @@ function move(moveObject){
 
     // validate move
     let validMove = fromPiece.validateMove(from, to);
-    let piecesInbetween = true;
-    if(!(fromPiece instanceof Knight)){
-        piecesInbetween = checkForPiecesInbetween(toPiece, from, to);
-        if(!piecesInbetween){
-            console.log("no pieces inbetween, move is valid")
+    if(validMove !== false){
+        let piecesInbetween = true;
+        // if piece is a knight, move
+        if(fromPiece instanceof Knight){
+            move(toColor, fromColor, toNode, fromNode);
         }
-
-    }
-
-    if(validMove && !piecesInbetween){
-        console.log("move");
-        // capture piece
-        if(toColor !== ''){
-            let parent = toNode.parentNode;
-            parent.appendChild(fromNode);
-            if(toColor !== fromColor){
-                toNode.remove();
+        // if validMove is [], no piece is inbetween, move
+        else if(validMove === []){
+            move(toColor, fromColor, toNode, fromNode);
+        }
+        // for all other cases (piece is not a knight and more than 1 field is moved) check if a piece is inbetween, don't move in that case
+        else{
+            piecesInbetween = checkForPiecesInbetween(validMove);
+            if(!piecesInbetween){
+                move(toColor, fromColor, toNode, fromNode);
             }
         }
-        else{
-            toNode.appendChild(fromNode);
-            // TODO send move to server
+    }
+}
+
+function move(toColor, fromColor, toNode, fromNode){
+    // capture piece if color is different
+    if(toColor !== ''){
+        let parent = toNode.parentNode;
+        if(toColor !== fromColor){
+            parent.appendChild(fromNode);
+            toNode.remove();
         }
     }
-    else{
-        console.log("move not allowed");
+    // move only if field is not occupied by another piece of same color
+    else if(toColor === ''){
+        toNode.appendChild(fromNode);
+        // TODO send move to server
     }
 }
 
@@ -208,10 +227,7 @@ $(document).click(function(e) {
             [].forEach.call(elements, function(el) {
                 el.classList.remove('clicked');
             });
-
-            move(moveObject);
-
-
+            validateMove(moveObject);
         }
     }
 });
