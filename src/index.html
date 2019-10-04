@@ -19,17 +19,21 @@
     <div class="container" id="board">
         <!-- in here the fields are appended -->
     </div>
+    <p id="show-move"></p>
+    <input type="button" value="Move" class="button" id="move">
     <div class="container" id="chat">
         <ul id="chat-history"></ul>
         <input type="text" id="chat-input" autocomplete="off">
-        <input type="button" id="send" class="button"  value="Send">
+        <input type="button" value="Send" class="button" id="send">
     </div>
+    <input type="button" value="Restart" class="button" id="restart">
 </div>
 
 <footer id="footer">Images for Chess Pieces by en:User:Cburnett [<a href="https://creativecommons.org/licenses/by-sa/3.0">CC BY-SA 3.0</a>], <a href="https://commons.wikimedia.org/wiki/File:Chess_bdt60.png">via Wikimedia Commons</a></footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<script src="client/js/websockets.js"></script>
+<script type="module" src="client/js/websockets.js"></script>
+<script type="module" src="client/js/chat.js"></script>
 <script type="module" src="server/game/room.js"></script>
 <script type="module" src="server/game/user.js"></script>
 <script type="module" src="client/js/gameController.js"></script>

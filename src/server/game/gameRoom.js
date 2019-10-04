@@ -20,6 +20,8 @@ const CHECK = 1;
 const CHECKMATE = 2;
 const REMIS = 3;
 const PATT = 4;
+// move
+const MOVE = 5;
 
 export default class GameRoom extends Room {
     constructor() {
@@ -32,7 +34,6 @@ export default class GameRoom extends Room {
             dataType: GAME_LOGIC,
             gameState: WAITING_TO_START,
         };
-
         this.sendAll(JSON.stringify(gameLogicData));
     }
 
@@ -46,22 +47,25 @@ export default class GameRoom extends Room {
     handleOnUserMessage(user) {
         let room = this;
         user.socket.on("message", function (message) {
-            console.log("[GameRoom] Received message from " + user.id + ": " + message);
+            console.log("[GameRoom] Got message from " + user.id + ": " + message);
 
             let data = JSON.parse(message);
 
+            // Chat message
             if (data.dataType === CHAT_MESSAGE) {
                 data.sender = user.id;
             }
             room.sendAll(JSON.stringify(data));
 
-            // Chat message
-            if (data.dataType === CHAT_MESSAGE) {
-                data.sender = user.id;
-                console.log("Current state: " + room.currentGameState);
-
-                if (room.currentGameState === GAME_START) {
-                    console.log("Got message: " + data.message);
+            // Move
+            if (data.dataType === MOVE){
+                if (room.currentGameState === GAME_START){
+                    let gameLogicData = {
+                        dataType: MOVE,
+                        from: data.from,
+                        to: data.to,
+                    };
+                    room.sendAll(JSON.stringify(gameLogicData));
                 }
             }
 
@@ -73,7 +77,6 @@ export default class GameRoom extends Room {
                         dataType: GAME_LOGIC,
                         condition: CHECK,
                     };
-
                     room.sendAll(JSON.stringify(gameLogicData));
                 }
 
@@ -116,51 +119,37 @@ export default class GameRoom extends Room {
                     room.currentGameState = WAITING_TO_START;
                 }
 
+                // Revanche
                 if (data.gameState === GAME_RESTART) {
                     room.startGame();
                 }
             }
-
         });
     };
 
     startGame() {
         let room = this;
 
+        // player this.users[this.playerTurn] will start the game
         this.playerTurn = (this.playerTurn + 1) % this.users.length;
+        console.log("[GameRoom] Start game with player " + this.playerTurn + "'s turn.");
 
-        console.log("Start game with player " + this.playerTurn + "'s turn.");
-
+        // to all players a message with isPlayerTurn: false is sent
         let gameLogicDataForAllPlayers = {
             dataType: GAME_LOGIC,
             gameState: GAME_START,
             isPlayerTurn: false,
         };
-
         this.sendAll(JSON.stringify(gameLogicDataForAllPlayers));
 
+        // player who's turn it is, is sent a message with isPlayerTurn: true
         let gameLogicDataForPlayerTurn = {
             dataType: GAME_LOGIC,
             gameState: GAME_START,
             isPlayerTurn: true,
         };
-
         let user = this.users[this.playerTurn];
         user.socket.send(JSON.stringify(gameLogicDataForPlayerTurn));
-
-
-        // use this code if you wish to implement time out game over
-        /*let gameOverTimeout = setTimeout(function () {
-            let gameLogicData = {
-                dataType: GAME_LOGIC,
-                gameState: GAME_OVER,
-                winner: "No one",
-            };
-
-            room.sendAll(JSON.stringify(gameLogicData));
-
-            room.currentGameState = WAITING_TO_START;
-        }, 60 * 1000);*/
 
         room.currentGameState = GAME_START;
     }

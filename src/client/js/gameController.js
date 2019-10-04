@@ -14,8 +14,8 @@ import Queen from './pieces/queen.js';
 import Rook from './pieces/rook.js';
 
 const $board = $('#board');
-window.addEventListener("load", setupGame($board), false);
 let moveObject = [];
+window.addEventListener("load", setupGame($board), false);
 
 function setupGame(boardElement){
     let board = new Board(boardElement);
@@ -70,7 +70,6 @@ function placePieceOnBoard(piece){
 function checkForPiecesInbetween(fieldsToCheck){
     // if piece is inbetween, move should not be allowed
     let pieceInbetween = false;
-    console.log("fields to check: ", fieldsToCheck);
     for(let i in fieldsToCheck){
         let field = fieldsToCheck[i];
         let col = field[0];
@@ -91,9 +90,6 @@ function validateMove(moveObject){
     let from = moveObject[1];
     let to = moveObject[2];
     let toNode = moveObject[3];
-
-    console.log(fromNode);
-    console.log(toNode);
 
     let fromColor = '';
     let fromPiece = {};
@@ -163,24 +159,27 @@ function validateMove(moveObject){
         let piecesInbetween = true;
         // if piece is a knight, move
         if(fromPiece instanceof Knight){
-            move(toColor, fromColor, toNode, fromNode);
+            move(to, from, toColor, fromColor, toNode, fromNode);
         }
         // if validMove is [], no piece is inbetween, move
         else if(validMove === []){
-            move(toColor, fromColor, toNode, fromNode);
+            move(to, from, toColor, fromColor, toNode, fromNode);
         }
         // for all other cases (piece is not a knight and more than 1 field is moved) check if a piece is inbetween, don't move in that case
         else{
             piecesInbetween = checkForPiecesInbetween(validMove);
             if(!piecesInbetween){
-                move(toColor, fromColor, toNode, fromNode);
+                move(to, from, toColor, fromColor, toNode, fromNode);
             }
         }
     }
 }
 
-function move(toColor, fromColor, toNode, fromNode){
+function move(to, from, toColor, fromColor, toNode, fromNode){
     // capture piece if color is different
+    let toStr = to.join();
+    let fromStr = from.join();
+
     if(toColor !== ''){
         let parent = toNode.parentNode;
         if(toColor !== fromColor){
@@ -191,8 +190,9 @@ function move(toColor, fromColor, toNode, fromNode){
     // move only if field is not occupied by another piece of same color
     else if(toColor === ''){
         toNode.appendChild(fromNode);
-        // TODO send move to server
     }
+    // TODO send move to server
+    $("#show-move").html(fromStr + " --> " + toStr);
 }
 
 // click on a piece and move

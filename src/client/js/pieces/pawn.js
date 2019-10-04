@@ -6,13 +6,18 @@ export default class Pawn extends Piece {
         this.validateMove = this.validateMove.bind(this);
     }
 
+    /**
+     * validates a move and returns an array of all touched fields
+     * @param  {Array} from - the indexes of the from-field
+     * @param  {Array} to - the indexes of the to-field
+     * @return {Boolean} false if validation fails
+     * @return {Array} an array of touched field (when moved 2 fields)
+     */
     validateMove(from, to){
         let distX = to[0] - from[0];
         let distY = to[1] - from[1];
 
         let touchedFields = [];
-
-
 
         if(this.color === "white"){
             // capture another piece diagonally
