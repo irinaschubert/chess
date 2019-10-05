@@ -1,4 +1,32 @@
-/** Class representing the queen piece
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: queen.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: queen.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** Class representing the queen piece
  *  @author Irina
  *  @extends Piece
  * */
@@ -25,38 +53,38 @@ export default class Queen extends Piece {
     validateMove(from, to){
         let distX = to[0] - from[0];
         let distY = to[1] - from[1];
-        if(Math.abs(distX) !== Math.abs(distY) && (from[0] !== to[0] && from[1] !== to[1])){
+        if(Math.abs(distX) !== Math.abs(distY) &amp;&amp; (from[0] !== to[0] &amp;&amp; from[1] !== to[1])){
             return false;
         }
         // move diagonally
         else if(Math.abs(distX) === Math.abs(distY)){
             let touchedFields = [];
             // move diagonally right up
-            if(distX > 0 && distY > 0){
-                for(let i = 1 ; i < distX; i++){
+            if(distX > 0 &amp;&amp; distY > 0){
+                for(let i = 1 ; i &lt; distX; i++){
                     touchedFields.push([from[0]+i,from[1]+i]);
                 }
                 return touchedFields;
             }
             // move diagonally right down
-            else if(distX > 0 && distY < 0){
-                for(let i = 1 ; i < distX; i++){
+            else if(distX > 0 &amp;&amp; distY &lt; 0){
+                for(let i = 1 ; i &lt; distX; i++){
                     touchedFields.push([from[0]+i,from[1]-i]);
                 }
                 return touchedFields;
             }
 
             // move diagonally left down
-            else if(distX < 0 && distY < 0){
-                for(let i = 1 ; i < Math.abs(distX); i++){
+            else if(distX &lt; 0 &amp;&amp; distY &lt; 0){
+                for(let i = 1 ; i &lt; Math.abs(distX); i++){
                     touchedFields.push([from[0]-i,from[1]-i]);
                 }
                 return touchedFields;
             }
 
             // move diagonally left up
-            else if(distX < 0 && distY > 0){
-                for(let i = 1 ; i < Math.abs(distX); i++){
+            else if(distX &lt; 0 &amp;&amp; distY > 0){
+                for(let i = 1 ; i &lt; Math.abs(distX); i++){
                     touchedFields.push([from[0]-i,from[1]+i]);
                 }
                 return touchedFields;
@@ -68,14 +96,14 @@ export default class Queen extends Piece {
             // move vertically
             if(from[0] === to[0]){
                 let distance = to[1] - from[1];
-                if(distance < 0){
-                    for(let i = distance + 1; i < 0; i++){
+                if(distance &lt; 0){
+                    for(let i = distance + 1; i &lt; 0; i++){
                         touchedFields.push([from[0],from[1]+i]);
                     }
                     return touchedFields;
                 }
                 else{
-                    for(let i = 1; i < distance; i++){
+                    for(let i = 1; i &lt; distance; i++){
                         touchedFields.push([from[0],from[1]+i]);
                     }
                     return touchedFields;
@@ -84,14 +112,14 @@ export default class Queen extends Piece {
             // move horizontally
             else if(from[1] === to[1]){
                 let distance = to[0] - from[0];
-                if(distance < 0){
-                    for(let i = distance + 1; i < 0; i++){
+                if(distance &lt; 0){
+                    for(let i = distance + 1; i &lt; 0; i++){
                         touchedFields.push([from[0]+i,from[1]]);
                     }
                     return touchedFields;
                 }
                 else{
-                    for(let i = 1; i < distance; i++){
+                    for(let i = 1; i &lt; distance; i++){
                         touchedFields.push([from[0]+i,from[1]]);
                     }
                     return touchedFields;
@@ -99,4 +127,26 @@ export default class Queen extends Piece {
             }
         }
     }
-}
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Bishop_Bishop.html">Bishop</a></li><li><a href="King_King.html">King</a></li><li><a href="Knight_Knight.html">Knight</a></li><li><a href="Pawn_Pawn.html">Pawn</a></li><li><a href="Queen_Queen.html">Queen</a></li><li><a href="Rook_Rook.html">Rook</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Sat Oct 05 2019 12:17:01 GMT+0200 (GMT+02:00)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

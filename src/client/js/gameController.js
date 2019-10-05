@@ -1,7 +1,8 @@
-/*
- Author: Irina Schubert
- Url: https://git.ffhs.ch/irina.schubert/chess.git
- */
+/** representing the gameController
+ *  @author Irina
+ *
+ *  @todo make es6 class from it
+ * */
 
 'use strict';
 

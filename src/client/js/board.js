@@ -1,15 +1,21 @@
-/*
- Author: Irina Schubert
- Url: https://git.ffhs.ch/irina.schubert/chess.git
- */
+/** Class representing the board
+ *  @author Irina
+ * */
 
 'use strict';
 
 export default class Board{
+    /**
+     * Create a bishop piece
+     * @param {jQuery} boardElement - jQuery element which represents the board
+     */
     constructor(boardElement){
         this.boardElement = boardElement;
     }
 
+    /**
+     * Create the board
+     */
     createBoard() {
         this.rows = 8;
         this.cols = 8;

@@ -1,12 +1,20 @@
-/*
- Author: Irina Schubert
- Url: https://git.ffhs.ch/irina.schubert/chess.git
- */
+/** Class representing the piece
+ *  @author Irina
+ *  @abstract
+ * */
 
 'use strict';
 
 export default class Piece{
     constructor(color, position){
+        /**
+         * Abstract, cannot be created directly
+         * @param {color} color - can be black or white
+         * @param {position} position - position on the board
+         */
+        if (new.target === Piece) {
+            throw new TypeError("Cannot construct Piece instances directly.");
+        }
         this._color = color;
         this._position = position;
     }

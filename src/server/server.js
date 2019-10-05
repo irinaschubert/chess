@@ -1,7 +1,8 @@
-/*
- Author: Irina Schubert
- Url: https://git.ffhs.ch/irina.schubert/chess.git
- */
+/** representing the server
+ *  @author Irina
+ *
+ *  @todo make es6 class from it
+ * */
 
 'use strict';
 
@@ -10,9 +11,13 @@ import GameRoom from './game/gameRoom.js';
 let WebSocketServer = require('ws').Server;
 
 let room1 = new GameRoom();
-
 let port = 8000;
 let server = new WebSocketServer({port:port});
+
+/**
+ * Establish a connection and add users to room
+ * @param {WebSocket} socket
+ */
 // Is executed when a new socket connects to the server. Adds user only up until 2 users.
 server.on('connection', function(socket){
     if(room1.users.length < 2){

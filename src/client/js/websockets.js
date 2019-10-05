@@ -1,6 +1,8 @@
-/*
- Author: Irina Schubert
- Url: https://git.ffhs.ch/irina.schubert/chess.git
+/**
+ * Represents a websocket
+ * @author: Irina
+ *
+ * @todo make es6 class from it
  */
 
 'use strict';
@@ -88,7 +90,8 @@ $(function(){
 $("#send").click(sendMessage);
 
 $("#chat-input").keypress(function(event){
-    if(event.keyCode === 13){
+    let key = event.which || event.keyCode;
+    if(key === 13){
         sendMessage();
     }
 });
@@ -111,6 +114,7 @@ function sendMove(){
 
     let data = {};
     data.dataType = websocketGame.MOVE;
+    // TODO data.gameState = ;
     data.from = [parseInt(message.charAt(0)), parseInt(message.charAt(2))];
     data.to = [parseInt(message.charAt(11)), parseInt(message.charAt(13))];
 
