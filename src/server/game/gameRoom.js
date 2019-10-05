@@ -17,12 +17,11 @@ const WAITING_TO_START = 0;
 const GAME_START = 1;
 const GAME_OVER = 2;
 const GAME_RESTART = 3;
-// condition
+// end condition
 const NORMAL = 0;
-const CHECK = 1;
-const CHECKMATE = 2;
-const REMIS = 3;
-const PATT = 4;
+const CHECKMATE = 1;
+const REMIS = 2;
+const PATT = 3;
 
 export default class GameRoom extends Room {
     /**
