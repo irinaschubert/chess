@@ -1,14 +1,13 @@
 body {
     font-family: 'Amatic SC', cursive;
-    font-size: 18px;
+    font-size: 25px;
     background: #e6e6ff;
-    min-width: 35rem;
-    min-height: 35rem;
 }
 
 #header {
     padding: 10px;
     margin: 10px;
+    width: 95%;
     text-align: center;
     font-size: 30px;
 }
@@ -19,7 +18,7 @@ body {
     bottom: 0;
     padding: 10px;
     margin: 10px;
-    width: 100%;
+    width: 95%;
     position: absolute;
 }
 
@@ -40,12 +39,24 @@ h1, h2, h3 {
 }
 
 #board {
-    width: 50%;
+    min-width: 40rem;
+    position: relative;
+}
+
+#moves {
+    min-width: 20rem;
+    position: relative;
+}
+
+#moves-buttons {
+    justify-content: left;
+    align-items: stretch;
+    flex-direction: row;
     position: relative;
 }
 
 #chat{
-    width: 50%;
+    min-width: 20rem;
     position: relative;
 }
 
@@ -163,6 +174,7 @@ h1, h2, h3 {
 }
 
 .button{
+    font-size: 25px;
     padding: 4px;
     margin: 4px;
     border-radius: 4px;

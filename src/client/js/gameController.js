@@ -156,13 +156,14 @@ function validateMove(moveObject){
 
     // validate move
     let validMove = fromPiece.validateMove(from, to);
+    console.log("touched fields: ", validMove);
     if(validMove !== false){
         let piecesInbetween = true;
         // if piece is a knight, move
         if(fromPiece instanceof Knight){
             move(to, from, toColor, fromColor, toNode, fromNode);
         }
-        // if validMove is [], no piece is inbetween, move
+        // if validMove is [], no piece is inbetween (also the case if piece moves just one field), move
         else if(validMove === []){
             move(to, from, toColor, fromColor, toNode, fromNode);
         }

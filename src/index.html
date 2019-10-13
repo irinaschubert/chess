@@ -19,14 +19,21 @@
     <div class="container" id="board">
         <!-- in here the fields are appended -->
     </div>
-    <p id="show-move"></p>
-    <input type="button" value="Move" class="button" id="move">
+    <div class="container" id="moves">
+        <p id="show-move"></p>
+        <div id="moves-buttons">
+            <input type="button" value="Back" class="button" id="back">
+            <input type="button" value="Move" class="button" id="move">
+            <input type="button" value="Capitulate" class="button" id="restart">
+        </div>
+    </div>
+
     <div class="container" id="chat">
         <ul id="chat-history"></ul>
         <input type="text" id="chat-input" autocomplete="off">
         <input type="button" value="Send" class="button" id="send">
     </div>
-    <input type="button" value="Restart" class="button" id="restart">
+
 </div>
 
 <footer id="footer">Images for Chess Pieces by en:User:Cburnett [<a href="https://creativecommons.org/licenses/by-sa/3.0">CC BY-SA 3.0</a>], <a href="https://commons.wikimedia.org/wiki/File:Chess_bdt60.png">via Wikimedia Commons</a></footer>

@@ -36,13 +36,15 @@ export default class Pawn extends Piece {
             if(distX === -1 && distY === 1){
                 return touchedFields;
             }
-            // move one forward
+            // move one forward, add to-field to touchedFields as piece is not allowed to step on that field if already occupied
             if(distY === 1 && distX === 0){
+                touchedFields.push([from[0],from[1]+1]);
                 return touchedFields;
             }
-            // allow move of 2 when on start position
+            // allow move of 2 from start position, add to-field to touchedFields as piece is not allowed to step on that field if already occupied
             else if(distY === 2 && distX === 0 && from[1] === 2){
                 touchedFields.push([from[0],from[1]+1]);
+                touchedFields.push([from[0],from[1]+2]);
                 return touchedFields;
             }
             else{
@@ -58,13 +60,15 @@ export default class Pawn extends Piece {
             if(distX === -1 && distY === -1){
                 return touchedFields;
             }
-            // move one forward
+            // move one forward, add to-field to touchedFields as piece is not allowed to step on that field if already occupied
             if(distY === -1 && distX === 0){
+                touchedFields.push([from[0],from[1]-1]);
                 return touchedFields;
             }
-            // allow move of 2 when on start position
+            // allow move of 2 from start position, add to-field to touchedFields as piece is not allowed to step on that field if already occupied
             else if(distY === -2 && distX === 0 && from[1] === 7){
                 touchedFields.push([from[0],from[1]-1]);
+                touchedFields.push([from[0],from[1]-2]);
                 return touchedFields;
             }
             else{
