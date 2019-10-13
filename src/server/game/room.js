@@ -34,6 +34,7 @@ export default class Room {
             console.log(user.id + ' left.');
             room.removeUser(user);
         };
+
         this.handleOnUserMessage(user);
     };
 

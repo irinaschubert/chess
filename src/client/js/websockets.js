@@ -49,7 +49,8 @@ $(function(){
             }
 
             else if (data.dataType === websocketGame.GAME_LOGIC){
-
+                let data = JSON.parse(e.data);
+                websocketGame.isTurnToMove = data.isPlayerTurn;
             }
 
             // make move if it is a move
@@ -57,13 +58,13 @@ $(function(){
                 // if it was not players move, it is now players move
                 if(websocketGame.isTurnToMove === false){
                     websocketGame.isTurnToMove = true;
+                    // if it was not players move, synchronize enemy's move
+                    movePiece(data.from, data.to);
                 }
                 else{
                     websocketGame.isTurnToMove = false;
                 }
-                // if it was not players move, synchronize enemy's move
-                movePiece(data.from, data.to);
-
+                console.log("My turn? ", websocketGame.isTurnToMove)
             }
 
             // take action if it is a game logic message
@@ -95,7 +96,7 @@ $(function(){
     }
 });
 
-
+// Chat Button / Field
 $("#send").click(sendMessage);
 
 $("#chat-input").keypress(function(event){
@@ -105,32 +106,34 @@ $("#chat-input").keypress(function(event){
     }
 });
 
-
 function sendMessage(){
     let message = $("#chat-input").val();
     let data = {};
     data.dataType = websocketGame.CHAT_MESSAGE;
     data.message = message;
-
     websocketGame.socket.send(JSON.stringify(data));
     $("#chat-input").val("");
 }
 
+// Move Button
 $("#move").click(sendMove);
 
 function sendMove(){
     let message = $("#show-move").html();
-
     let data = {};
     data.dataType = websocketGame.MOVE;
     // TODO data.gameState = ;
     data.from = [parseInt(message.charAt(0)), parseInt(message.charAt(2))];
     data.to = [parseInt(message.charAt(11)), parseInt(message.charAt(13))];
-
     websocketGame.socket.send(JSON.stringify(data));
     $("#show-move").html('');
 }
 
+/**
+ * Synchronize move in view
+ * @param {from} from field
+ * @param {to} to field
+ */
 function movePiece(from, to){
     let fromNode;
     let toNode;
@@ -145,7 +148,6 @@ function movePiece(from, to){
         }
         if($(field).data('col') === to[0] && $(field).data('row') === to[1]){
             toNode = field;
-
         }
     });
     if(toNode !== undefined && fromNode !== undefined){

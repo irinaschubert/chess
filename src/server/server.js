@@ -23,10 +23,10 @@ server.on('connection', function(socket){
     if(room1.users.length < 2){
         let user = new User(socket);
         room1.addUser(user);
-        console.log("A new connection was established. " + user.id + " has joined the game. " +
+        console.log("[Server] A new connection was established. " + user.id + " has joined the game. " +
             "Total connections: " + room1.users.length);
     }
 });
 
-console.log("WebSocket server is running.");
-console.log("Listening to port " + port + ".");
+console.log("[Server] WebSocket server is running.");
+console.log("[Server] Listening to port " + port + ".");
