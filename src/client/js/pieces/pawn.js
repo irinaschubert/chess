@@ -29,7 +29,7 @@ export default class Pawn extends Piece {
         let touchedFields = [];
 
         if(this.color === "white"){
-            // capture another piece diagonally
+            // move diagonally
             if(distX === 1 && distY === 1){
                 return touchedFields;
             }
@@ -53,7 +53,7 @@ export default class Pawn extends Piece {
         }
 
         else if(this.color === "black"){
-            // capture another piece diagonally
+            // move diagonally
             if(distX === 1 && distY === -1){
                 return touchedFields;
             }

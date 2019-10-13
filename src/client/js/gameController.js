@@ -156,12 +156,15 @@ function validateMove(moveObject){
 
     // validate move
     let validMove = fromPiece.validateMove(from, to);
-    console.log("touched fields: ", validMove);
     if(validMove !== false){
         let piecesInbetween = true;
         // if piece is a knight, move
         if(fromPiece instanceof Knight){
             move(to, from, toColor, fromColor, toNode, fromNode);
+        }
+        // if piece is a pawn, treat differently
+        else if(fromPiece instanceof Pawn){
+            movePawn(to, from, toColor, fromColor, toNode, fromNode);
         }
         // if validMove is [], no piece is inbetween (also the case if piece moves just one field), move
         else if(validMove === []){
@@ -179,9 +182,6 @@ function validateMove(moveObject){
 
 function move(to, from, toColor, fromColor, toNode, fromNode){
     // capture piece if color is different
-    let toStr = to.join();
-    let fromStr = from.join();
-
     if(toColor !== ''){
         let parent = toNode.parentNode;
         if(toColor !== fromColor){
@@ -194,7 +194,52 @@ function move(to, from, toColor, fromColor, toNode, fromNode){
         toNode.appendChild(fromNode);
     }
     // TODO send move to server
+    let toStr = to.join();
+    let fromStr = from.join();
     $("#show-move").html(fromStr + " --> " + toStr);
+}
+
+function movePawn(to, from, toColor, fromColor, toNode, fromNode){
+    let distX = to[0] - from[0];
+    let distY = to[1] - from[1];
+    if(fromColor === "white"){
+        // move diagonally only if there is a piece of the enemy
+        if(distX === 1 && distY === 1 || distX === -1 && distY === 1){
+            if(fromColor !== toColor && toColor !== ''){
+                move(to, from, toColor, fromColor, toNode, fromNode);
+            }
+        }
+        // move straigth forward
+        else if(distY === 1 && distX === 0 || distY === 2 && distX === 0 && from[1] === 2){
+            // move only if field is not occupied by another piece of same color
+            if(toColor === ''){
+                toNode.appendChild(fromNode);
+            }
+            // TODO send move to server
+            let toStr = to.join();
+            let fromStr = from.join();
+            $("#show-move").html(fromStr + " --> " + toStr);
+        }
+    }
+    else if(fromColor === "black"){
+        // move diagonally only if there is a piece of the enemy
+        if(distX === 1 && distY === -1 || distX === -1 && distY === -1){
+            if(fromColor !== toColor && toColor !== ''){
+                move(to, from, toColor, fromColor, toNode, fromNode);
+            }
+        }
+        // move straigth forward
+        else if(distY === -1 && distX === 0 || distY === -2 && distX === 0 && from[1] === 7){
+            // move only if field is not occupied by another piece of same color
+            if(toColor === ''){
+                toNode.appendChild(fromNode);
+            }
+            // TODO send move to server
+            let toStr = to.join();
+            let fromStr = from.join();
+            $("#show-move").html(fromStr + " --> " + toStr);
+        }
+    }
 }
 
 // click on a piece and move
