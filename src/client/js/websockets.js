@@ -54,7 +54,16 @@ $(function(){
 
             // make move if it is a move
             else if (data.dataType === websocketGame.MOVE){
-                websocketGame.isTurnToMove = true;
+                // if it was not players move, it is now players move
+                if(websocketGame.isTurnToMove === false){
+                    websocketGame.isTurnToMove = true;
+                }
+                else{
+                    websocketGame.isTurnToMove = false;
+                }
+                // if it was not players move, synchronize enemy's move
+                movePiece(data.from, data.to);
+
             }
 
             // take action if it is a game logic message
@@ -120,4 +129,26 @@ function sendMove(){
 
     websocketGame.socket.send(JSON.stringify(data));
     $("#show-move").html('');
+}
+
+function movePiece(from, to){
+    let fromNode;
+    let toNode;
+    let fields = document.querySelectorAll('.field');
+    [].forEach.call(fields, function(field) {
+        if($(field).data('col') === from[0] && $(field).data('row') === from[1]){
+            $(field).children('div').each(function(){
+                if (this.classList.contains("piece")){
+                    fromNode = this;
+                }
+            });
+        }
+        if($(field).data('col') === to[0] && $(field).data('row') === to[1]){
+            toNode = field;
+
+        }
+    });
+    if(toNode !== undefined && fromNode !== undefined){
+        toNode.appendChild(fromNode);
+    }
 }
