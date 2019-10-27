@@ -16,9 +16,10 @@ const CHAT_MESSAGE = 1;
 const MOVE = 2;
 // game state
 const WAITING_TO_START = 0;
-const GAME_START = 1;
-const GAME_OVER = 2;
-const REVANCHE = 3;
+const GAME_INIT = 1;
+const GAME_START = 2;
+const GAME_OVER = 3;
+const REVANCHE = 4;
 // game or end condition
 const NORMAL = 0;
 const CHECK = 1;
@@ -162,7 +163,7 @@ export default class GameRoom extends Room {
         // send a message to all players with isPlayerTurn: false
         let gameLogicDataForAllPlayers = {
             dataType: GAME_LOGIC,
-            gameState: GAME_START,
+            gameState: GAME_INIT,
             isPlayerTurn: false,
         };
         this.sendAll(JSON.stringify(gameLogicDataForAllPlayers));
@@ -170,7 +171,7 @@ export default class GameRoom extends Room {
         // player who's turn it is, is sent a message with isPlayerTurn: true
         let gameLogicDataForPlayerTurn = {
             dataType: GAME_LOGIC,
-            gameState: GAME_START,
+            gameState: GAME_INIT,
             isPlayerTurn: true,
         };
         let user = this.users[this.playerTurn];

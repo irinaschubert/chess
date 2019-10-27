@@ -192,3 +192,8 @@ h1, h2, h3 {
     margin: 4px;
     border-radius: 4px;
 }
+
+.not-clickable {
+    /* disable all mouse events on subElements */
+    pointer-events: none;
+}

@@ -15,9 +15,10 @@ const CHAT_MESSAGE = 1;
 const MOVE = 2;
 // game state
 const WAITING_TO_START = 0;
-const GAME_START = 1;
-const GAME_OVER = 2;
-const REVANCHE = 3;
+const GAME_INIT = 1;
+const GAME_START = 2;
+const GAME_OVER = 3;
+const REVANCHE = 4;
 // game or end condition
 const NORMAL = 0;
 const CHECK = 1;
@@ -33,9 +34,10 @@ let websocketGame = {
     CHAT_MESSAGE : 1,
     MOVE : 2,
     WAITING_TO_START : 0,
-    GAME_START : 1,
-    GAME_OVER : 2,
-    REVANCHE : 3,
+    GAME_INIT : 1,
+    GAME_START : 2,
+    GAME_OVER : 3,
+    REVANCHE : 4,
     NORMAL : 0,
     CHECK : 1,
     CHECKMATE : 2,
@@ -74,12 +76,11 @@ $(function(){
                     // if it was not players turn, synchronize enemy's move
                     movePiece(data.from, data.to);
                     // enable move button
-                    console.log("here")
                     document.getElementById("move").disabled = false;
                 }
                 else{
-                    console.log("here and")
                     document.getElementById("move").disabled = true;
+
                 }
             }
 
@@ -95,9 +96,34 @@ $(function(){
                 if(data.gameState === websocketGame.GAME_START){
                     $("#restart").hide();
                     $("#chat-history").html("");
+
+                    let pieces = document.getElementsByClassName("piece");
+                    for (let i = 0; i < pieces.length; ++i) {
+                        pieces.item(i).classList.toggle('not-clickable');
+                    }
+
                     if(data.isPlayerTurn){
                         websocketGame.isPlayerTurn = true;
                         $("#chat-history").append("<li>Your turn to move.</li>");
+                    }
+                    else{
+                        websocketGame.isPlayerTurn = false;
+                        $("#chat-history").append("<li>Wait for your partner to move.</li>");
+                    }
+                }
+
+                if(data.gameState === websocketGame.GAME_INIT){
+                    $("#restart").hide();
+                    $("#chat-history").html("");
+
+                    if(data.isPlayerTurn){
+                        websocketGame.isPlayerTurn = true;
+                        $("#chat-history").append("<li>Your turn to move.</li>");
+                        let pieces = document.getElementsByClassName("piece");
+                        for (let i = 0; i < pieces.length; ++i) {
+                            pieces.item(i).classList.toggle('not-clickable');
+                        }
+
                     }
                     else{
                         websocketGame.isPlayerTurn = false;

@@ -64,6 +64,7 @@ function placePieceOnBoard(piece){
     const $piece = $('<div>').addClass('piece');
     $piece.addClass(piece.constructor.name.toLowerCase());
     $piece.addClass(piece.color);
+    $piece.addClass('not-clickable');
     $piece.click(piece.prepareForMove);
     $field.append($piece);
 }
@@ -177,6 +178,7 @@ function validateMove(moveObject){
                 move(to, from, toColor, fromColor, toNode, fromNode);
             }
         }
+
     }
 }
 
@@ -245,7 +247,7 @@ function movePawn(to, from, toColor, fromColor, toNode, fromNode){
 // click on a piece and move
 $(document).click(function(e) {
     if(e.target.classList.contains("piece") || e.target.classList.contains("field")){
-        // from
+        // from (first click)
         if(document.querySelectorAll('.clicked').length === 0){
             moveObject = [];
             if(e.target.classList.contains("piece")){
@@ -256,7 +258,7 @@ $(document).click(function(e) {
             }
         }
 
-        // to
+        // to (second click)
         else if(document.querySelectorAll('.clicked').length === 1){
             $(e.target.classList.toggle('clicked')) ;
 
