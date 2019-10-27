@@ -73,13 +73,14 @@ export default class GameRoom extends Room {
 
             // Move message
             if (room.currentGameState === GAME_START && data.dataType === MOVE) {
-                let moveData = {
+                room.makeMove(user.id, data.from, data.to);
+                /*let moveData = {
                     dataType: MOVE,
                     from: data.from,
                     to: data.to,
                     isBlocked: user.id,
                 };
-                room.sendAll(JSON.stringify(moveData));
+                room.sendAll(JSON.stringify(moveData));*/
             }
 
             // Game logic message
@@ -179,6 +180,47 @@ export default class GameRoom extends Room {
         };
         let user = this.users[this.playerTurn];
         user.socket.send(JSON.stringify(gameLogicDataForPlayerTurn));
+
+        room.currentGameState = GAME_START;
+    }
+
+    makeMove(id, from, to){
+        let room = this;
+        let currentUserId = id;
+        let currentUser;
+        let nextUser;
+        for (let i = 0; i < this.users.length; i++) {
+            let user = this.users[i];
+            if(user.id === currentUserId){
+                currentUser = user;
+            }
+            else{
+                nextUser = user;
+            }
+        }
+
+        let moveData = {
+            dataType: MOVE,
+            from: from,
+            to: to,
+        };
+        room.sendAll(JSON.stringify(moveData));
+
+        // player who's turn it is not, is sent a message with isPlayerTurn: false
+        let gameLogicDataForPlayerTurn = {
+            dataType: GAME_LOGIC,
+            gameState: GAME_START,
+            isPlayerTurn: false,
+        };
+        currentUser.socket.send(JSON.stringify(gameLogicDataForPlayerTurn));
+
+        // player who's turn it is, is sent a message with isPlayerTurn: true
+        let gameLogicDataForNextPlayerTurn = {
+            dataType: GAME_LOGIC,
+            gameState: GAME_START,
+            isPlayerTurn: true,
+        };
+        nextUser.socket.send(JSON.stringify(gameLogicDataForNextPlayerTurn));
 
         room.currentGameState = GAME_START;
     }
