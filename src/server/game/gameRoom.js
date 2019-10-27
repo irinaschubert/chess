@@ -165,6 +165,7 @@ export default class GameRoom extends Room {
             dataType: GAME_LOGIC,
             gameState: GAME_INIT,
             isPlayerTurn: false,
+            isPlayerColorWhite: false,
         };
         this.sendAll(JSON.stringify(gameLogicDataForAllPlayers));
 
@@ -173,6 +174,7 @@ export default class GameRoom extends Room {
             dataType: GAME_LOGIC,
             gameState: GAME_INIT,
             isPlayerTurn: true,
+            isPlayerColorWhite: true,
         };
         let user = this.users[this.playerTurn];
         user.socket.send(JSON.stringify(gameLogicDataForPlayerTurn));
