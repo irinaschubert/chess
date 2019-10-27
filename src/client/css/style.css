@@ -1,15 +1,16 @@
 body {
-    font-family: 'Amatic SC', cursive;
+    font-family: 'Kurale', serif;
     font-size: 25px;
     background: #e6e6ff;
 }
 
 #header {
+    font-size: 35px;
     padding: 10px;
     margin: 10px;
     width: 95%;
     text-align: center;
-    font-size: 30px;
+
 }
 
 #footer {
@@ -28,10 +29,6 @@ body {
     justify-content: center;
     align-items: center;
     flex-direction: column;
-}
-
-h1, h2, h3 {
-    font-family: 'Amatic SC', cursive;
 }
 
 #main {

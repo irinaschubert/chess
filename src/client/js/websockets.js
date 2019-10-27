@@ -95,8 +95,6 @@ $(function(){
 
                 if(data.gameState === websocketGame.GAME_START){
                     $("#restart").hide();
-                    $("#chat-history").html("");
-
                     let pieces = document.getElementsByClassName("piece");
                     for (let i = 0; i < pieces.length; ++i) {
                         pieces.item(i).classList.toggle('not-clickable');
@@ -115,7 +113,6 @@ $(function(){
                 if(data.gameState === websocketGame.GAME_INIT){
                     $("#restart").hide();
                     $("#chat-history").html("");
-
                     if(data.isPlayerTurn){
                         websocketGame.isPlayerTurn = true;
                         $("#chat-history").append("<li>Your turn to move.</li>");

@@ -11,6 +11,8 @@
   "license": "ISC",
   "dependencies": {
     "esm": "^3.2.25",
+    "jquery": "^3.4.1",
+    "jsdom": "^15.2.0",
     "ws": "^7.1.2"
   },
   "devDependencies": {

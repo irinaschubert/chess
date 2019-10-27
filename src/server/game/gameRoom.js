@@ -7,7 +7,6 @@
 'use strict';
 
 import Room from "./room.js";
-//import GameController from "../../client/js/gameController";
 
 // constants
 // data type
