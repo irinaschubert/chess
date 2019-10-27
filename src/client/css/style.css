@@ -183,6 +183,12 @@ body {
     border-radius: 4px;
 }
 
+#show-turn{
+    margin-top: 0px;
+    display: inline-block;
+    list-style-type: none;
+}
+
 .button{
     font-size: 25px;
     padding: 4px;

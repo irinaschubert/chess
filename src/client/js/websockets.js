@@ -89,11 +89,12 @@ $(function(){
 
                 if(data.gameState === websocketGame.GAME_OVER){
                     websocketGame.isPlayerTurn = false;
-                    $("#chat-history").append("<li>"+data.winner+" wins! The answer is '" + data.answer+ "'.</li>");
+                    $("#show-turn").append("<li>"+data.winner+" wins! The answer is '" + data.answer+ "'.</li>");
                     $("#restart").show();
                 }
 
                 if(data.gameState === websocketGame.GAME_START){
+                    $("#show-turn").html("");
                     let pieces = document.getElementsByClassName("piece");
                     for (let i = 0; i < pieces.length; ++i) {
                         pieces.item(i).classList.toggle('not-clickable');
@@ -101,21 +102,22 @@ $(function(){
 
                     if(data.isPlayerTurn){
                         websocketGame.isPlayerTurn = true;
-                        $("#chat-history").append("<li>Your turn to move.</li>");
+                        $("#show-turn").append("<li>Your turn to move.</li>");
                     }
                     else{
                         websocketGame.isPlayerTurn = false;
-                        $("#chat-history").append("<li>Wait for your partner to move.</li>");
+                        $("#show-turn").append("<li>Wait for your partner to move.</li>");
                     }
                 }
 
                 if(data.gameState === websocketGame.GAME_INIT){
-                    $("#restart").hide();
+                    $("#restart").show();
                     $("#chat-history").html("");
+                    $("#show-turn").html("");
                     // white player
                     if(data.isPlayerTurn){
                         websocketGame.isPlayerTurn = true;
-                        $("#chat-history").append("<li>Your turn to move.</li>");
+                        $("#show-turn").append("<li>Your turn to move.</li>");
                         let pieces = document.getElementsByClassName("piece");
                         for (let i = 0; i < pieces.length; ++i) {
                             pieces.item(i).classList.toggle('not-clickable');
@@ -135,7 +137,7 @@ $(function(){
                     // black player
                     else{
                         websocketGame.isPlayerTurn = false;
-                        $("#chat-history").append("<li>Wait for your partner to move.</li>");
+                        $("#show-turn").append("<li>Wait for your partner to move.</li>");
 
                         let piecesWhite = document.getElementsByClassName("white");
                         for (let i = 0; i < piecesWhite.length; ++i) {

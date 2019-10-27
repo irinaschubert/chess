@@ -7,6 +7,9 @@
 'use strict';
 
 import Room from "./room.js";
+//let MongoClient = require('mongodb').MongoClient;
+import { MongoClient } from 'mongodb';
+let url = "mongodb://localhost:27017/";
 
 // constants
 // data type
@@ -33,6 +36,7 @@ export default class GameRoom extends Room {
       */
     constructor() {
         super();
+        this.id = "1" + Math.floor(Math.random() * 1000000000)
         this.playerTurn = 0;
         this.currentGameState = WAITING_TO_START;
         this.condition = NORMAL;
@@ -42,6 +46,7 @@ export default class GameRoom extends Room {
             gameState: WAITING_TO_START,
         };
         this.sendAll(JSON.stringify(gameLogicData));
+
     }
 
     /**
@@ -76,7 +81,16 @@ export default class GameRoom extends Room {
             // Move message
             if (room.currentGameState === GAME_START && data.dataType === MOVE) {
                 room.makeMove(user.id, data.from, data.to);
-                // TODO: write persistence of move
+                // write move to mongodb
+                MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
+                    if (err) throw err;
+                    let dbo = db.db("webEchessDb");
+                    let move = { gameRoomId: room.id, user: user.id, move: [data.from, data.to] };
+                    dbo.collection("games").insertOne(move, function(err, res) {
+                        if (err) throw err;
+                        db.close();
+                    });
+                });
             }
 
             // Game logic message
@@ -157,7 +171,6 @@ export default class GameRoom extends Room {
 
         // player this.users[this.playerTurn] will start the game
         this.playerTurn = (this.playerTurn + 1) % this.users.length;
-        //this.playerTurn = 0;
         console.log("[GameRoom] Start game with player " + this.playerTurn + "'s turn.");
 
         // send a message to all players with isPlayerTurn: false
