@@ -43,6 +43,10 @@ h1, h2, h3 {
     position: relative;
 }
 
+#captured-pieces {
+    position: relative;
+}
+
 #moves {
     min-width: 20rem;
     position: relative;
@@ -62,6 +66,15 @@ h1, h2, h3 {
 
 #login-form{
     position: relative;
+}
+
+.field-captured {
+    position: relative;
+    display: inline-block;
+    height: 3.5rem;
+    width: 3.5rem;
+    vertical-align: top;
+    padding: 0.2rem;
 }
 
 .field {

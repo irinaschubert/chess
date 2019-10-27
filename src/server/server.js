@@ -12,6 +12,7 @@ let WebSocketServer = require('ws').Server;
 
 let room1 = new GameRoom();
 let room2 = new GameRoom();
+let room3 = new GameRoom();
 let port = 8000;
 let server = new WebSocketServer({port:port});
 
@@ -27,11 +28,17 @@ server.on('connection', function(socket){
         console.log("[Server] A new connection was established. " + user.id + " has joined the game. " +
             "Total connections in room 1: " + room1.users.length);
     }
-    else if(room1.users.length >= 2 && room1.users.length < 5){
+    else if(room2.users.length < 2){
         let user = new User(socket);
         room2.addUser(user);
         console.log("[Server] A new connection was established. " + user.id + " has joined the game. " +
             "Total connections in room 2: " + room2.users.length);
+    }
+    else if(room3.users.length < 2 ){
+        let user = new User(socket);
+        room3.addUser(user);
+        console.log("[Server] A new connection was established. " + user.id + " has joined the game. " +
+            "Total connections in room 3: " + room3.users.length);
     }
 });
 

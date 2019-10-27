@@ -9,19 +9,21 @@ import Room from "./room.js";
 
 // constants
 // data type
+const GAME_LOGIC = 0;
 const CHAT_MESSAGE = 1;
-const GAME_LOGIC = 2;
-const MOVE = 3;
+const MOVE = 2;
 // game state
 const WAITING_TO_START = 0;
 const GAME_START = 1;
 const GAME_OVER = 2;
-const GAME_RESTART = 3;
-// end condition
+const REVANCHE = 3;
+// game or end condition
 const NORMAL = 0;
-const CHECKMATE = 1;
-const REMIS = 2;
-const PATT = 3;
+const CHECK = 1;
+const CHECKMATE = 2;
+const REMIS = 3;
+const PATT = 4;
+const CAPITULATE = 5;
 
 export default class GameRoom extends Room {
     /**
@@ -47,7 +49,7 @@ export default class GameRoom extends Room {
      */
     addUser(user) {
         super.addUser(user);
-        if (this.currentGameState === WAITING_TO_START && this.users.length === 2) {
+        if (this.users.length === 2) {
             this.startGame();
         }
     };
@@ -70,11 +72,12 @@ export default class GameRoom extends Room {
             }
 
             // Move message
-            if (room.currentGameState === GAME_START && data.dataType === MOVE){
+            if (room.currentGameState === GAME_START && data.dataType === MOVE) {
                 let moveData = {
                     dataType: MOVE,
                     from: data.from,
                     to: data.to,
+                    isBlocked: user.id,
                 };
                 room.sendAll(JSON.stringify(moveData));
             }
@@ -94,44 +97,56 @@ export default class GameRoom extends Room {
                 if (room.currentGameState === GAME_START && room.condition === CHECKMATE) {
                     let gameLogicData = {
                         dataType: GAME_LOGIC,
-                        gameState: GAME_OVER,
-                        winner: user.id,
                         condition: CHECKMATE,
+                        winner: user.id,
                     };
 
                     room.sendAll(JSON.stringify(gameLogicData));
-                    room.currentGameState = WAITING_TO_START;
+                    room.currentGameState = GAME_OVER;
                 }
 
                 // Remis
                 if (room.currentGameState === GAME_START && room.condition === REMIS) {
                     let gameLogicData = {
                         dataType: GAME_LOGIC,
-                        gameState: GAME_OVER,
-                        winner: user.id,
                         condition: REMIS,
+                        winner: user.id,
                     };
 
                     room.sendAll(JSON.stringify(gameLogicData));
-                    room.currentGameState = WAITING_TO_START;
+                    room.currentGameState = GAME_OVER;
                 }
 
                 // Patt
                 if (room.currentGameState === GAME_START && room.condition === PATT) {
                     let gameLogicData = {
                         dataType: GAME_LOGIC,
-                        gameState: GAME_OVER,
-                        winner: user.id,
                         condition: PATT,
+                        winner: user.id,
                     };
 
                     room.sendAll(JSON.stringify(gameLogicData));
-                    room.currentGameState = WAITING_TO_START;
+                    room.currentGameState = GAME_OVER;
                 }
 
                 // Revanche
-                if (data.gameState === GAME_RESTART) {
-                    room.startGame();
+                if (room.currentGameState === GAME_OVER) {
+                    let gameLogicData = {
+                        dataType: REVANCHE,
+                    };
+
+                    room.sendAll(JSON.stringify(gameLogicData));
+                    room.currentGameState = GAME_RESTART;
+                }
+
+                // Capitulate
+                if (room.currentGameState === GAME_START) {
+                    let gameLogicData = {
+                        dataType: CAPITULATE,
+                    };
+
+                    room.sendAll(JSON.stringify(gameLogicData));
+                    room.currentGameState = GAME_OVER;
                 }
             }
         });
@@ -145,6 +160,7 @@ export default class GameRoom extends Room {
 
         // player this.users[this.playerTurn] will start the game
         this.playerTurn = (this.playerTurn + 1) % this.users.length;
+        //this.playerTurn = 0;
         console.log("[GameRoom] Start game with player " + this.playerTurn + "'s turn.");
 
         // send a message to all players with isPlayerTurn: false
