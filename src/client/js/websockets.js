@@ -94,7 +94,6 @@ $(function(){
                 }
 
                 if(data.gameState === websocketGame.GAME_START){
-                    $("#restart").hide();
                     let pieces = document.getElementsByClassName("piece");
                     for (let i = 0; i < pieces.length; ++i) {
                         pieces.item(i).classList.toggle('not-clickable');
@@ -113,6 +112,7 @@ $(function(){
                 if(data.gameState === websocketGame.GAME_INIT){
                     $("#restart").hide();
                     $("#chat-history").html("");
+                    // white player
                     if(data.isPlayerTurn){
                         websocketGame.isPlayerTurn = true;
                         $("#chat-history").append("<li>Your turn to move.</li>");
@@ -121,10 +121,26 @@ $(function(){
                             pieces.item(i).classList.toggle('not-clickable');
                         }
 
+                        let piecesBlack = document.getElementsByClassName("black");
+                        for (let i = 0; i < piecesBlack.length; ++i) {
+                            piecesBlack.item(i).classList.toggle('not-my-color');
+                        }
+
+                        let piecesWhite = document.getElementsByClassName("white");
+                        for (let i = 0; i < piecesWhite.length; ++i) {
+                            piecesWhite.item(i).classList.toggle('not-my-color');
+                        }
+
                     }
+                    // black player
                     else{
                         websocketGame.isPlayerTurn = false;
                         $("#chat-history").append("<li>Wait for your partner to move.</li>");
+
+                        let piecesWhite = document.getElementsByClassName("white");
+                        for (let i = 0; i < piecesWhite.length; ++i) {
+                            piecesWhite.item(i).classList.toggle('not-my-color');
+                        }
                     }
                 }
             }

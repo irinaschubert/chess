@@ -191,6 +191,11 @@ body {
 }
 
 .not-clickable {
-    /* disable all mouse events on subElements */
+    /* disable all mouse events */
+    pointer-events: none;
+}
+
+.not-my-color {
+    /* disable all mouse events */
     pointer-events: none;
 }

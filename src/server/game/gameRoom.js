@@ -76,6 +76,7 @@ export default class GameRoom extends Room {
             // Move message
             if (room.currentGameState === GAME_START && data.dataType === MOVE) {
                 room.makeMove(user.id, data.from, data.to);
+                // TODO: write persistence of move
             }
 
             // Game logic message
