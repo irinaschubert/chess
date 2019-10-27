@@ -74,13 +74,6 @@ export default class GameRoom extends Room {
             // Move message
             if (room.currentGameState === GAME_START && data.dataType === MOVE) {
                 room.makeMove(user.id, data.from, data.to);
-                /*let moveData = {
-                    dataType: MOVE,
-                    from: data.from,
-                    to: data.to,
-                    isBlocked: user.id,
-                };
-                room.sendAll(JSON.stringify(moveData));*/
             }
 
             // Game logic message
@@ -221,7 +214,5 @@ export default class GameRoom extends Room {
             isPlayerTurn: true,
         };
         nextUser.socket.send(JSON.stringify(gameLogicDataForNextPlayerTurn));
-
-        room.currentGameState = GAME_START;
     }
 }
