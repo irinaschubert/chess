@@ -3,9 +3,11 @@
  *  @extends Room
  * */
 
+
 'use strict';
 
 import Room from "./room.js";
+//import GameController from "../../client/js/gameController";
 
 // constants
 // data type
@@ -26,9 +28,9 @@ const PATT = 4;
 const CAPITULATE = 5;
 
 export default class GameRoom extends Room {
-    /**
+     /**
      * Create a game room for two players with default values, send a message to all users when done
-     */
+      */
     constructor() {
         super();
         this.playerTurn = 0;

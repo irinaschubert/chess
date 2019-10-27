@@ -42,7 +42,7 @@ let websocketGame = {
     REMIS : 3,
     PATT : 4,
     CAPITULATE : 5,
-    isTurnToMove: false,
+    isPlayerTurn: false,
 };
 
 $(function(){
@@ -70,34 +70,37 @@ $(function(){
             // make move if it is a move
             else if (data.dataType === websocketGame.MOVE){
                 // if it was not the players turn before, it is now the players turn
-                if(websocketGame.isTurnToMove === false){
-                    websocketGame.isTurnToMove = true;
+                if(websocketGame.isPlayerTurn === false){
                     // if it was not players turn, synchronize enemy's move
                     movePiece(data.from, data.to);
+                    // enable move button
+                    console.log("here")
+                    document.getElementById("move").disabled = false;
                 }
                 else{
-                    websocketGame.isTurnToMove = false;
+                    console.log("here and")
+                    document.getElementById("move").disabled = true;
                 }
-
-                console.log("My turn? ", websocketGame.isTurnToMove)
             }
 
             // take action if it is a game logic message
             else if (data.dataType === websocketGame.GAME_LOGIC){
+
                 if(data.gameState === websocketGame.GAME_OVER){
-                    websocketGame.isTurnToMove = false;
+                    websocketGame.isPlayerTurn = false;
                     $("#chat-history").append("<li>"+data.winner+" wins! The answer is '" + data.answer+ "'.</li>");
                     $("#restart").show();
                 }
+
                 if(data.gameState === websocketGame.GAME_START){
                     $("#restart").hide();
                     $("#chat-history").html("");
-
                     if(data.isPlayerTurn){
-                        websocketGame.isTurnToMove = true;
+                        websocketGame.isPlayerTurn = true;
                         $("#chat-history").append("<li>Your turn to move.</li>");
                     }
                     else{
+                        websocketGame.isPlayerTurn = false;
                         $("#chat-history").append("<li>Wait for your partner to move.</li>");
                     }
                 }
