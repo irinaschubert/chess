@@ -23,7 +23,8 @@ let server = new WebSocketServer({port:port});
  * @param {WebSocket} socket
  */
 // Is executed when a new socket connects to the server. Adds user only up until 2 users.
-server.on('connection', function(socket){
+server.on('connection', function(socket, request, client){
+    console.log(request.method);
     if(room1.users.length < 2){
         let user = new User(socket);
         room1.addUser(user);
@@ -70,8 +71,6 @@ server.on('connection', function(socket){
             "Total connections in room 3: " + room3.users.length);
     }
 });
-
-
 
 console.log("[Server] WebSocket server is running.");
 console.log("[Server] Listening to port " + port + ".");

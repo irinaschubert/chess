@@ -27,6 +27,8 @@ let websocketGame = {
     isPlayerTurn: false,
 };
 
+let username = "";
+
 $(function(){
     if(window["WebSocket"]){
         let chat = new Chat();
@@ -37,6 +39,14 @@ $(function(){
         // on open event
         websocketGame.socket.onopen = function(e){
             console.log('WebSocket connection established.');
+            username = prompt("Please provide a username");
+
+            let txt = "";
+            if (username === null || username === "") {
+                $("#username").append("Please provide a username.");
+            }else{
+                $("#username").append(username);
+            }
         };
 
         // on message event (executed when receiving a message from GameRoom)
@@ -74,7 +84,7 @@ $(function(){
 
                 if(data.gameState === websocketGame.GAME_OVER){
                     websocketGame.isPlayerTurn = false;
-                    $("#show-turn").append("<li>"+data.winner+" wins! The answer is '" + data.answer+ "'.</li>");
+                    $("#show-turn").append(data.winner+" wins!");
                     $("#capitulate").show();
                 }
 
@@ -87,11 +97,11 @@ $(function(){
 
                     if(data.isPlayerTurn){
                         websocketGame.isPlayerTurn = true;
-                        $("#show-turn").append("<li>Your turn to move.</li>");
+                        $("#show-turn").append("Your turn to move.");
                     }
                     else{
                         websocketGame.isPlayerTurn = false;
-                        $("#show-turn").append("<li>Wait for your partner to move.</li>");
+                        $("#show-turn").append("Wait for your partner to move.");
                     }
                 }
 
@@ -102,7 +112,7 @@ $(function(){
                     // white player
                     if(data.isPlayerTurn){
                         websocketGame.isPlayerTurn = true;
-                        $("#show-turn").append("<li>Your turn to move.</li>");
+                        $("#show-turn").append("Your turn to move.");
                         let pieces = document.getElementsByClassName("piece");
                         for (let i = 0; i < pieces.length; ++i) {
                             pieces.item(i).classList.toggle('not-clickable');
@@ -122,7 +132,7 @@ $(function(){
                     // black player
                     else{
                         websocketGame.isPlayerTurn = false;
-                        $("#show-turn").append("<li>Wait for your partner to move.</li>");
+                        $("#show-turn").append("Wait for your partner to move.");
 
                         let piecesWhite = document.getElementsByClassName("white");
                         for (let i = 0; i < piecesWhite.length; ++i) {
