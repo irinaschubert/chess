@@ -2,7 +2,6 @@
  * Represents a websocket
  * @author: Irina
  *
- * @todo make es6 class from it
  */
 
 'use strict';
@@ -47,7 +46,7 @@ $(function(){
 
             // print on chat panel if it is a chat message
             if(data.dataType === websocketGame.LOGIN){
-                chat.appendToHistory(data.username);
+                chat.appendToHistory(data.sender, data.username);
             }
 
             // print on chat panel if it is a chat message
@@ -132,8 +131,6 @@ $(function(){
                     }
                 }
             }
-
-
         };
 
         // on close event
@@ -148,6 +145,7 @@ $("#username-button").click(getUsername);
 
 function getUsername(){
     let username = $("#username");
+    console.log("hello ", username);
     let data = {};
     data.dataType = websocketGame.LOGIN;
     data.username = username;

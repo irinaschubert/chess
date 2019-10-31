@@ -7,7 +7,7 @@
 'use strict';
 
 import Room from "./room.js";
-let mongodb = require('mongodb');
+import * as MongoClient from "mongodb";
 let url = "mongodb://localhost:27017/";
 
 // constants

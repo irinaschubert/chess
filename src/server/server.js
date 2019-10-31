@@ -1,7 +1,6 @@
-/** representing the server
+/** representing the server, adds up to two users to a game room
  *  @author Irina
  *
- *  @todo make es6 class from it
  * */
 
 'use strict';
@@ -10,6 +9,7 @@ import User from './game/user.js';
 import GameRoom from './game/gameRoom.js';
 import {MongoClient} from "mongodb";
 let WebSocketServer = require('ws').Server;
+let http = require('http');
 let url = "mongodb://localhost:27017/";
 
 let room1 = new GameRoom();
@@ -70,6 +70,8 @@ server.on('connection', function(socket){
             "Total connections in room 3: " + room3.users.length);
     }
 });
+
+
 
 console.log("[Server] WebSocket server is running.");
 console.log("[Server] Listening to port " + port + ".");

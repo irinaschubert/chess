@@ -4,13 +4,18 @@ body {
     background: #e6e6ff;
 }
 
-#header {
-    font-size: 35px;
-    padding: 10px;
-    margin: 10px;
-    width: 95%;
-    text-align: center;
+h1 {
+    margin: 0;
+}
 
+p {
+    margin: 0;
+}
+
+#header {
+    margin: 5px;
+    font-size: 35px;
+    text-align: center;
 }
 
 #footer {
