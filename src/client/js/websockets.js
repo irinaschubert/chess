@@ -9,30 +9,11 @@
 
 import Chat from './chat.js';
 
-/*
-const GAME_LOGIC = 0;
-const CHAT_MESSAGE = 1;
-const MOVE = 2;
-// game state
-const WAITING_TO_START = 0;
-const GAME_INIT = 1;
-const GAME_START = 2;
-const GAME_OVER = 3;
-const REVANCHE = 4;
-// game or end condition
-const NORMAL = 0;
-const CHECK = 1;
-const CHECKMATE = 2;
-const REMIS = 3;
-const PATT = 4;
-const CAPITULATE = 5;
-* */
-
-
 let websocketGame = {
     GAME_LOGIC : 0,
     CHAT_MESSAGE : 1,
     MOVE : 2,
+    LOGIN : 3,
     WAITING_TO_START : 0,
     GAME_INIT : 1,
     GAME_START : 2,
@@ -65,6 +46,11 @@ $(function(){
             let data = JSON.parse(e.data);
 
             // print on chat panel if it is a chat message
+            if(data.dataType === websocketGame.LOGIN){
+                chat.appendToHistory(data.username);
+            }
+
+            // print on chat panel if it is a chat message
             if(data.dataType === websocketGame.CHAT_MESSAGE){
                 chat.appendToHistory(data.sender, data.message);
             }
@@ -90,7 +76,7 @@ $(function(){
                 if(data.gameState === websocketGame.GAME_OVER){
                     websocketGame.isPlayerTurn = false;
                     $("#show-turn").append("<li>"+data.winner+" wins! The answer is '" + data.answer+ "'.</li>");
-                    $("#restart").show();
+                    $("#capitulate").show();
                 }
 
                 if(data.gameState === websocketGame.GAME_START){
@@ -111,8 +97,8 @@ $(function(){
                 }
 
                 if(data.gameState === websocketGame.GAME_INIT){
-                    $("#restart").show();
-                    $("#chat-history").html("");
+                    $("#capitulate").show();
+                    //$("#chat-history").html("");
                     $("#show-turn").html("");
                     // white player
                     if(data.isPlayerTurn){
@@ -156,6 +142,18 @@ $(function(){
         };
     }
 });
+
+// Login
+$("#username-button").click(getUsername);
+
+function getUsername(){
+    let username = $("#username");
+    let data = {};
+    data.dataType = websocketGame.LOGIN;
+    data.username = username;
+    websocketGame.socket.send(JSON.stringify(data));
+    $("#username").val("");
+}
 
 // Chat Button / Field
 $("#send").click(sendMessage);
