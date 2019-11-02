@@ -9,7 +9,6 @@ import User from './game/user.js';
 import GameRoom from './game/gameRoom.js';
 import {MongoClient} from "mongodb";
 let WebSocketServer = require('ws').Server;
-let http = require('http');
 let url = "mongodb://localhost:27017/";
 
 let room1 = new GameRoom();
@@ -23,8 +22,7 @@ let server = new WebSocketServer({port:port});
  * @param {WebSocket} socket
  */
 // Is executed when a new socket connects to the server. Adds user only up until 2 users.
-server.on('connection', function(socket, request, client){
-    console.log(request.method);
+server.on('connection', function(socket, client){
     if(room1.users.length < 2){
         let user = new User(socket);
         room1.addUser(user);

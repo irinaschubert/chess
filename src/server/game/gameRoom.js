@@ -7,7 +7,7 @@
 'use strict';
 
 import Room from "./room.js";
-import * as MongoClient from "mongodb";
+import {MongoClient} from "mongodb";
 let url = "mongodb://localhost:27017/";
 
 // constants
@@ -15,6 +15,10 @@ let url = "mongodb://localhost:27017/";
 const GAME_LOGIC = 0;
 const CHAT_MESSAGE = 1;
 const MOVE = 2;
+const LOGIN = 3;
+const SAVE = 10;
+const LOAD = 11;
+const SHOW_GAMES = 12;
 // game state
 const WAITING_TO_START = 0;
 const GAME_INIT = 1;
@@ -29,13 +33,14 @@ const REMIS = 3;
 const PATT = 4;
 const CAPITULATE = 5;
 
+
 export default class GameRoom extends Room {
      /**
      * Create a game room for two players with default values, send a message to all users when done
       */
     constructor() {
         super();
-        this.id = "1" + Math.floor(Math.random() * 1000000000)
+        this.id = "1" + Math.floor(Math.random() * 1000000000);
         this.playerTurn = 0;
         this.currentGameState = WAITING_TO_START;
         this.condition = NORMAL;
@@ -90,6 +95,43 @@ export default class GameRoom extends Room {
                         db.close();
                     });
                 });
+            }
+
+            // Username message
+            if (data.dataType === LOGIN) {
+                let dbUser = { user: user.id, username: data.username};
+                let games = [];
+                // write user to mongodb
+                MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
+                    if (err) throw err;
+                    let dbo = db.db("webEchessDb");
+
+                    let cursor = dbo.collection("usernames").find({"username":dbUser.username});
+                    cursor.each(function(err, item) {
+                        // If the item is null then the cursor is empty and closed
+                        if(item == null) {
+                            dbo.collection("usernames").insertOne(dbUser, function(err, res) {
+                                if (err) throw err;
+                                db.close();
+                            });
+                        }else{
+                            //user already exists
+                            let cursor2 = dbo.collection("savedGames").find({"users.id":item.user});
+                            cursor2.each(function(err, item2) {
+                                // If the item is null then the cursor is empty and closed
+                                if(item2 == null) {
+                                    db.close();
+                                }else{
+                                    games.push(item2.game);
+                                    db.close();
+                                    room.showSavedGamesForUser(user.id, games);
+                                }
+                            });
+                        }
+                    });
+                });
+                data.sender = user.id;
+                room.sendAll(JSON.stringify(data));
             }
 
             // Game logic message
@@ -158,6 +200,43 @@ export default class GameRoom extends Room {
                     room.sendAll(JSON.stringify(gameLogicData));
                     room.currentGameState = GAME_OVER;
                 }
+            }
+
+            // Save
+            if (data.dataType === SAVE){
+                let game = data.game;
+
+                MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
+                    if (err) throw err;
+                    let dbo = db.db("webEchessDb");
+                    let savedGame = { gameRoomId: room.id, users: room.users, game : game };
+                    dbo.collection("savedGames").insertOne(savedGame, function(err, res) {
+                        if (err) throw err;
+                        db.close();
+                    });
+                });
+            }
+
+            // Load
+            if (data.dataType === LOAD){
+                let name = data.loadUser;
+                MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
+                    if (err) throw err;
+                    let dbo = db.db("webEchessDb");
+
+                    let cursor = dbo.collection("usernames").find({"username":name});
+                    cursor.each(function(err, item) {
+                        // If the item is null then the cursor is empty and closed
+                        if(item == null) {
+                            db.close();
+                        }else{
+                            //user id
+                            console.log(item.user);
+                            room.showSavedGamesForUser(user.id);
+                            db.close();
+                        }
+                    });
+                });
             }
         });
     };
@@ -231,5 +310,22 @@ export default class GameRoom extends Room {
             isPlayerTurn: true,
         };
         nextUser.socket.send(JSON.stringify(gameLogicDataForNextPlayerTurn));
+    }
+
+    showSavedGamesForUser(userid, games){
+        let currentUserId = userid;
+        let currentUser;
+        for (let i = 0; i < this.users.length; i++) {
+            let user = this.users[i];
+            if(user.id === currentUserId){
+                currentUser = user;
+            }
+        }
+        // show all saved games for current player
+        let savedGames = {
+            dataType: SHOW_GAMES,
+            games : games,
+        };
+        currentUser.socket.send(JSON.stringify(savedGames));
     }
 }

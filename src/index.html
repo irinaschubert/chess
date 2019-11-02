@@ -8,38 +8,62 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 </head>
 <body>
-
-<header>
+<div class="navbar">
+    <a id="load">Load</a>
+    <a id="save">Save</a>
+    <a id="capitulate">Capitulate</a>
+</div>
+<div id="header">
     <h1>Chess</h1>
     <p id="username"></p>
     <p id="show-turn"></p>
-</header>
+</div>
+<div id="main" class="container">
+    <section class="container" id="board">
+        <!-- in here the rows and fields are appended -->
+    </section>
 
-<div id="main">
-    <div class="container" id="board">
-        <!-- in here the fields are appended -->
-    </div>
-    <div class="container" id="captured-pieces">
-        <div class="field-captured bg-white" id="field-captured">
-        </div>
-    </div>
-
-    <div class="container" id="moves">
-        <p id="show-move"></p>
+    <section class="container" id="moves">
+        <p id="show-move">--></p>
         <div id="moves-buttons">
             <input type="button" value="Back" class="button" id="back">
             <input type="button" value="Move" class="button" id="move">
-            <input type="button" value="Capitulate" class="button" id="capitulate">
         </div>
-    </div>
+    </section>
+    <section class="container" id="captured-pieces">
+        <ul id="field-captured" class="field-captured bg-white"></ul>
+    </section>
 
-    <div class="container" id="chat">
+    <section class="container" id="chat">
         <ul id="chat-history"></ul>
         <input type="text" id="chat-input" autocomplete="off">
         <input type="button" value="Send" class="button" id="send">
-    </div>
-
+    </section>
 </div>
+<div class="container" id="show-saved-games">
+    <ul id="saved-games"></ul>
+</div>
+
+<section id="popup-win" class="hide">
+    <div id="popup-bg-win"></div>
+    <div id="popup-box-win">
+        <div id="popup-box-content-win">
+            <h1>You Won!</h1>
+            <p>Your Score:</p>
+            <p><span class='score'>13</span></p>
+        </div>
+    </div>
+</section>
+<section id="popup-loose" class="hide">
+    <div id="popup-bg-loose"></div>
+    <div id="popup-box-loose">
+        <div id="popup-box-content-loose">
+            <h1>You Lost!</h1>
+            <p>Your Score:</p>
+            <p><span class='score'>13</span></p>
+        </div>
+    </div>
+</section>
 
 <footer id="footer">Images for Chess Pieces by en:User:Cburnett [<a href="https://creativecommons.org/licenses/by-sa/3.0">CC BY-SA 3.0</a>], <a href="https://commons.wikimedia.org/wiki/File:Chess_bdt60.png">via Wikimedia Commons</a></footer>
 
@@ -53,6 +77,5 @@
 <script type="module" src="client/js/pieces/piece.js"></script>-->
 <script type="module" src="client/js/websockets.js"></script>
 <script type="module" src="client/js/gameController.js"></script>
-<script type="module" src="server/game/gameRoom.js"></script>
 </body>
 </html>

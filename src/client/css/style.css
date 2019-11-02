@@ -12,53 +12,48 @@ p {
     margin: 15px;
 }
 
-header {
+#header {
     margin-bottom: 10px;
+    margin-top: 60px; /* Add a top margin to avoid content overlay */
     font-size: 35px;
     text-align: center;
 }
 
-#footer {
+footer {
     font-size: 15px;
     text-align: right;
-    bottom: 0;
-    padding: 10px;
-    margin: 10px;
-    width: 95%;
-    position: absolute;
-}
-
-#username-form {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
+    position: fixed; /* Set the footer to fixed position */
+    bottom: 10px; /* Position the footer at the bottom of the page */
+    width: 99%;
 }
 
 .container {
-    float:left;
     display: flex;
-    justify-content: center;
     align-items: center;
     flex-direction: column;
 }
 
 #main {
+    display: block;
+    margin-top: 60px; /* Add a top margin to avoid content overlay with navbar */
+    margin-bottom: 60px;
     width: 100%;
 }
 
 #board {
     min-width: 40rem;
     position: relative;
+    background: #9999ff;
 }
 
 #captured-pieces {
-    position: relative;
+
 }
 
 #moves {
     min-width: 20rem;
     position: relative;
+    background: #b3b3ff;
 }
 
 #moves-buttons {
@@ -71,6 +66,7 @@ header {
 #chat{
     min-width: 20rem;
     position: relative;
+    background: #ccccff;
 }
 
 #login-form{
@@ -215,4 +211,139 @@ header {
 .not-my-color {
     /* disable all mouse events */
     pointer-events: none;
+}
+
+/* The navigation bar */
+.navbar {
+    overflow: hidden;
+    background-color: #333;
+    position: fixed; /* Set the navbar to fixed position */
+    top: 0; /* Position the navbar at the top of the page */
+    width: 100%; /* Full width */
+    box-shadow: 8px 8px 26px 0 rgba(46, 61, 73, 0.5);
+}
+
+/* Links inside the navbar */
+.navbar a {
+    float: left;
+    display: block;
+    color: #f2f2f2;
+    text-align: center;
+    padding: 7px 8px;
+    text-decoration: none;
+}
+
+/* Change background on mouse-over */
+.navbar a:hover {
+    background: #ddd;
+    color: black;
+}
+
+#show-saved-games{
+}
+
+/* Styles for game over popup */
+#popup-loose {
+    font-family: 'Orbitron', serif;
+    font-size: 28px;
+    font-weight: 700;
+    text-shadow: 0px 1px 2px #fff;
+
+    color: #222;
+
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+
+    background: rgba(0,0,0,.5);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    transition: all .5s ease-in;
+}
+
+#popup-loose h1 {
+    font-weight: 400;
+}
+
+#popup-box-loose {
+    position: relative;
+    width: 400px;
+    height: 300px;
+    background: #ccc;
+    border-radius: 10px;
+    box-shadow: 0 5px 5px #333;
+    transition: all .5s ease-in;
+}
+
+#popup-box-loose small {
+    font-size: .6em;
+}
+
+/**
+ * Styles to hide the popup box
+ */
+#popup-loose.hide {
+    background: rgba(0,0,0,0);
+    visibility: hidden;
+}
+#popup-loose.hide #popup-box-loose{
+    margin-top: -800px;
+}
+
+/* Styles for game over popup */
+#popup-win {
+    font-family: 'Orbitron', serif;
+    font-size: 28px;
+    font-weight: 700;
+    text-shadow: 0px 1px 2px #fff;
+
+    color: #222;
+
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+
+    background: rgba(0,0,0,.5);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    transition: all .5s ease-in;
+}
+
+#popup-win h1 {
+    font-weight: 400;
+}
+
+#popup-box-win {
+    position: relative;
+    width: 400px;
+    height: 300px;
+    background: #ccc;
+    border-radius: 10px;
+    box-shadow: 0 5px 5px #333;
+    transition: all .5s ease-in;
+}
+
+#popup-box-win small {
+    font-size: .6em;
+}
+
+/**
+ * Styles to hide the popup box
+ */
+#popup-win.hide {
+    background: rgba(0,0,0,0);
+    visibility: hidden;
+}
+#popup-win.hide #popup-box-win{
+    margin-top: -800px;
 }

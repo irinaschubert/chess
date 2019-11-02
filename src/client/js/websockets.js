@@ -7,6 +7,7 @@
 'use strict';
 
 import Chat from './chat.js';
+import SavedGames from "./savedGames.js";
 
 let websocketGame = {
     GAME_LOGIC : 0,
@@ -25,6 +26,9 @@ let websocketGame = {
     PATT : 4,
     CAPITULATE : 5,
     isPlayerTurn: false,
+    SAVE : 10,
+    LOAD : 11,
+    SHOW_GAMES: 12
 };
 
 let username = "";
@@ -32,6 +36,7 @@ let username = "";
 $(function(){
     if(window["WebSocket"]){
         let chat = new Chat();
+        let savedGames = new SavedGames();
 
         // create connection
         websocketGame.socket = new WebSocket("ws://127.0.0.1:8000");
@@ -39,24 +44,37 @@ $(function(){
         // on open event
         websocketGame.socket.onopen = function(e){
             console.log('WebSocket connection established.');
-            username = prompt("Please provide a username");
+            do{
+                username = prompt("Please provide a username");
+            }while(username == null || username == "" );
 
-            let txt = "";
-            if (username === null || username === "") {
-                $("#username").append("Please provide a username.");
-            }else{
-                $("#username").append(username);
-            }
+            $("#username").append(username);
+
+            let data = {};
+            data.dataType = websocketGame.LOGIN;
+            data.username = username;
+            websocketGame.socket.send(JSON.stringify(data));
         };
 
         // on message event (executed when receiving a message from GameRoom)
         websocketGame.socket.onmessage = function(e){
-            console.log("Got message: ", e.data);
             let data = JSON.parse(e.data);
+            if(data.dataType !== websocketGame.LOGIN){
+                console.log("Got message: ", e.data);
+            }
 
             // print on chat panel if it is a chat message
             if(data.dataType === websocketGame.LOGIN){
-                chat.appendToHistory(data.sender, data.username);
+                chat.appendToHistory(data.sender, data.username + " has joined the game");
+            }
+
+            // make move if it is a move
+            else if (data.dataType === websocketGame.SHOW_GAMES){
+                // if it was not the players turn before, it is now the players turn
+                for(let i = 0; i < data.games.length; i++){
+                    savedGames.appendToGames(data.games[i]);
+                }
+                $("#saved-games").style.display = "block";
             }
 
             // print on chat panel if it is a chat message
@@ -106,8 +124,6 @@ $(function(){
                 }
 
                 if(data.gameState === websocketGame.GAME_INIT){
-                    $("#capitulate").show();
-                    //$("#chat-history").html("");
                     $("#show-turn").html("");
                     // white player
                     if(data.isPlayerTurn){
@@ -117,27 +133,24 @@ $(function(){
                         for (let i = 0; i < pieces.length; ++i) {
                             pieces.item(i).classList.toggle('not-clickable');
                         }
-
-                        let piecesBlack = document.getElementsByClassName("black");
-                        for (let i = 0; i < piecesBlack.length; ++i) {
-                            piecesBlack.item(i).classList.toggle('not-my-color');
-                        }
-
-                        let piecesWhite = document.getElementsByClassName("white");
-                        for (let i = 0; i < piecesWhite.length; ++i) {
-                            piecesWhite.item(i).classList.toggle('not-my-color');
-                        }
+                        $('.white').each(function () {
+                            $(this).removeClass('not-my-color');
+                        });
+                        $('.black').each(function () {
+                            $(this).addClass('not-my-color');
+                        });
 
                     }
                     // black player
                     else{
                         websocketGame.isPlayerTurn = false;
                         $("#show-turn").append("Wait for your partner to move.");
-
-                        let piecesWhite = document.getElementsByClassName("white");
-                        for (let i = 0; i < piecesWhite.length; ++i) {
-                            piecesWhite.item(i).classList.toggle('not-my-color');
-                        }
+                        $('.black').each(function () {
+                            $(this).removeClass('not-my-color');
+                        });
+                        $('.white').each(function () {
+                            $(this).addClass('not-my-color');
+                        });
                     }
                 }
             }
@@ -193,7 +206,7 @@ function sendMove(){
     data.from = [parseInt(message.charAt(0)), parseInt(message.charAt(2))];
     data.to = [parseInt(message.charAt(11)), parseInt(message.charAt(13))];
     websocketGame.socket.send(JSON.stringify(data));
-    $("#show-move").html('');
+    $("#show-move").html("-->");
 }
 
 /**
@@ -234,4 +247,27 @@ function movePiece(from, to){
             //capturedPiece.remove();
         }
     }
+}
+
+// Save Button
+$("#save").click(saveGame);
+
+function saveGame(){
+    console.log("save");
+    let board = document.getElementById("board");
+    let data = {};
+    data.dataType = websocketGame.SAVE;
+    data.game = board.innerHTML;
+    websocketGame.socket.send(JSON.stringify(data));
+}
+
+// Load Button
+$("#load").click(loadGame);
+
+function loadGame(){
+    console.log("load");
+    let data = {};
+    data.dataType = websocketGame.LOAD;
+    data.loadUser = username;
+    websocketGame.socket.send(JSON.stringify(data));
 }
