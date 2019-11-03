@@ -46,7 +46,7 @@ $(function(){
             console.log('WebSocket connection established.');
             do{
                 username = prompt("Please provide a username");
-            }while(username == null || username == "" );
+            }while(username === null || username === "" || username === undefined);
 
             $("#username").append(username);
 
@@ -63,19 +63,21 @@ $(function(){
                 console.log("Got message: ", e.data);
             }
 
-            // print on chat panel if it is a chat message
+            // print username on chat panel
             if(data.dataType === websocketGame.LOGIN){
                 chat.appendToHistory(data.sender, data.username + " has joined the game");
             }
 
-            // make move if it is a move
-            else if (data.dataType === websocketGame.SHOW_GAMES){
-                // if it was not the players turn before, it is now the players turn
-                for(let i = 0; i < data.games.length; i++){
-                    savedGames.appendToGames(data.games[i]);
+            // show saved games
+            /*else if (data.dataType === websocketGame.SHOW_GAMES){
+                if(data.games !== undefined){
+                    for(let i = 0; i < data.games.length; i++){
+                        savedGames.appendToGames(data.games[i]);
+                    }
+                    $("#saved-games").style.display = "block";
                 }
-                $("#saved-games").style.display = "block";
-            }
+
+            }*/
 
             // print on chat panel if it is a chat message
             if(data.dataType === websocketGame.CHAT_MESSAGE){
@@ -240,7 +242,6 @@ function movePiece(from, to){
     });
     if(toNode !== undefined && fromNode !== undefined){
         toNode.appendChild(fromNode);
-        // TODO: do that also in gameController --> append captured piece to field-captured
         if(capturedPiece !== undefined){
             $(capturedPiece).removeClass("piece not-clickable not-my-color");
             $(capturedPiece).addClass("captured");

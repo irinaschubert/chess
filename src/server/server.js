@@ -12,8 +12,6 @@ let WebSocketServer = require('ws').Server;
 let url = "mongodb://localhost:27017/";
 
 let room1 = new GameRoom();
-let room2 = new GameRoom();
-let room3 = new GameRoom();
 let port = 8000;
 let server = new WebSocketServer({port:port});
 
@@ -23,21 +21,8 @@ let server = new WebSocketServer({port:port});
  */
 // Is executed when a new socket connects to the server. Adds user only up until 2 users.
 server.on('connection', function(socket, client){
-    if(room1.users.length < 2){
-        let user = new User(socket);
-        room1.addUser(user);
-        MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
-            if (err) throw err;
-            let dbo = db.db("webEchessDb");
-            let gameRoomUser = { gameRoomId: room1.id, user: user.id };
-            dbo.collection("rooms").insertOne(gameRoomUser, function(err, res) {
-                if (err) throw err;
-                db.close();
-            });
-        });
-        console.log("[Server] A new connection was established. " + user.id + " has joined the game. " +
-            "Total connections in room 1: " + room1.users.length);
-    }
+    addUserToRoom(room1, socket, client);
+    /*
     else if(room2.users.length < 2){
         let user = new User(socket);
         room2.addUser(user);
@@ -67,8 +52,31 @@ server.on('connection', function(socket, client){
         });
         console.log("[Server] A new connection was established. " + user.id + " has joined the game. " +
             "Total connections in room 3: " + room3.users.length);
-    }
+    }*/
 });
+
+function addUserToRoom(room, socket, client){
+    //let room = new GameRoom();
+    if(room.users.length < 2){
+        let user = new User(socket);
+        room.addUser(user);
+        MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
+            if (err) throw err;
+            let dbo = db.db("webEchessDb");
+            let gameRoomUser = { gameRoomId: room.id, user: user.id };
+            dbo.collection("rooms").insertOne(gameRoomUser, function(err, res) {
+                if (err) throw err;
+                db.close();
+            });
+        });
+        console.log("[Server] A new connection was established. " + user.id + " has joined the game. " +
+            "Total connections in room " + room.id+ ": " + room.users.length);
+    }
+    else {
+        room1 = new GameRoom();
+        addUserToRoom(room1, socket, client);
+    }
+}
 
 console.log("[Server] WebSocket server is running.");
 console.log("[Server] Listening to port " + port + ".");

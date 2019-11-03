@@ -1,7 +1,6 @@
 /** representing the gameController
  *  @author Irina
  *
- *  @todo make es6 class from it
  * */
 
 'use strict';
@@ -20,6 +19,9 @@ import Rook from './pieces/rook.js';
     chessGame.savingObject = {};
     chessGame.savingObject.fields = [];
     chessGame.savingObject.capturedPieces = [];
+
+    let moveSavingObject = {};
+    moveSavingObject.moveObject = [];
 
     let moveObject = [];
 
@@ -179,7 +181,6 @@ import Rook from './pieces/rook.js';
         if (toColor !== '') {
             $(toNode).children(".piece").each(function(){
                 if ($(this).hasClass(toColor)) {
-                    //$(this).remove();
                     $(this).removeClass("piece not-clickable not-my-color");
                     $(this).addClass("captured");
                     let capturedPieces = document.getElementById("field-captured");
@@ -195,7 +196,10 @@ import Rook from './pieces/rook.js';
         let toStr = to.join();
         let fromStr = from.join();
         $("#show-move").html(fromStr + " --> " + toStr);
-        localStorage.setItem("last-move", moveObject)
+
+        moveSavingObject.moveObject = moveObject;
+        saveMoveSavingObject();
+        //localStorage.setItem("last-move", moveObject.toString())
     }
 
     function movePawn(to, from, toColor, fromColor, toNode, fromNode) {
@@ -234,11 +238,20 @@ import Rook from './pieces/rook.js';
                 let toStr = to.join();
                 let fromStr = from.join();
                 $("#show-move").html(fromStr + " --> " + toStr);
-                localStorage.setItem("last-move", moveObject)
+                moveSavingObject.moveObject = moveObject;
+                saveMoveSavingObject();
+                //localStorage.setItem("last-move", moveObject.toString())
             }
         }
     }
 
+    function saveMoveSavingObject(){
+        localStorage["moveSavingObject"] = JSON.stringify(
+            moveSavingObject.moveObject
+        );
+    }
+
+    //TODO: implement game over functionality
     function gameOver(){
     }
 
@@ -283,11 +296,12 @@ import Rook from './pieces/rook.js';
             });
         });
 
-        $('#back').click(function(){
-            let lastMove = localStorage.getItem("last-move");
+        //TODO: implement back button functionality
+        $('#back').click(() => {
+            let lastMove = localStorage.getItem("moveSavingObject");
             let lastMoveObj = JSON.parse(lastMove);
             if(lastMoveObj !== null){
-
+                console.log(lastMoveObj)
             }
         })
     });

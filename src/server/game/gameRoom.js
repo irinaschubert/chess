@@ -50,7 +50,6 @@ export default class GameRoom extends Room {
             gameState: WAITING_TO_START,
         };
         this.sendAll(JSON.stringify(gameLogicData));
-
     }
 
     /**
