@@ -207,7 +207,7 @@ export default class GameRoom extends Room {
                 MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
                     if (err) throw err;
                     let dbo = db.db("webEchessDb");
-                    let savedGame = { gameRoomId: room.id, users: room.users, game : game };
+                    let savedGame = { gameRoomId: room.id, users: room.users, game: game };
                     dbo.collection("savedGames").insertOne(savedGame, function(err, res) {
                         if (err) throw err;
                         db.close();
@@ -217,21 +217,31 @@ export default class GameRoom extends Room {
 
             // Load
             if (data.dataType === LOAD){
-                let name = data.loadUser;
+                let fullname = data.loadUser;
+                let games = [];
                 MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
                     if (err) throw err;
                     let dbo = db.db("webEchessDb");
 
-                    let cursor = dbo.collection("usernames").find({"username":name});
+                    //find user id
+                    let cursor = dbo.collection("usernames").find({"username":fullname});
                     cursor.each(function(err, item) {
                         // If the item is null then the cursor is empty and closed
                         if(item == null) {
                             db.close();
                         }else{
-                            //user id
-                            console.log(item.user);
-                            room.showSavedGamesForUser(user.id);
-                            db.close();
+                            //user already exists
+                            let cursor2 = dbo.collection("savedGames").find({"users.id":item.user});
+                            cursor2.each(function(err, item2) {
+                                // If the item is null then the cursor is empty and closed
+                                if(item2 == null) {
+                                    db.close();
+                                }else{
+                                    games.push(item2.game);
+                                    db.close();
+                                    room.showSavedGamesForUser(user.id, games);
+                                }
+                            });
                         }
                     });
                 });

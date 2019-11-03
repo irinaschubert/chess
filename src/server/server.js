@@ -39,7 +39,7 @@ function addUserToRoom(room, socket){
             });
         });
         console.log("[Server] A new connection was established. " + user.id + " has joined the game. " +
-            "Total connections in room " + room.id+ ": " + room.users.length);
+            "Total connections in room " + room.id + ": " + room.users.length);
     }
     else {
         room1 = new GameRoom();

@@ -78,7 +78,7 @@ footer {
 .captured{
     display: inline-block;
     width: 2.3em;
-    height: 3em;
+    height: 2.3em;
 }
 
 .field {
@@ -373,5 +373,47 @@ footer {
     visibility: hidden;
 }
 #popup-choose.hide #popup-box-choose{
+    margin-top: -1000px;
+}
+
+#load-game-panel {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+
+    background: rgba(0,0,0,.2);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    text-align: center;
+
+    transition: all .5s ease-in;
+}
+
+#load-game-panel h1 {
+    font-weight: 400;
+}
+
+#load-game-panel-box {
+    position: relative;
+    width: 400px;
+    height: 300px;
+    padding: 15px;
+
+    background: #b3b3ff;
+
+    border-radius: 15px;
+    box-shadow: 0 2px 2px #333;
+    transition: all .5s ease-in;
+}
+
+#load-game-panel.hide {
+    visibility: hidden;
+}
+#load-game-panel.hide #load-game-panel-box{
     margin-top: -1000px;
 }

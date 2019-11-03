@@ -14,6 +14,8 @@ import Queen from './pieces/queen.js';
 import Rook from './pieces/rook.js';
 
 (function($) {
+    const WON = 0;
+    const LOST = 1;
     let chessGame = {};
 
     chessGame.savingObject = {};
@@ -252,8 +254,14 @@ import Rook from './pieces/rook.js';
     }
 
     //TODO: implement game over functionality
-    function gameOver(){
-        $("#popup-loose").removeClass("hide");
+    function gameOver(lostOrWon){
+        if(lostOrWon === LOST){
+            $("#popup-loose").removeClass("hide");
+        }
+        else if(lostOrWon === WON){
+            $("#popup-win").removeClass("hide");
+        }
+
     }
 
     $(document).ready(function(){
@@ -304,11 +312,11 @@ import Rook from './pieces/rook.js';
             if(lastMoveObj !== null){
                 console.log(lastMoveObj)
             }
-        })
+        });
 
         //TODO: implement capitulate button functionality
         $('#capitulate').click(() => {
-            gameOver();
+            gameOver(LOST);
         })
     });
 })(jQuery);
