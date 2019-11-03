@@ -242,9 +242,11 @@ function movePiece(from, to){
         toNode.appendChild(fromNode);
         // TODO: do that also in gameController --> append captured piece ot field-captured
         if(capturedPiece !== undefined){
+            $(capturedPiece).removeClass("piece not-clickable not-my-color");
             let capturedPieces = document.getElementById("field-captured");
+            $(capturedPiece).addClass("captured");
+            //capturedPieces.insertBefore(capturedPiece, capturedPieces.nextSibling);
             capturedPieces.appendChild(capturedPiece);
-            //capturedPiece.remove();
         }
     }
 }

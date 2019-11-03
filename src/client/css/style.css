@@ -47,7 +47,7 @@ footer {
 }
 
 #captured-pieces {
-
+    position: relative;
 }
 
 #moves {
@@ -73,13 +73,15 @@ footer {
     position: relative;
 }
 
-.field-captured {
+#field-captured {
     position: relative;
-    display: inline-block;
     height: 3.5rem;
-    width: 3.5rem;
-    vertical-align: top;
-    padding: 0.2rem;
+}
+
+.captured{
+    display: inline-block;
+    width: 2.3em;
+    height: 3em;
 }
 
 .field {
@@ -122,6 +124,7 @@ footer {
     position: absolute;
     width: inherit;
     height: inherit;
+
 }
 
 .clicked{

@@ -191,12 +191,12 @@ import Rook from './pieces/rook.js';
         let toStr = to.join();
         let fromStr = from.join();
         $("#show-move").html(fromStr + " --> " + toStr);
+        localStorage.setItem("last-move", moveObject)
     }
 
     function movePawn(to, from, toColor, fromColor, toNode, fromNode) {
         let distX = to[0] - from[0];
         let distY = to[1] - from[1];
-        console.log("to: ", to," , from: ", from, "tocolor: ",toColor, "fromcolor: ",fromColor)
         if (fromColor === "white") {
             // move diagonally only if there is a piece of the enemy
             if (distX === 1 && distY === 1 || distX === -1 && distY === 1) {
@@ -230,6 +230,7 @@ import Rook from './pieces/rook.js';
                 let toStr = to.join();
                 let fromStr = from.join();
                 $("#show-move").html(fromStr + " --> " + toStr);
+                localStorage.setItem("last-move", moveObject)
             }
         }
     }
@@ -277,6 +278,14 @@ import Rook from './pieces/rook.js';
                 }
             });
         });
+
+        $('#back').click(function(){
+            let lastMove = localStorage.getItem("last-move");
+            let lastMoveObj = JSON.parse(lastMove);
+            if(lastMoveObj !== null){
+
+            }
+        })
     });
 })(jQuery);
 
