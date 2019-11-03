@@ -31,33 +31,43 @@
  *  @extends Room
  * */
 
+
 'use strict';
 
 import Room from "./room.js";
+import {MongoClient} from "mongodb";
+let url = "mongodb://localhost:27017/";
 
 // constants
 // data type
+const GAME_LOGIC = 0;
 const CHAT_MESSAGE = 1;
-const GAME_LOGIC = 2;
-const MOVE = 3;
+const MOVE = 2;
+const LOGIN = 3;
+const SAVE = 10;
+const LOAD = 11;
+const SHOW_GAMES = 12;
 // game state
 const WAITING_TO_START = 0;
-const GAME_START = 1;
-const GAME_OVER = 2;
-const GAME_RESTART = 3;
-// condition
+const GAME_INIT = 1;
+const GAME_START = 2;
+const GAME_OVER = 3;
+const REVANCHE = 4;
+// game or end condition
 const NORMAL = 0;
 const CHECK = 1;
 const CHECKMATE = 2;
 const REMIS = 3;
 const PATT = 4;
+const CAPITULATE = 5;
 
 export default class GameRoom extends Room {
-    /**
+     /**
      * Create a game room for two players with default values, send a message to all users when done
-     */
+      */
     constructor() {
         super();
+        this.id = "1" + Math.floor(Math.random() * 1000000000);
         this.playerTurn = 0;
         this.currentGameState = WAITING_TO_START;
         this.condition = NORMAL;
@@ -76,7 +86,7 @@ export default class GameRoom extends Room {
      */
     addUser(user) {
         super.addUser(user);
-        if (this.currentGameState === WAITING_TO_START &amp;&amp; this.users.length === 2) {
+        if (this.users.length === 2) {
             this.startGame();
         }
     };
@@ -99,13 +109,55 @@ export default class GameRoom extends Room {
             }
 
             // Move message
-            if (room.currentGameState === GAME_START &amp;&amp; data.dataType === MOVE){
-                let moveData = {
-                    dataType: MOVE,
-                    from: data.from,
-                    to: data.to,
-                };
-                room.sendAll(JSON.stringify(moveData));
+            if (room.currentGameState === GAME_START &amp;&amp; data.dataType === MOVE) {
+                room.makeMove(user.id, data.from, data.to);
+                // write move to mongodb
+                MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
+                    if (err) throw err;
+                    let dbo = db.db("webEchessDb");
+                    let move = { gameRoomId: room.id, user: user.id, move: [data.from, data.to] };
+                    dbo.collection("games").insertOne(move, function(err, res) {
+                        if (err) throw err;
+                        db.close();
+                    });
+                });
+            }
+
+            // Username message
+            if (data.dataType === LOGIN) {
+                let dbUser = { user: user.id, username: data.username};
+                let games = [];
+                // write user to mongodb
+                MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
+                    if (err) throw err;
+                    let dbo = db.db("webEchessDb");
+
+                    let cursor = dbo.collection("usernames").find({"username":dbUser.username});
+                    cursor.each(function(err, item) {
+                        // If the item is null then the cursor is empty and closed
+                        if(item == null) {
+                            dbo.collection("usernames").insertOne(dbUser, function(err, res) {
+                                if (err) throw err;
+                                db.close();
+                            });
+                        }else{
+                            //user already exists
+                            let cursor2 = dbo.collection("savedGames").find({"users.id":item.user});
+                            cursor2.each(function(err, item2) {
+                                // If the item is null then the cursor is empty and closed
+                                if(item2 == null) {
+                                    db.close();
+                                }else{
+                                    games.push(item2.game);
+                                    db.close();
+                                    room.showSavedGamesForUser(user.id, games);
+                                }
+                            });
+                        }
+                    });
+                });
+                data.sender = user.id;
+                room.sendAll(JSON.stringify(data));
             }
 
             // Game logic message
@@ -123,45 +175,104 @@ export default class GameRoom extends Room {
                 if (room.currentGameState === GAME_START &amp;&amp; room.condition === CHECKMATE) {
                     let gameLogicData = {
                         dataType: GAME_LOGIC,
-                        gameState: GAME_OVER,
-                        winner: user.id,
                         condition: CHECKMATE,
+                        winner: user.id,
                     };
 
                     room.sendAll(JSON.stringify(gameLogicData));
-                    room.currentGameState = WAITING_TO_START;
+                    room.currentGameState = GAME_OVER;
                 }
 
                 // Remis
                 if (room.currentGameState === GAME_START &amp;&amp; room.condition === REMIS) {
                     let gameLogicData = {
                         dataType: GAME_LOGIC,
-                        gameState: GAME_OVER,
-                        winner: user.id,
                         condition: REMIS,
+                        winner: user.id,
                     };
 
                     room.sendAll(JSON.stringify(gameLogicData));
-                    room.currentGameState = WAITING_TO_START;
+                    room.currentGameState = GAME_OVER;
                 }
 
                 // Patt
                 if (room.currentGameState === GAME_START &amp;&amp; room.condition === PATT) {
                     let gameLogicData = {
                         dataType: GAME_LOGIC,
-                        gameState: GAME_OVER,
-                        winner: user.id,
                         condition: PATT,
+                        winner: user.id,
                     };
 
                     room.sendAll(JSON.stringify(gameLogicData));
-                    room.currentGameState = WAITING_TO_START;
+                    room.currentGameState = GAME_OVER;
                 }
 
                 // Revanche
-                if (data.gameState === GAME_RESTART) {
-                    room.startGame();
+                if (room.currentGameState === GAME_OVER) {
+                    let gameLogicData = {
+                        dataType: REVANCHE,
+                    };
+
+                    room.sendAll(JSON.stringify(gameLogicData));
+                    room.currentGameState = GAME_RESTART;
                 }
+
+                // Capitulate
+                if (room.currentGameState === GAME_START) {
+                    let gameLogicData = {
+                        dataType: CAPITULATE,
+                    };
+
+                    room.sendAll(JSON.stringify(gameLogicData));
+                    room.currentGameState = GAME_OVER;
+                }
+            }
+
+            // Save
+            if (data.dataType === SAVE){
+                let game = data.game;
+
+                MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
+                    if (err) throw err;
+                    let dbo = db.db("webEchessDb");
+                    let savedGame = { gameRoomId: room.id, users: room.users, game: game };
+                    dbo.collection("savedGames").insertOne(savedGame, function(err, res) {
+                        if (err) throw err;
+                        db.close();
+                    });
+                });
+            }
+
+            // Load
+            if (data.dataType === LOAD){
+                let fullname = data.loadUser;
+                let games = [];
+                MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
+                    if (err) throw err;
+                    let dbo = db.db("webEchessDb");
+
+                    //find user id
+                    let cursor = dbo.collection("usernames").find({"username":fullname});
+                    cursor.each(function(err, item) {
+                        // If the item is null then the cursor is empty and closed
+                        if(item == null) {
+                            db.close();
+                        }else{
+                            //user already exists
+                            let cursor2 = dbo.collection("savedGames").find({"users.id":item.user});
+                            cursor2.each(function(err, item2) {
+                                // If the item is null then the cursor is empty and closed
+                                if(item2 == null) {
+                                    db.close();
+                                }else{
+                                    games.push(item2.game);
+                                    db.close();
+                                    room.showSavedGamesForUser(user.id, games);
+                                }
+                            });
+                        }
+                    });
+                });
             }
         });
     };
@@ -172,28 +283,92 @@ export default class GameRoom extends Room {
     startGame() {
         let room = this;
 
-        // player this.users[this.playerTurn] will start the game
+        // player this.users[this.playerTurn] will start the game --> spoiler: it's always player 1 :)
         this.playerTurn = (this.playerTurn + 1) % this.users.length;
         console.log("[GameRoom] Start game with player " + this.playerTurn + "'s turn.");
 
         // send a message to all players with isPlayerTurn: false
         let gameLogicDataForAllPlayers = {
             dataType: GAME_LOGIC,
-            gameState: GAME_START,
+            gameState: GAME_INIT,
             isPlayerTurn: false,
+            isPlayerColorWhite: false,
         };
         this.sendAll(JSON.stringify(gameLogicDataForAllPlayers));
 
         // player who's turn it is, is sent a message with isPlayerTurn: true
         let gameLogicDataForPlayerTurn = {
             dataType: GAME_LOGIC,
-            gameState: GAME_START,
+            gameState: GAME_INIT,
             isPlayerTurn: true,
+            isPlayerColorWhite: true,
         };
         let user = this.users[this.playerTurn];
         user.socket.send(JSON.stringify(gameLogicDataForPlayerTurn));
 
         room.currentGameState = GAME_START;
+    }
+
+    /**
+     * Move pieces and notify player's about their turn
+     */
+    makeMove(id, from, to){
+        let room = this;
+        let currentUserId = id;
+        let currentUser;
+        let nextUser;
+        for (let i = 0; i &lt; this.users.length; i++) {
+            let user = this.users[i];
+            if(user.id === currentUserId){
+                currentUser = user;
+            }
+            else{
+                nextUser = user;
+            }
+        }
+
+        let moveData = {
+            dataType: MOVE,
+            from: from,
+            to: to,
+        };
+        room.sendAll(JSON.stringify(moveData));
+
+        // player who just moved, is sent a message with isPlayerTurn: false
+        let gameLogicDataForPlayerTurn = {
+            dataType: GAME_LOGIC,
+            gameState: GAME_START,
+            isPlayerTurn: false,
+        };
+        currentUser.socket.send(JSON.stringify(gameLogicDataForPlayerTurn));
+
+        // player who's turn it is, is sent a message with isPlayerTurn: true
+        let gameLogicDataForNextPlayerTurn = {
+            dataType: GAME_LOGIC,
+            gameState: GAME_START,
+            isPlayerTurn: true,
+        };
+        nextUser.socket.send(JSON.stringify(gameLogicDataForNextPlayerTurn));
+    }
+
+    /**
+     * Show saved games for current user
+     */
+    showSavedGamesForUser(userid, games){
+        let currentUserId = userid;
+        let currentUser;
+        for (let i = 0; i &lt; this.users.length; i++) {
+            let user = this.users[i];
+            if(user.id === currentUserId){
+                currentUser = user;
+            }
+        }
+        // show all saved games for current player
+        let savedGames = {
+            dataType: SHOW_GAMES,
+            games : games,
+        };
+        currentUser.socket.send(JSON.stringify(savedGames));
     }
 }</code></pre>
         </article>
@@ -211,7 +386,7 @@ export default class GameRoom extends Room {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Sat Oct 05 2019 12:44:27 GMT+0200 (GMT+02:00)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Sun Nov 03 2019 16:57:12 GMT+0100 (GMT+01:00)
 </footer>
 
 <script> prettyPrint(); </script>
