@@ -49,8 +49,6 @@
     <div id="popup-box-win">
         <div id="popup-box-content-win">
             <h1>You Won!</h1>
-            <p>Your Score:</p>
-            <p><span class='score'>13</span></p>
         </div>
     </div>
 </section>
@@ -59,8 +57,10 @@
     <div id="popup-box-loose">
         <div id="popup-box-content-loose">
             <h1>You Lost!</h1>
-            <p>Your Score:</p>
-            <p><span class='score'>13</span></p>
+            <form>
+                <input type="button" value="New Game" id="new-game-button" class="button" />
+                <input type="button" value="Load Game" id="load-game-button" class="button" />
+            </form>
         </div>
     </div>
 </section>
@@ -77,5 +77,6 @@
 <script type="module" src="client/js/pieces/piece.js"></script>-->
 <script type="module" src="client/js/websockets.js"></script>
 <script type="module" src="client/js/gameController.js"></script>
+<script type="module" src="client/js/login.js"></script>
 </body>
 </html>

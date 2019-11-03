@@ -22,11 +22,11 @@
     }
 
     function startNewGame(){
-        window.location.href = '../../index.html';
+        window.location.href = 'index.html';
     }
 
     function loadGame(){
-
+        $("#load-game-panel").removeClass("hide");
     }
 
 })(jQuery);

@@ -43,7 +43,6 @@ footer {
 #board {
     min-width: 40rem;
     position: relative;
-    background: #9999ff;
 }
 
 #captured-pieces {
@@ -53,7 +52,6 @@ footer {
 #moves {
     min-width: 20rem;
     position: relative;
-    background: #b3b3ff;
 }
 
 #moves-buttons {
@@ -66,7 +64,6 @@ footer {
 #chat{
     min-width: 20rem;
     position: relative;
-    background: #ccccff;
 }
 
 #login-form{
@@ -271,10 +268,10 @@ footer {
 #popup-box-loose {
     position: relative;
     width: 400px;
-    height: 300px;
+    height: 150px;
     padding: 15px;
 
-    background: #b3b3ff;
+    background: #ccccff;
 
     border-radius: 15px;
     box-shadow: 0 2px 2px #333;
@@ -285,11 +282,10 @@ footer {
  * Styles to hide the popup box
  */
 #popup-loose.hide {
-    background: rgba(0,0,0,0);
     visibility: hidden;
 }
 #popup-loose.hide #popup-box-loose{
-    margin-top: -800px;
+    margin-top: -1000px;
 }
 
 /* Styles for game over popup */
@@ -318,7 +314,7 @@ footer {
 #popup-box-win {
     position: relative;
     width: 400px;
-    height: 300px;
+    height: 150px;
     padding: 15px;
 
     background: #b3b3ff;
@@ -332,11 +328,10 @@ footer {
  * Styles to hide the popup box
  */
 #popup-win.hide {
-    background: rgba(0,0,0,0);
     visibility: hidden;
 }
 #popup-win.hide #popup-box-win{
-    margin-top: -800px;
+    margin-top: -1000px;
 }
 
 #popup-choose {

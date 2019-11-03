@@ -253,6 +253,7 @@ import Rook from './pieces/rook.js';
 
     //TODO: implement game over functionality
     function gameOver(){
+        $("#popup-loose").removeClass("hide");
     }
 
     $(document).ready(function(){
@@ -303,6 +304,11 @@ import Rook from './pieces/rook.js';
             if(lastMoveObj !== null){
                 console.log(lastMoveObj)
             }
+        })
+
+        //TODO: implement capitulate button functionality
+        $('#capitulate').click(() => {
+            gameOver();
         })
     });
 })(jQuery);
