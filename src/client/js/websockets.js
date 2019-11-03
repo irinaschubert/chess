@@ -240,12 +240,11 @@ function movePiece(from, to){
     });
     if(toNode !== undefined && fromNode !== undefined){
         toNode.appendChild(fromNode);
-        // TODO: do that also in gameController --> append captured piece ot field-captured
+        // TODO: do that also in gameController --> append captured piece to field-captured
         if(capturedPiece !== undefined){
             $(capturedPiece).removeClass("piece not-clickable not-my-color");
-            let capturedPieces = document.getElementById("field-captured");
             $(capturedPiece).addClass("captured");
-            //capturedPieces.insertBefore(capturedPiece, capturedPieces.nextSibling);
+            let capturedPieces = document.getElementById("field-captured");
             capturedPieces.appendChild(capturedPiece);
         }
     }

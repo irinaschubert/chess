@@ -179,7 +179,11 @@ import Rook from './pieces/rook.js';
         if (toColor !== '') {
             $(toNode).children(".piece").each(function(){
                 if ($(this).hasClass(toColor)) {
-                    $(this).remove();
+                    //$(this).remove();
+                    $(this).removeClass("piece not-clickable not-my-color");
+                    $(this).addClass("captured");
+                    let capturedPieces = document.getElementById("field-captured");
+                    capturedPieces.appendChild(this);
                 }
             });
             toNode.appendChild(fromNode);
