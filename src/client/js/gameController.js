@@ -130,27 +130,37 @@ import Rook from './pieces/rook.js';
         }
 
         // get the to-color
-        $(toNode).children(".piece").each(function(){
-            if ($(this).hasClass('white')) {
+        console.log("tonode: ", toNode)
+        if(toNode.classList.contains("piece")){
+            if (toNode.classList.contains('white')) {
                 toColor = "white";
-            } else if ($(this).hasClass('black')) {
+            } else if (toNode.classList.contains('black')) {
                 toColor = "black";
             }
-            // get the to-piece type and make to-piece
-            if ($(this).hasClass("bishop")) {
-                toPiece = new Bishop(toColor, to);
-            } else if ($(this).hasClass("king")) {
-                toPiece = new King(toColor, to);
-            } else if ($(this).hasClass("knight")) {
-                toPiece = new Knight(toColor, to);
-            } else if ($(this).hasClass("pawn")) {
-                toPiece = new Pawn(toColor, to);
-            } else if ($(this).hasClass("queen")) {
-                toPiece = new Queen(toColor, to);
-            } else if ($(this).hasClass("rook")) {
-                toPiece = new Rook(toColor, to);
-            }
-        });
+        }
+        else if(toNode.classList.contains("field")){
+            $(toNode).children(".piece").each(function(){
+                if ($(this).hasClass('white')) {
+                    toColor = "white";
+                } else if ($(this).hasClass('black')) {
+                    toColor = "black";
+                }
+                // get the to-piece type and make to-piece
+                if ($(this).hasClass("bishop")) {
+                    toPiece = new Bishop(toColor, to);
+                } else if ($(this).hasClass("king")) {
+                    toPiece = new King(toColor, to);
+                } else if ($(this).hasClass("knight")) {
+                    toPiece = new Knight(toColor, to);
+                } else if ($(this).hasClass("pawn")) {
+                    toPiece = new Pawn(toColor, to);
+                } else if ($(this).hasClass("queen")) {
+                    toPiece = new Queen(toColor, to);
+                } else if ($(this).hasClass("rook")) {
+                    toPiece = new Rook(toColor, to);
+                }
+            });
+        }
 
         // validate move
         let validMove = fromPiece.validateMove(from, to);
@@ -180,7 +190,7 @@ import Rook from './pieces/rook.js';
 
     function move(to, from, toColor, fromColor, toNode, fromNode) {
         // capture piece if color is different
-        if (toColor !== '') {
+        if (toColor !== '' && toColor !== fromColor) {
             $(toNode).children(".piece").each(function(){
                 if ($(this).hasClass(toColor)) {
                     $(this).removeClass("piece not-clickable not-my-color");
