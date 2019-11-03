@@ -33,7 +33,6 @@ const REMIS = 3;
 const PATT = 4;
 const CAPITULATE = 5;
 
-
 export default class GameRoom extends Room {
      /**
      * Create a game room for two players with default values, send a message to all users when done
@@ -246,7 +245,7 @@ export default class GameRoom extends Room {
     startGame() {
         let room = this;
 
-        // player this.users[this.playerTurn] will start the game
+        // player this.users[this.playerTurn] will start the game --> spoiler: it's always player 1 :)
         this.playerTurn = (this.playerTurn + 1) % this.users.length;
         console.log("[GameRoom] Start game with player " + this.playerTurn + "'s turn.");
 
@@ -272,6 +271,9 @@ export default class GameRoom extends Room {
         room.currentGameState = GAME_START;
     }
 
+    /**
+     * Move pieces and notify player's about their turn
+     */
     makeMove(id, from, to){
         let room = this;
         let currentUserId = id;
@@ -294,7 +296,7 @@ export default class GameRoom extends Room {
         };
         room.sendAll(JSON.stringify(moveData));
 
-        // player who's turn it is not, is sent a message with isPlayerTurn: false
+        // player who just moved, is sent a message with isPlayerTurn: false
         let gameLogicDataForPlayerTurn = {
             dataType: GAME_LOGIC,
             gameState: GAME_START,
@@ -311,6 +313,9 @@ export default class GameRoom extends Room {
         nextUser.socket.send(JSON.stringify(gameLogicDataForNextPlayerTurn));
     }
 
+    /**
+     * Show saved games for current user
+     */
     showSavedGamesForUser(userid, games){
         let currentUserId = userid;
         let currentUser;

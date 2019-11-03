@@ -3,26 +3,32 @@
 <head>
     <title>Login</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8">
-    <link rel="stylesheet" href="../../client/css/style.css" type="text/css"/>
+    <link rel="stylesheet" href="../css/style.css" type="text/css"/>
     <link href="https://fonts.googleapis.com/css?family=Kurale" rel="stylesheet">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 </head>
 <body>
 
 <div id="header">
-    <header>
-        <h1>Chess</h1>
-        <p>Please provide a username</p>
-    </header>
+    <h1>Chess</h1>
+    <p id="username"></p>
+    <p id="show-turn"></p>
 </div>
 
-<div id="main">
-    <form id="username-form" action="../../index.html" method="POST">
-        <input type="text" id="username" autocomplete="off">
-        <input type="submit" value="OK" class="button" id="username-button">
-    </form>
-</div>
+<section id="popup-choose" class="hide">
+    <div id="popup-box-choose">
+        <div id="popup-box-content-choose">
+            <h1>What do you want to do?</h1>
+            <form>
+                <input type="button" value="New Game" id="new-game-button" />
+                <input type="button" value="Load Game" id="load-game-button" />
+            </form>
+
+        </div>
+    </div>
+</section>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="../js/login.js"></script>
 </body>
 </html>
