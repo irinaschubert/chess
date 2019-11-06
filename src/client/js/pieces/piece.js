@@ -9,8 +9,8 @@ export default class Piece{
     constructor(color, position){
         /**
          * Abstract, cannot be created directly
-         * @param {color} color - can be black or white
-         * @param {position} position - position on the board
+         * @param {string} color - can be black or white
+         * @param {number[]} position - position on the board
          */
         if (new.target === Piece) {
             throw new TypeError("Cannot construct Piece instances directly.");

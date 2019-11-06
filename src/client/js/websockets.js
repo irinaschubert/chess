@@ -69,7 +69,7 @@ $(function(){
             }
 
             // show saved games
-            else if (data.dataType === websocketGame.SHOW_GAMES){
+            /*else if (data.dataType === websocketGame.SHOW_GAMES){
                 if(data.games !== undefined && data.games !== null && data.games !== []){
                     for(let i = 0; i < data.games.length; i++){
                         savedGames.appendToGames(data.games[i]);
@@ -77,7 +77,7 @@ $(function(){
                     $("#saved-games").style.display = "block";
                 }
 
-            }
+            }*/
 
             // print on chat panel if it is a chat message
             if(data.dataType === websocketGame.CHAT_MESSAGE){
@@ -170,12 +170,11 @@ $("#username-button").click(getUsername);
 
 function getUsername(){
     let username = $("#username");
-    console.log("hello ", username);
     let data = {};
     data.dataType = websocketGame.LOGIN;
     data.username = username;
     websocketGame.socket.send(JSON.stringify(data));
-    $("#username").val("");
+    username.val("");
 }
 
 // Chat Button / Field

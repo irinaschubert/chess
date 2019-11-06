@@ -82,16 +82,18 @@ import Rook from './pieces/rook.js';
         // if piece is inbetween, move should not be allowed
         let pieceInbetween = false;
         for (let i in fieldsToCheck) {
-            let field = fieldsToCheck[i];
-            let col = field[0];
-            let row = field[1];
-            $('.field').each(function () {
-                if ($(this).data('row') === row && $(this).data('col') === col) {
-                    if ($(this).find('.piece').length) {
-                        pieceInbetween = true;
+            if (fieldsToCheck.hasOwnProperty(i)) {
+                let field = fieldsToCheck[i];
+                let col = field[0];
+                let row = field[1];
+                $('.field').each(function () {
+                    if ($(this).data('row') === row && $(this).data('col') === col) {
+                        if ($(this).find('.piece').length) {
+                            pieceInbetween = true;
+                        }
                     }
-                }
-            });
+                });
+            }
         }
         return pieceInbetween;
     }
@@ -130,7 +132,6 @@ import Rook from './pieces/rook.js';
         }
 
         // get the to-color
-        console.log("tonode: ", toNode)
         if(toNode.classList.contains("piece")){
             if (toNode.classList.contains('white')) {
                 toColor = "white";
@@ -281,8 +282,9 @@ import Rook from './pieces/rook.js';
         $board.children().each(function() {
             $(this).click(function(e){
                 if (e.target.classList.contains("piece") || e.target.classList.contains("field")) {
+                    let clickedFieldsLength = $(".clicked").length;
                     // from (first click)
-                    if ($(".clicked").length === 0) {
+                    if (clickedFieldsLength === 0) {
                         moveObject = [];
                         if (e.target.classList.contains("piece")) {
                             $(e.target.parentNode.classList.toggle('clicked'));
@@ -293,7 +295,7 @@ import Rook from './pieces/rook.js';
                     }
 
                     // to (second click)
-                    else if ($(".clicked").length === 1) {
+                    else if (clickedFieldsLength === 1) {
                         $(e.target.classList.toggle('clicked'));
 
                         if (e.target.classList.contains("piece")) {
