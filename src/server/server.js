@@ -29,11 +29,11 @@ function addUserToRoom(room, socket){
     if(room.users.length < 2){
         let user = new User(socket);
         room.addUser(user);
-        MongoClient.connect.then(url, {useUnifiedTopology: true}, function(err, db) {
+        MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
             if (err) throw err;
             let dbo = db.db("webEchessDb");
             let gameRoomUser = { gameRoomId: room.id, user: user.id };
-            dbo.collection("rooms").insertOne.then(gameRoomUser, function(err, res) {
+            dbo.collection("rooms").insertOne(gameRoomUser, function(err, res) {
                 if (err) throw err;
                 db.close();
             });
