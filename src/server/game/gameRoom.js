@@ -262,12 +262,14 @@ export default class GameRoom extends Room {
                         return dbo.collection("savedGames").find({"users.id": value});
                     }).then(async function (value) {
                         let games = [];
+                        let gameTimestamps = [];
                         for await (const item of value) {
                             if (item !== null) {
                                 games.push(item.game);
+                                gameTimestamps.push(item.timestamp);
                             }
                         }
-                        return games;
+                        return gameTimestamps;
                     }).then(function (value) {
                         db.close();
                         room.showSavedGamesForUser(user.id, value);
@@ -354,8 +356,7 @@ export default class GameRoom extends Room {
     /**
      * Show saved games for current user
      */
-    showSavedGamesForUser(userid, games){
-        console.log(games);
+    showSavedGamesForUser(userid, gameTimestamps){
         let currentUserId = userid;
         let currentUser;
         for (let i = 0; i < this.users.length; i++) {
@@ -367,7 +368,7 @@ export default class GameRoom extends Room {
         // show all saved games for current player
         let savedGames = {
             dataType: SHOW_GAMES,
-            games : games,
+            gameTimestamps : gameTimestamps
         };
         currentUser.socket.send(JSON.stringify(savedGames));
     }

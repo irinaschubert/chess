@@ -16,7 +16,7 @@ export default class SavedGames {
      * Appends saved games
      */
     appendToGames(game) {
-        $("#saved-games").append("<li>" + game + "</li>");
+        $("#saved-games").append("<li onclick='loadGame(game)' >" + game + "</li>");
     }
 }
 

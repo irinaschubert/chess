@@ -89,9 +89,9 @@ $(function(){
 
             // show saved games
             else if (data.dataType === websocketGame.SHOW_GAMES){
-                if(data.games !== undefined && data.games !== null && data.games !== []){
-                    for(let i = 0; i < data.games.length; i++){
-                        savedGames.appendToGames(data.games[i]);
+                if(data.gameTimestamps !== []){
+                    for(let i = 0; i < data.gameTimestamps.length; i++){
+                        savedGames.appendToGames(data.gameTimestamps[i]);
                     }
                     $("#show-saved-games").removeClass("hide");
                 }
