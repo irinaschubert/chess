@@ -88,15 +88,15 @@ $(function(){
             }
 
             // show saved games
-            /*else if (data.dataType === websocketGame.SHOW_GAMES){
+            else if (data.dataType === websocketGame.SHOW_GAMES){
                 if(data.games !== undefined && data.games !== null && data.games !== []){
                     for(let i = 0; i < data.games.length; i++){
                         savedGames.appendToGames(data.games[i]);
                     }
-                    $("#saved-games").style.display = "block";
+                    $("#show-saved-games").removeClass("hide");
                 }
 
-            }*/
+            }
 
             // print on chat panel if it is a chat message
             if(data.dataType === websocketGame.CHAT_MESSAGE){
@@ -286,7 +286,6 @@ function movePiece(from, to){
 $("#save").click(saveGame);
 
 function saveGame(){
-    console.log("save the game");
     let today = new Date();
     let date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
     let time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
@@ -303,7 +302,8 @@ function saveGame(){
 $("#load").click(loadGame);
 
 function loadGame(){
-    console.log("load games");
+    let usernameElement = document.getElementById("username");
+    username = usernameElement.innerHTML;
     let data = {};
     data.dataType = websocketGame.LOAD;
     data.loadUser = username;

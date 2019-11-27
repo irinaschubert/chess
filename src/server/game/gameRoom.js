@@ -247,32 +247,30 @@ export default class GameRoom extends Room {
             }
 
             // Load
-            if (data.dataType === LOAD){
+            if (data.dataType === LOAD) {
                 let fullname = data.loadUser;
-                let games = [];
-                MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
+
+                MongoClient.connect(url, {useUnifiedTopology: true}, function (err, db) {
                     if (err) throw err;
                     let dbo = db.db("webEchessDb");
 
-                    //find user id
-                    let cursor = dbo.collection("usernames").find({"username":fullname});
-                    cursor.each(function(err, item) {
-                        // If the item is null then the cursor is empty and closed
-                        if(item == null) {
-                            db.close();
-                        }else{
-                            let cursor2 = dbo.collection("savedGames").find({"users.id":item.user});
-                            cursor2.each(function(err, item2) {
-                                // If the item is null then the cursor is empty and closed
-                                if(item2 == null) {
-                                    db.close();
-                                }else{
-                                    games.push(item2.game);
-                                    db.close();
-                                    room.showSavedGamesForUser(user.id, games);
-                                }
-                            });
+                    new Promise(function (resolve, reject) {
+                        resolve(dbo.collection("users").findOne({"username": fullname}));
+                    }).then(function (value) {
+                        return value.user;
+                    }).then(function (value) {
+                        return dbo.collection("savedGames").find({"users.id": value});
+                    }).then(async function (value) {
+                        let games = [];
+                        for await (const item of value) {
+                            if (item !== null) {
+                                games.push(item.game);
+                            }
                         }
+                        return games;
+                    }).then(function (value) {
+                        db.close();
+                        room.showSavedGamesForUser(user.id, value);
                     });
                 });
             }
@@ -357,6 +355,7 @@ export default class GameRoom extends Room {
      * Show saved games for current user
      */
     showSavedGamesForUser(userid, games){
+        console.log(games);
         let currentUserId = userid;
         let currentUser;
         for (let i = 0; i < this.users.length; i++) {
