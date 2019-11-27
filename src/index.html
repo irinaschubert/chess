@@ -30,6 +30,7 @@
             <input type="button" value="Move" class="button" id="move">
         </div>
     </section>
+
     <section class="container" id="captured-pieces">
         <div id="field-captured"></div>
     </section>
@@ -39,19 +40,43 @@
         <input type="text" id="chat-input" autocomplete="off">
         <input type="button" value="Send" class="button" id="send">
     </section>
+
 </div>
+
 <div class="container" id="show-saved-games">
     <ul id="saved-games"></ul>
 </div>
+
+<section id="login">
+    <div id="box-login">
+        <div id="box-content-login">
+            <h1>Login</h1>
+            <form>
+                <div class="login-div">
+                    <div id="login-text"></div>
+                    username <input type="text" id="username-input-login" autocomplete="off" class="login">
+                    password <input type="password" id="pw-input-login" autocomplete="off" class="login">
+                    <input type="button" value="Login" id="login-button" class="button" class="login"/>
+                    <input type="button" value="Register" id="register-button" class="button" class="login"/>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
 
 <section id="popup-win" class="hide">
     <div id="popup-bg-win"></div>
     <div id="popup-box-win">
         <div id="popup-box-content-win">
             <h1>You Won!</h1>
+            <form>
+                <input type="button" value="New Game" class="button" />
+                <input type="button" value="Load Game" class="button" />
+            </form>
         </div>
     </div>
 </section>
+
 <section id="popup-loose" class="hide">
     <div id="popup-bg-loose"></div>
     <div id="popup-box-loose">
@@ -68,13 +93,6 @@
 <footer id="footer">Images for Chess Pieces by en:User:Cburnett [<a href="https://creativecommons.org/licenses/by-sa/3.0">CC BY-SA 3.0</a>], <a href="https://commons.wikimedia.org/wiki/File:Chess_bdt60.png">via Wikimedia Commons</a></footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<!--<script type="module" src="client/js/websockets.js"></script>
-<script type="module" src="client/js/chat.js"></script>
-<script type="module" src="server/game/room.js"></script>
-<script type="module" src="server/game/user.js"></script>
-<script type="module" src="client/js/gameController.js"></script>
-<script type="module" src="client/js/board.js"></script>
-<script type="module" src="client/js/pieces/piece.js"></script>-->
 <script type="module" src="client/js/websockets.js"></script>
 <script type="module" src="client/js/gameController.js"></script>
 <script type="module" src="client/js/login.js"></script>

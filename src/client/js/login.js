@@ -6,6 +6,7 @@
 'use strict';
 
 (function($) {
+    /*
     $(document).ready(function(){
         getSelection();
     });
@@ -29,7 +30,7 @@
         let games = [];
         let username = prompt("Please provide a username");
         $("#load-game-panel").removeClass("hide");
-    }
+    }*/
 
 })(jQuery);
 

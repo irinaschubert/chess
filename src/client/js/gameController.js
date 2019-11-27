@@ -1,4 +1,5 @@
-/** representing the gameController
+/**
+ *  representing the gameController
  *  @author Irina
  *
  * */

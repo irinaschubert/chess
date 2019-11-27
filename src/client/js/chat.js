@@ -18,7 +18,13 @@ export default class Chat {
      * @param {String} message - message to append
      */
     appendToHistory(sender, message) {
-        $("#chat-history").append("<li>" + sender + ": " + message + "</li>");
+        if(sender === undefined){
+            $("#chat-history").append("<li>" + message + "</li>");
+        }
+        else {
+            $("#chat-history").append("<li>" + sender + ": " + message + "</li>");
+        }
+
     }
 }
 

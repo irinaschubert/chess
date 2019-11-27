@@ -14,6 +14,7 @@ let websocketGame = {
     CHAT_MESSAGE : 1,
     MOVE : 2,
     LOGIN : 3,
+    REGISTRATION : 4,
     WAITING_TO_START : 0,
     GAME_INIT : 1,
     GAME_START : 2,
@@ -28,7 +29,9 @@ let websocketGame = {
     isPlayerTurn: false,
     SAVE : 10,
     LOAD : 11,
-    SHOW_GAMES: 12
+    SHOW_GAMES: 12,
+    FAILURE : 0,
+    SUCCESS : 1
 };
 
 let username = "";
@@ -44,28 +47,44 @@ $(function(){
         // on open event
         websocketGame.socket.onopen = function(e){
             console.log('WebSocket connection established.');
-            do{
-                username = prompt("Please provide a username");
-            }while(username === null || username === "" || username === undefined);
-
-            $("#username").append(username);
-
-            let data = {};
-            data.dataType = websocketGame.LOGIN;
-            data.username = username;
-            websocketGame.socket.send(JSON.stringify(data));
         };
 
         // on message event (executed when receiving a message from GameRoom)
         websocketGame.socket.onmessage = function(e){
+
             let data = JSON.parse(e.data);
+
             if(data.dataType !== websocketGame.LOGIN){
                 console.log("Got message: ", e.data);
             }
 
-            // print username on chat panel
+            // login
             if(data.dataType === websocketGame.LOGIN){
-                chat.appendToHistory(data.sender, data.username + " has joined the game");
+                if(data.message === websocketGame.SUCCESS){
+                    username = $("#username-input-login").val();
+                    $("#login").addClass("hide");
+                    $("#username").append(data.username);
+                    chat.appendToHistory(data.sender, data.username + " has joined the game");
+                }
+                else if(data.message === websocketGame.FAILURE){
+                    let loginText = document.getElementById("login-text");
+                    loginText.innerHTML = "Wrong username or password";
+                    $("#pw-input-login").val("");
+                }
+            }
+
+            // registration
+            if(data.dataType === websocketGame.REGISTRATION){
+                if(data.message === websocketGame.SUCCESS){
+                    $("#login").addClass("hide");
+                    $("#username").append(data.username);
+                    chat.appendToHistory(data.sender, data.username + " has joined the game");
+                }
+                else if(data.message === websocketGame.FAILURE){
+                    let loginText = document.getElementById("login-text");
+                    loginText.innerHTML = "Username already exists";
+                    $("#pw-input-login").val("");
+                }
             }
 
             // show saved games
@@ -95,7 +114,6 @@ $(function(){
                 }
                 else{
                     document.getElementById("move").disabled = true;
-
                 }
             }
 
@@ -165,16 +183,30 @@ $(function(){
     }
 });
 
-// Login
-$("#username-button").click(getUsername);
+// Login / Registration
+$("#login-button").click(getLoginValues);
+$("#register-button").click(getRegisterValues);
 
-function getUsername(){
-    let username = $("#username");
+function getLoginValues(){
+    let username = $("#username-input-login").val();
+    let password = $("#pw-input-login").val();
+
     let data = {};
     data.dataType = websocketGame.LOGIN;
     data.username = username;
+    data.password = password;
     websocketGame.socket.send(JSON.stringify(data));
-    username.val("");
+}
+
+function getRegisterValues(){
+    let username = $("#username-input-login").val();
+    let password = $("#pw-input-login").val();
+
+    let data = {};
+    data.dataType = websocketGame.REGISTRATION;
+    data.username = username;
+    data.password = password;
+    websocketGame.socket.send(JSON.stringify(data));
 }
 
 // Chat Button / Field

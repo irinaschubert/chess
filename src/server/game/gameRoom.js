@@ -9,6 +9,7 @@
 import Room from "./room.js";
 import {MongoClient} from "mongodb";
 let url = "mongodb://localhost:27017/";
+import DB from "../db/db.js"
 
 // constants
 // data type
@@ -16,6 +17,7 @@ const GAME_LOGIC = 0;
 const CHAT_MESSAGE = 1;
 const MOVE = 2;
 const LOGIN = 3;
+const REGISTRATION = 4;
 const SAVE = 10;
 const LOAD = 11;
 const SHOW_GAMES = 12;
@@ -33,6 +35,9 @@ const REMIS = 3;
 const PATT = 4;
 const CAPITULATE = 5;
 
+const FAILURE = 0;
+const SUCCESS = 1;
+
 export default class GameRoom extends Room {
      /**
      * Create a game room for two players with default values, send a message to all users when done
@@ -43,6 +48,7 @@ export default class GameRoom extends Room {
         this.playerTurn = 0;
         this.currentGameState = WAITING_TO_START;
         this.condition = NORMAL;
+        let db = new DB;
 
         let gameLogicData = {
             dataType: GAME_LOGIC,
@@ -95,41 +101,77 @@ export default class GameRoom extends Room {
                 });
             }
 
-            // Username message
+            // Login message
             if (data.dataType === LOGIN) {
-                let dbUser = { user: user.id, username: data.username};
+                let dbUser = { user: user.id, username: data.username, password: data.password};
                 let games = [];
-                // write user to mongodb
+
+                // check username and password
                 MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
                     if (err) throw err;
                     let dbo = db.db("webEchessDb");
 
-                    let cursor = dbo.collection("usernames").find({"username":dbUser.username});
-                    cursor.each(function(err, item) {
-                        // If the item is null then the cursor is empty and closed
-                        if(item == null) {
-                            dbo.collection("usernames").insertOne(dbUser, function(err, res) {
-                                if (err) throw err;
-                                db.close();
-                            });
-                        }else{
-                            //user already exists
-                            let cursor2 = dbo.collection("savedGames").find({"users.id":item.user});
-                            cursor2.each(function(err, item2) {
-                                // If the item is null then the cursor is empty and closed
-                                if(item2 == null) {
-                                    db.close();
-                                }else{
-                                    games.push(item2.game);
-                                    db.close();
-                                    room.showSavedGamesForUser(user.id, games);
-                                }
-                            });
+                    let userCheck = new Promise(function (resolve, reject) {
+                        resolve(dbo.collection("users").findOne({"username": dbUser.username, "password":dbUser.password}));
+                    });
+
+                    userCheck.then(function (value) {
+                        if (value !== null) {
+                            //user exists and password is correct
+                            let loginMessage = {
+                                dataType: LOGIN,
+                                username: dbUser.username,
+                                message: SUCCESS,
+                            };
+                            user.socket.send(JSON.stringify(loginMessage));
+                        } else {
+                            let loginMessage = {
+                                dataType: LOGIN,
+                                username: dbUser.username,
+                                message: FAILURE,
+                            };
+                            user.socket.send(JSON.stringify(loginMessage));
                         }
                     });
                 });
-                data.sender = user.id;
-                room.sendAll(JSON.stringify(data));
+            }
+
+            // Registration message
+            if (data.dataType === REGISTRATION) {
+                let dbUser = { user: user.id, username: data.username, password: data.password};
+
+                // write new user to mongodb if not exists already
+                MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
+                    if (err) throw err;
+                    let dbo = db.db("webEchessDb");
+
+                    let userCheck = new Promise(function (resolve, reject) {
+                        resolve(dbo.collection("users").findOne({"username": dbUser.username}));
+                    });
+
+                    userCheck.then(function (value) {
+                        if (value !== null) {
+                            //user already exists
+                            let registrationMessage = {
+                                dataType: REGISTRATION,
+                                username: dbUser.username,
+                                message: FAILURE,
+                            };
+                            user.socket.send(JSON.stringify(registrationMessage));
+                        } else {
+                            dbo.collection("users").insertOne(dbUser, function (err, res) {
+                                if (err) throw err;
+                                db.close();
+                            });
+                            let registrationMessage = {
+                                dataType: REGISTRATION,
+                                username: dbUser.username,
+                                message: SUCCESS,
+                            };
+                            user.socket.send(JSON.stringify(registrationMessage));
+                        }
+                    });
+                });
             }
 
             // Game logic message
