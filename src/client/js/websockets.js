@@ -287,10 +287,15 @@ $("#save").click(saveGame);
 
 function saveGame(){
     console.log("save the game");
+    let today = new Date();
+    let date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+    let time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+    let dateTime = date+' '+time;
     let board = document.getElementById("board");
     let data = {};
     data.dataType = websocketGame.SAVE;
     data.game = board.innerHTML;
+    data.timestamp = dateTime;
     websocketGame.socket.send(JSON.stringify(data));
 }
 

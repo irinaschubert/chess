@@ -9,7 +9,6 @@
 import Room from "./room.js";
 import {MongoClient} from "mongodb";
 let url = "mongodb://localhost:27017/";
-import DB from "../db/db.js"
 
 // constants
 // data type
@@ -48,7 +47,6 @@ export default class GameRoom extends Room {
         this.playerTurn = 0;
         this.currentGameState = WAITING_TO_START;
         this.condition = NORMAL;
-        let db = new DB;
 
         let gameLogicData = {
             dataType: GAME_LOGIC,
@@ -89,16 +87,6 @@ export default class GameRoom extends Room {
             // Move message
             if (room.currentGameState === GAME_START && data.dataType === MOVE) {
                 room.makeMove(user.id, data.from, data.to);
-                // write move to mongodb
-                MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
-                    if (err) throw err;
-                    let dbo = db.db("webEchessDb");
-                    let move = { gameRoomId: room.id, user: user.id, move: [data.from, data.to] };
-                    dbo.collection("games").insertOne(move, function(err, res) {
-                        if (err) throw err;
-                        db.close();
-                    });
-                });
             }
 
             // Login message
@@ -245,11 +233,12 @@ export default class GameRoom extends Room {
             // Save
             if (data.dataType === SAVE){
                 let game = data.game;
+                let timestamp = data.timestamp;
 
                 MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
                     if (err) throw err;
                     let dbo = db.db("webEchessDb");
-                    let savedGame = { gameRoomId: room.id, users: room.users, game: game };
+                    let savedGame = { gameRoomId: room.id, users: room.users, game: game, timestamp: timestamp };
                     dbo.collection("savedGames").insertOne(savedGame, function(err, res) {
                         if (err) throw err;
                         db.close();
@@ -272,7 +261,6 @@ export default class GameRoom extends Room {
                         if(item == null) {
                             db.close();
                         }else{
-                            //user already exists
                             let cursor2 = dbo.collection("savedGames").find({"users.id":item.user});
                             cursor2.each(function(err, item2) {
                                 // If the item is null then the cursor is empty and closed
