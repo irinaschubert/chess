@@ -239,6 +239,7 @@ export default class GameRoom extends Room {
                     let updateSave = new Promise(async function(resolve, reject){
                         let result = await (dbo.collection("savedGames").findOne({"gameRoomId": room.id}));
                         if(result === null){
+                            //when game is saved for the first time, initialise correctly with 0
                             resolve(0);
                         }
                         else{
@@ -247,7 +248,8 @@ export default class GameRoom extends Room {
 
                     });
 
-                    updateSave.then( function(value){
+                    updateSave.then( async function(value){
+                        //change turn each time game is saved by active player
                         let newTurn = (value + 1) % 2;
                         dbo.collection("savedGames").updateOne(
                             {"gameRoomId" : room.id},

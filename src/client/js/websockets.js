@@ -117,10 +117,10 @@ $(function(){
                     document.getElementById("move").disabled = false;
                 }
                 else{
+                    //save game after each move
+                    saveGame();
                     document.getElementById("move").disabled = true;
                 }
-                //save game after each move
-                saveGame();
             }
 
             // take action if it is a game logic message
@@ -179,7 +179,7 @@ $(function(){
                         });
                     }
                     if(data.saveGame === true){
-                        saveFirstGame();
+                        saveGame();
                     }
 
                 }
@@ -293,9 +293,6 @@ function movePiece(from, to){
     }
 }
 
-// Save Button
-$("#save").click(saveGame);
-
 function saveGame(){
     let today = new Date();
     let date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
@@ -310,25 +307,6 @@ function saveGame(){
     data.fieldCaptured = fieldCaptured.innerHTML;
     data.chatHistory = chatHistory.innerHTML;
     data.timestamp = dateTime;
-    websocketGame.socket.send(JSON.stringify(data));
-}
-
-function saveFirstGame(playerTurn){
-    let today = new Date();
-    let date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
-    let time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-    let dateTime = date+' '+time;
-    let board = document.getElementById("board");
-    let fieldCaptured = document.getElementById("field-captured");
-    let chatHistory = document.getElementById("chat-history");
-    let turn = playerTurn;
-    let data = {};
-    data.dataType = websocketGame.SAVE;
-    data.board = board.innerHTML;
-    data.fieldCaptured = fieldCaptured.innerHTML;
-    data.chatHistory = chatHistory.innerHTML;
-    data.timestamp = dateTime;
-    data.turn = turn;
     websocketGame.socket.send(JSON.stringify(data));
 }
 
