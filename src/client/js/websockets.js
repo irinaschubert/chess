@@ -309,3 +309,11 @@ function loadGame(){
     data.loadUser = username;
     websocketGame.socket.send(JSON.stringify(data));
 }
+
+// Load Button
+$("#back-button-savedGames").click(goBack);
+
+function goBack(){
+    $("#show-saved-games").addClass("hide");
+}
+
