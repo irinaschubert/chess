@@ -25,7 +25,6 @@ server.on('connection', function(socket, client){
 });
 
 function addUserToRoom(room, socket){
-    //let room = new GameRoom();
     if(room.users.length < 2){
         let user = new User(socket);
         room.addUser(user);

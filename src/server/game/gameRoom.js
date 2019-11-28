@@ -3,7 +3,6 @@
  *  @extends Room
  * */
 
-
 'use strict';
 
 import Room from "./room.js";
@@ -248,14 +247,14 @@ export default class GameRoom extends Room {
 
             // Load
             if (data.dataType === LOAD) {
-                let fullname = data.loadUser;
+                let fullName = data.loadUser;
 
                 MongoClient.connect(url, {useUnifiedTopology: true}, function (err, db) {
                     if (err) throw err;
                     let dbo = db.db("webEchessDb");
 
                     new Promise(function (resolve, reject) {
-                        resolve(dbo.collection("users").findOne({"username": fullname}));
+                        resolve(dbo.collection("users").findOne({"username": fullName}));
                     }).then(function (value) {
                         return value.user;
                     }).then(function (value) {
@@ -269,7 +268,7 @@ export default class GameRoom extends Room {
                                 gameTimestamps.push(item.timestamp);
                             }
                         }
-                        return gameTimestamps;
+                        return [gameTimestamps, games];
                     }).then(function (value) {
                         db.close();
                         room.showSavedGamesForUser(user.id, value);
@@ -298,7 +297,7 @@ export default class GameRoom extends Room {
         };
         this.sendAll(JSON.stringify(gameLogicDataForAllPlayers));
 
-        // player who's turn it is, is sent a message with isPlayerTurn: true
+        // player who's turn it is, is notified with isPlayerTurn: true
         let gameLogicDataForPlayerTurn = {
             dataType: GAME_LOGIC,
             gameState: GAME_INIT,
@@ -344,7 +343,7 @@ export default class GameRoom extends Room {
         };
         currentUser.socket.send(JSON.stringify(gameLogicDataForPlayerTurn));
 
-        // player who's turn it is, is sent a message with isPlayerTurn: true
+        // player who's turn it is, is notified with isPlayerTurn: true
         let gameLogicDataForNextPlayerTurn = {
             dataType: GAME_LOGIC,
             gameState: GAME_START,
@@ -356,8 +355,10 @@ export default class GameRoom extends Room {
     /**
      * Show saved games for current user
      */
-    showSavedGamesForUser(userid, gameTimestamps){
-        let currentUserId = userid;
+    showSavedGamesForUser(userId, games){
+        let gameTimestamps = games[0];
+        let gameBoards = games[1];
+        let currentUserId = userId;
         let currentUser;
         for (let i = 0; i < this.users.length; i++) {
             let user = this.users[i];
@@ -365,10 +366,11 @@ export default class GameRoom extends Room {
                 currentUser = user;
             }
         }
-        // show all saved games for current player
+
         let savedGames = {
             dataType: SHOW_GAMES,
-            gameTimestamps : gameTimestamps
+            gameTimestamps : gameTimestamps,
+            games : gameBoards
         };
         currentUser.socket.send(JSON.stringify(savedGames));
     }

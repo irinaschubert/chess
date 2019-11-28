@@ -90,8 +90,9 @@ $(function(){
             // show saved games
             else if (data.dataType === websocketGame.SHOW_GAMES){
                 if(data.gameTimestamps !== []){
+                    $("#saved-games").empty();
                     for(let i = 0; i < data.gameTimestamps.length; i++){
-                        savedGames.appendToGames(data.gameTimestamps[i]);
+                        savedGames.appendToGames(data.gameTimestamps[i], data.games[i]);
                     }
                     $("#show-saved-games").removeClass("hide");
                 }
