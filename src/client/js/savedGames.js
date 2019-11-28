@@ -16,19 +16,19 @@ export default class SavedGames {
     /**
      * Appends saved games
      */
-    appendToGames(gameTimestamp, gameBoard, gameFieldsCaptured, gameChatHistory) {
+    appendToGames(roomId, gameTimestamp, gameBoard, gameFieldsCaptured, gameChatHistory) {
         let savedGames = this;
         let listElement = document.createElement('li');
         listElement.innerHTML = gameTimestamp;
         $("#saved-games").append(listElement);
         listElement.addEventListener('click', function(){
-            SavedGames.loadGame(gameBoard, gameFieldsCaptured, gameChatHistory);
+            SavedGames.loadGame(roomId, gameBoard, gameFieldsCaptured, gameChatHistory);
         });
 
 
     }
 
-    static loadGame(gameBoard, gameFieldsCaptured, gameChatHistory) {
+    static loadGame(roomId, gameBoard, gameFieldsCaptured, gameChatHistory) {
         $("#board").empty();
         $("#board").append(gameBoard);
         $("#field-captured").empty();

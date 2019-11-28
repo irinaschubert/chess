@@ -15,7 +15,6 @@ let websocketGame = {
     MOVE : 2,
     LOGIN : 3,
     REGISTRATION : 4,
-    WAITING_TO_START : 0,
     GAME_INIT : 1,
     GAME_START : 2,
     GAME_OVER : 3,
@@ -30,8 +29,11 @@ let websocketGame = {
     SAVE : 10,
     LOAD : 11,
     SHOW_GAMES: 12,
+    LOAD_GAME:13,
     FAILURE : 0,
-    SUCCESS : 1
+    SUCCESS : 1,
+    WHITE : 1,
+    BLACK : 0
 };
 
 let username = "";
@@ -54,7 +56,7 @@ $(function(){
 
             let data = JSON.parse(e.data);
 
-            if(data.dataType !== websocketGame.LOGIN){
+            if(data.dataType !== websocketGame.LOGIN && data.dataType !== websocketGame.SHOW_GAMES){
                 console.log("Got message: ", e.data);
             }
 
@@ -92,7 +94,8 @@ $(function(){
                 if(data.timestamps !== []){
                     $("#saved-games").empty();
                     for(let i = 0; i < data.timestamps.length; i++){
-                        savedGames.appendToGames(data.timestamps[i], data.boards[i], data.fieldsCaptured[i], data.chatsHistory[i]);
+                        //savedGames.appendToGames(data.gameRoomId, data.timestamps[i], data.boards[i], data.fieldsCaptured[i], data.chatsHistory[i]);
+                        appendToGames(data.gameRoomId, data.timestamps[i], data.boards[i], data.fieldsCaptured[i], data.chatsHistory[i], data.turn[i]);
                     }
                     $("#show-saved-games").removeClass("hide");
                 }
@@ -176,7 +179,7 @@ $(function(){
                         });
                     }
                     if(data.saveGame === true){
-                        saveGame();
+                        saveFirstGame();
                     }
 
                 }
@@ -310,6 +313,25 @@ function saveGame(){
     websocketGame.socket.send(JSON.stringify(data));
 }
 
+function saveFirstGame(playerTurn){
+    let today = new Date();
+    let date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+    let time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+    let dateTime = date+' '+time;
+    let board = document.getElementById("board");
+    let fieldCaptured = document.getElementById("field-captured");
+    let chatHistory = document.getElementById("chat-history");
+    let turn = playerTurn;
+    let data = {};
+    data.dataType = websocketGame.SAVE;
+    data.board = board.innerHTML;
+    data.fieldCaptured = fieldCaptured.innerHTML;
+    data.chatHistory = chatHistory.innerHTML;
+    data.timestamp = dateTime;
+    data.turn = turn;
+    websocketGame.socket.send(JSON.stringify(data));
+}
+
 // Load Button
 $("#load").click(loadGame);
 
@@ -326,6 +348,35 @@ function loadGame(){
 $("#back-button-savedGames").click(goBack);
 
 function goBack(){
+    $("#show-saved-games").addClass("hide");
+}
+
+function appendToGames(roomId, gameTimestamp, gameBoard, gameFieldsCaptured, gameChatHistory, gameTurns) {
+    let savedGames = this;
+    let listElement = document.createElement('li');
+    listElement.innerHTML = gameTimestamp;
+    $("#saved-games").append(listElement);
+    listElement.addEventListener('click', function(){
+        //SavedGames.loadGame(roomId, gameBoard, gameFieldsCaptured, gameChatHistory);
+        loadSavedGame(roomId, gameBoard, gameFieldsCaptured, gameChatHistory, gameTurns);
+    });
+}
+
+function loadSavedGame(roomId, gameBoard, gameFieldsCaptured, gameChatHistory, gameTurns) {
+    $("#show-turn").empty();
+    $("#show-turn").append(gameTurns);
+    $("#board").empty();
+    $("#board").append(gameBoard);
+    $("#field-captured").empty();
+    $("#field-captured").append(gameFieldsCaptured);
+    $("#chat-history").empty();
+    $("#chat-history").append(gameChatHistory);
+
+    let data = {};
+    data.dataType = websocketGame.LOAD_GAME;
+    data.roomId = roomId;
+    websocketGame.socket.send(JSON.stringify(data));
+
     $("#show-saved-games").addClass("hide");
 }
 

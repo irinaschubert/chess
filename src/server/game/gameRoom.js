@@ -19,22 +19,25 @@ const REGISTRATION = 4;
 const SAVE = 10;
 const LOAD = 11;
 const SHOW_GAMES = 12;
+const LOAD_GAME = 13;
 // game state
-const WAITING_TO_START = 0;
 const GAME_INIT = 1;
 const GAME_START = 2;
 const GAME_OVER = 3;
 const REVANCHE = 4;
-// game or end condition
+// condition
 const NORMAL = 0;
 const CHECK = 1;
 const CHECKMATE = 2;
 const REMIS = 3;
 const PATT = 4;
 const CAPITULATE = 5;
-
+// message
 const FAILURE = 0;
 const SUCCESS = 1;
+// color
+const WHITE = 1;
+const BLACK = 0;
 
 export default class GameRoom extends Room {
      /**
@@ -44,14 +47,7 @@ export default class GameRoom extends Room {
         super();
         this.id = "1" + Math.floor(Math.random() * 1000000000);
         this.playerTurn = 0;
-        this.currentGameState = WAITING_TO_START;
         this.condition = NORMAL;
-
-        let gameLogicData = {
-            dataType: GAME_LOGIC,
-            gameState: WAITING_TO_START,
-        };
-        this.sendAll(JSON.stringify(gameLogicData));
     }
 
     /**
@@ -125,7 +121,7 @@ export default class GameRoom extends Room {
 
             // Registration message
             if (data.dataType === REGISTRATION) {
-                let dbUser = { user: user.id, username: data.username, password: data.password};
+                let dbUser = { user: user.id, username: data.username, password: data.password, white: true};
 
                 // write new user to mongodb if not exists already
                 MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
@@ -215,7 +211,7 @@ export default class GameRoom extends Room {
                     };
 
                     room.sendAll(JSON.stringify(gameLogicData));
-                    room.currentGameState = GAME_RESTART;
+                    room.currentGameState = GAME_START;
                 }
 
                 // Capitulate
@@ -235,25 +231,33 @@ export default class GameRoom extends Room {
                 let fieldCaptured = data.fieldCaptured;
                 let chatHistory = data.chatHistory;
                 let timestamp = data.timestamp;
+                let turn = data.turn;
 
                 MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
                     if (err) throw err;
                     let dbo = db.db("webEchessDb");
-                    let savedGame = {
-                        gameRoomId: room.id,
-                        users: room.users,
-                        board: board,
-                        fieldCaptured: fieldCaptured,
-                        chatHistory: chatHistory,
-                        timestamp: timestamp };
-                    dbo.collection("savedGames").updateOne(
-                        {"gameRoomId" : room.id},
-                        {$set:{
-                            "gameRoomId": room.id, "users": room.users, "board": board, "fieldCaptured": fieldCaptured, "chatHistory": chatHistory, "timestamp": timestamp
+                    let updateSave = new Promise(async function(resolve, reject){
+                        let result = await (dbo.collection("savedGames").findOne({"gameRoomId": room.id}));
+                        if(result === null){
+                            resolve(0);
+                        }
+                        else{
+                            resolve(result.turn);
+                        }
+
+                    });
+
+                    updateSave.then( function(value){
+                        let newTurn = (value + 1) % 2;
+                        dbo.collection("savedGames").updateOne(
+                            {"gameRoomId" : room.id},
+                            {$set:{
+                                "gameRoomId": room.id, "users": room.users, "board": board, "fieldCaptured": fieldCaptured, "chatHistory": chatHistory, "timestamp": timestamp, "turn": newTurn
                             }},
-                        { upsert: true }
-                    );
-                    db.close();
+                            { upsert: true });
+                        db.close();
+                    });
+
                     /*dbo.collection("savedGames").insertOne(savedGame, function(err, res) {
                         if (err) throw err;
                         db.close();
@@ -280,20 +284,28 @@ export default class GameRoom extends Room {
                         let fieldsCaptured = [];
                         let chatsHistory = [];
                         let gameTimestamps = [];
+                        let turns = [];
                         for await (const item of value) {
                             if (item !== null) {
                                 boards.push(item.board);
                                 fieldsCaptured.push(item.fieldCaptured);
                                 chatsHistory.push(item.chatHistory);
                                 gameTimestamps.push(item.timestamp);
+                                turns.push(item.turn);
+
                             }
                         }
-                        return [gameTimestamps, boards, fieldsCaptured, chatsHistory];
+                        return [gameTimestamps, boards, fieldsCaptured, chatsHistory, turns];
                     }).then(function (value) {
                         db.close();
                         room.showSavedGamesForUser(user.id, value);
                     });
                 });
+            }
+
+            // Load Game
+            if (data.dataType === LOAD_GAME){
+                this.id = data.roomId;
             }
         });
     };
@@ -306,30 +318,52 @@ export default class GameRoom extends Room {
 
         // player this.users[this.playerTurn] will start the game --> spoiler: it's always player 1 :)
         this.playerTurn = (this.playerTurn + 1) % this.users.length;
-        console.log("[GameRoom] Start game with player " + this.playerTurn + "'s turn.");
+        console.log("[GameRoom] Start game with player " + this.users[this.playerTurn].id + "'s turn.");
 
-        // send a message to all players with isPlayerTurn: false
+        // send a message to all players with isPlayerTurn: false (black player)
         let gameLogicDataForAllPlayers = {
             dataType: GAME_LOGIC,
             gameState: GAME_INIT,
             isPlayerTurn: false,
             saveGame: false,
-            isPlayerColorWhite: false,
+            turn: WHITE
         };
         this.sendAll(JSON.stringify(gameLogicDataForAllPlayers));
 
-        // player who's turn it is, is notified with isPlayerTurn: true
+        // player who's turn it is, is notified with isPlayerTurn: true (white player)
         let gameLogicDataForPlayerTurn = {
             dataType: GAME_LOGIC,
             gameState: GAME_INIT,
             isPlayerTurn: true,
             saveGame: true,
-            isPlayerColorWhite: true,
+            turn: WHITE
         };
         let user = this.users[this.playerTurn];
+        let otherUser = this.users[0];
         user.socket.send(JSON.stringify(gameLogicDataForPlayerTurn));
 
         room.currentGameState = GAME_START;
+
+        MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
+            if (err) throw err;
+            let dbo = db.db("webEchessDb");
+
+            let userUpdate = new Promise(function (resolve, reject) {
+                resolve(
+                    dbo.collection("users").updateOne(
+                        {"user" : otherUser.id},
+                        {$set:{
+                                "white": false
+                            }},
+                        { upsert: false }
+                    )
+                );
+            });
+
+            userUpdate.then(function (value) {
+                db.close();
+            });
+        });
     }
 
     /**
@@ -380,8 +414,9 @@ export default class GameRoom extends Room {
     showSavedGamesForUser(userId, games){
         let gameTimestamps = games[0];
         let gameBoards = games[1];
-        let gamefieldCaptured = games[2];
+        let gameFieldCaptured = games[2];
         let gameChatHistory = games[3];
+        let gameTurn = games[4];
         let currentUserId = userId;
         let currentUser;
         for (let i = 0; i < this.users.length; i++) {
@@ -393,10 +428,12 @@ export default class GameRoom extends Room {
 
         let savedGames = {
             dataType: SHOW_GAMES,
+            gameRoomId : this.id,
             timestamps : gameTimestamps,
             boards : gameBoards,
-            fieldsCaptured : gamefieldCaptured,
-            chatsHistory : gameChatHistory
+            fieldsCaptured : gameFieldCaptured,
+            chatsHistory : gameChatHistory,
+            turns : gameTurn
         };
         currentUser.socket.send(JSON.stringify(savedGames));
     }
