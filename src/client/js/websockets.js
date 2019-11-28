@@ -173,6 +173,7 @@ $(function(){
                             $(this).addClass('not-my-color');
                         });
                     }
+                    saveGame();
                 }
             }
         };

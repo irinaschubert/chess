@@ -246,10 +246,18 @@ export default class GameRoom extends Room {
                         fieldCaptured: fieldCaptured,
                         chatHistory: chatHistory,
                         timestamp: timestamp };
-                    dbo.collection("savedGames").insertOne(savedGame, function(err, res) {
+                    dbo.collection("savedGames").updateOne(
+                        {"gameRoomId" : room.id},
+                        {$set:{
+                            "users": room.users, "board": board, "fieldCaptured": fieldCaptured, "chatHistory": chatHistory, "timestamp": timestamp
+                            }},
+                        { upsert: true }
+                    );
+                    db.close();
+                    /*dbo.collection("savedGames").insertOne(savedGame, function(err, res) {
                         if (err) throw err;
                         db.close();
-                    });
+                    });*/
                 });
             }
 
