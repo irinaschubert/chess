@@ -249,7 +249,7 @@ export default class GameRoom extends Room {
                     dbo.collection("savedGames").updateOne(
                         {"gameRoomId" : room.id},
                         {$set:{
-                            "users": room.users, "board": board, "fieldCaptured": fieldCaptured, "chatHistory": chatHistory, "timestamp": timestamp
+                            "gameRoomId": room.id, "users": room.users, "board": board, "fieldCaptured": fieldCaptured, "chatHistory": chatHistory, "timestamp": timestamp
                             }},
                         { upsert: true }
                     );
@@ -313,6 +313,7 @@ export default class GameRoom extends Room {
             dataType: GAME_LOGIC,
             gameState: GAME_INIT,
             isPlayerTurn: false,
+            saveGame: false,
             isPlayerColorWhite: false,
         };
         this.sendAll(JSON.stringify(gameLogicDataForAllPlayers));
@@ -322,6 +323,7 @@ export default class GameRoom extends Room {
             dataType: GAME_LOGIC,
             gameState: GAME_INIT,
             isPlayerTurn: true,
+            saveGame: true,
             isPlayerColorWhite: true,
         };
         let user = this.users[this.playerTurn];

@@ -116,6 +116,8 @@ $(function(){
                 else{
                     document.getElementById("move").disabled = true;
                 }
+                //save game after each move
+                saveGame();
             }
 
             // take action if it is a game logic message
@@ -173,7 +175,10 @@ $(function(){
                             $(this).addClass('not-my-color');
                         });
                     }
-                    saveGame();
+                    if(data.saveGame === true){
+                        saveGame();
+                    }
+
                 }
             }
         };
@@ -268,6 +273,7 @@ function movePiece(from, to){
             $(field).children('div').each(function(){
                 if (this.classList.contains("piece")){
                     capturedPiece = this;
+                    //TODO: if captured piece is king, end game
                     console.log("cap: ", capturedPiece);
                 }
             });
