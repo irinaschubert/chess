@@ -68,6 +68,7 @@ export default class GameRoom extends Room {
      */
     handleOnUserMessage(user) {
         let room = this;
+        let whitePlayer = "";
         user.socket.on("message", function (message) {
             console.log("[GameRoom] Got message from " + user.id + ": " + message);
 
@@ -121,7 +122,8 @@ export default class GameRoom extends Room {
 
             // Registration message
             if (data.dataType === REGISTRATION) {
-                let dbUser = { user: user.id, username: data.username, password: data.password, white: true};
+                //let dbUser = { user: user.id, username: data.username, password: data.password, white: true};
+                let dbUser = { user: user.id, username: data.username, password: data.password};
 
                 // write new user to mongodb if not exists already
                 MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
@@ -231,7 +233,6 @@ export default class GameRoom extends Room {
                 let fieldCaptured = data.fieldCaptured;
                 let chatHistory = data.chatHistory;
                 let timestamp = data.timestamp;
-                let turn = data.turn;
 
                 MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
                     if (err) throw err;
@@ -251,10 +252,15 @@ export default class GameRoom extends Room {
                     updateSave.then( async function(value){
                         //change turn each time game is saved by active player
                         let newTurn = (value + 1) % 2;
+
+                        if(whitePlayer === ""){
+                            whitePlayer = user.id;
+                        }
+
                         dbo.collection("savedGames").updateOne(
                             {"gameRoomId" : room.id},
                             {$set:{
-                                "gameRoomId": room.id, "users": room.users, "board": board, "fieldCaptured": fieldCaptured, "chatHistory": chatHistory, "timestamp": timestamp, "turn": newTurn
+                                "gameRoomId": room.id, "users": room.users, "board": board, "fieldCaptured": fieldCaptured, "chatHistory": chatHistory, "timestamp": timestamp, "turn": newTurn, "whitePlayer": whitePlayer,
                             }},
                             { upsert: true });
                         db.close();
@@ -294,7 +300,6 @@ export default class GameRoom extends Room {
                                 chatsHistory.push(item.chatHistory);
                                 gameTimestamps.push(item.timestamp);
                                 turns.push(item.turn);
-
                             }
                         }
                         return [gameTimestamps, boards, fieldsCaptured, chatsHistory, turns];
