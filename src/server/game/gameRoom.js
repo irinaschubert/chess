@@ -368,7 +368,6 @@ export default class GameRoom extends Room {
      * Show saved games for current user
      */
     showSavedGamesForUser(userId, games){
-        // [gameTimestamps, boards, fieldsCaptured, chatsHistory];
         let gameTimestamps = games[0];
         let gameBoards = games[1];
         let gamefieldCaptured = games[2];
