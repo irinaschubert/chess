@@ -231,13 +231,21 @@ export default class GameRoom extends Room {
 
             // Save
             if (data.dataType === SAVE){
-                let game = data.game;
+                let board = data.board;
+                let fieldCaptured = data.fieldCaptured;
+                let chatHistory = data.chatHistory;
                 let timestamp = data.timestamp;
 
                 MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
                     if (err) throw err;
                     let dbo = db.db("webEchessDb");
-                    let savedGame = { gameRoomId: room.id, users: room.users, game: game, timestamp: timestamp };
+                    let savedGame = {
+                        gameRoomId: room.id,
+                        users: room.users,
+                        board: board,
+                        fieldCaptured: fieldCaptured,
+                        chatHistory: chatHistory,
+                        timestamp: timestamp };
                     dbo.collection("savedGames").insertOne(savedGame, function(err, res) {
                         if (err) throw err;
                         db.close();
@@ -260,15 +268,19 @@ export default class GameRoom extends Room {
                     }).then(function (value) {
                         return dbo.collection("savedGames").find({"users.id": value});
                     }).then(async function (value) {
-                        let games = [];
+                        let boards = [];
+                        let fieldsCaptured = [];
+                        let chatsHistory = [];
                         let gameTimestamps = [];
                         for await (const item of value) {
                             if (item !== null) {
-                                games.push(item.game);
+                                boards.push(item.board);
+                                fieldsCaptured.push(item.fieldCaptured);
+                                chatsHistory.push(item.chatHistory);
                                 gameTimestamps.push(item.timestamp);
                             }
                         }
-                        return [gameTimestamps, games];
+                        return [gameTimestamps, boards, fieldsCaptured, chatsHistory];
                     }).then(function (value) {
                         db.close();
                         room.showSavedGamesForUser(user.id, value);
@@ -356,8 +368,11 @@ export default class GameRoom extends Room {
      * Show saved games for current user
      */
     showSavedGamesForUser(userId, games){
+        // [gameTimestamps, boards, fieldsCaptured, chatsHistory];
         let gameTimestamps = games[0];
         let gameBoards = games[1];
+        let gamefieldCaptured = games[2];
+        let gameChatHistory = games[3];
         let currentUserId = userId;
         let currentUser;
         for (let i = 0; i < this.users.length; i++) {
@@ -369,8 +384,10 @@ export default class GameRoom extends Room {
 
         let savedGames = {
             dataType: SHOW_GAMES,
-            gameTimestamps : gameTimestamps,
-            games : gameBoards
+            timestamps : gameTimestamps,
+            boards : gameBoards,
+            fieldsCaptured : gamefieldCaptured,
+            chatsHistory : gameChatHistory
         };
         currentUser.socket.send(JSON.stringify(savedGames));
     }

@@ -89,10 +89,10 @@ $(function(){
 
             // show saved games
             else if (data.dataType === websocketGame.SHOW_GAMES){
-                if(data.gameTimestamps !== []){
+                if(data.timestamps !== []){
                     $("#saved-games").empty();
-                    for(let i = 0; i < data.gameTimestamps.length; i++){
-                        savedGames.appendToGames(data.gameTimestamps[i], data.games[i]);
+                    for(let i = 0; i < data.timestamps.length; i++){
+                        savedGames.appendToGames(data.timestamps[i], data.boards[i], data.fieldsCaptured[i], data.chatsHistory[i]);
                     }
                     $("#show-saved-games").removeClass("hide");
                 }
@@ -292,9 +292,13 @@ function saveGame(){
     let time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
     let dateTime = date+' '+time;
     let board = document.getElementById("board");
+    let fieldCaptured = document.getElementById("field-captured");
+    let chatHistory = document.getElementById("chat-history");
     let data = {};
     data.dataType = websocketGame.SAVE;
-    data.game = board.innerHTML;
+    data.board = board.innerHTML;
+    data.fieldCaptured = fieldCaptured.innerHTML;
+    data.chatHistory = chatHistory.innerHTML;
     data.timestamp = dateTime;
     websocketGame.socket.send(JSON.stringify(data));
 }
