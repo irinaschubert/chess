@@ -7,6 +7,7 @@
 
 import Room from "./room.js";
 import {MongoClient} from "mongodb";
+import User from "./user";
 let url = "mongodb://localhost:27017/";
 
 // constants
@@ -232,6 +233,7 @@ export default class GameRoom extends Room {
                 let fieldCaptured = data.fieldCaptured;
                 let chatHistory = data.chatHistory;
                 let timestamp = data.timestamp;
+                //let socket = data.socket;
                 //let username = data.user;
 
                 MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
@@ -342,6 +344,18 @@ export default class GameRoom extends Room {
         //let room = this;
         //room.id = roomId;
         //Create new Room with ID = roomID
+        let loadRoom = new GameRoom();
+        loadRoom.id = roomId;
+        let user;
+
+        if(iAmWhite === true){
+            user = this.users[1];
+        }
+        else{
+            user = this.users[0];
+        }
+
+        loadRoom.addUser(user);
 
         if(isMyTurn){
             console.log("[GameRoom] Load game with player " + senderName + "'s turn.");
@@ -383,9 +397,8 @@ export default class GameRoom extends Room {
             turn: turn,
             iAmWhite : iAmWhite,
             load: true
-
         };
-        let user = this.users[turn];
+
         user.socket.send(JSON.stringify(gameLogicDataForPlayerTurn));
 
         this.currentGameState = GAME_START;

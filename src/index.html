@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <title>Chess</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8">
@@ -36,7 +36,7 @@
 
     <section class="container" id="chat">
         <ul id="chat-history"></ul>
-        <input type="text" id="chat-input" autocomplete="off">
+        <label for="chat-input"></label><input type="text" id="chat-input" autocomplete="off">
         <input type="button" value="Send" class="button" id="send">
     </section>
 
@@ -52,10 +52,10 @@
     <h1>Login</h1>
     <form>
         <div id="login-text"></div>
-        username <input type="text" id="username-input-login" autocomplete="off" class="login">
-        password <input type="password" id="pw-input-login" autocomplete="off" class="login">
-        <input type="button" value="Login" id="login-button" class="button" class="login"/>
-        <input type="button" value="Register" id="register-button" class="button" class="login"/>
+        <label for="username-input-login">username</label><input type="text" id="username-input-login" autocomplete="off" class="login">
+        <label for="pw-input-login">password</label><input type="password" id="pw-input-login" autocomplete="off" class="login">
+        <input type="button" value="Login" id="login-button" class="button login"/>
+        <input type="button" value="Register" id="register-button" class="button login"/>
     </form>
 </section>
 

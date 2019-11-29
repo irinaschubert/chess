@@ -156,35 +156,72 @@ $(function(){
                     //iAmWhite
                     $("#show-turn").html("");
                     if(data.load === true){
+                        console.log("loading the game...");
                         if(data.iAmWhite){
                             if(data.isPlayerTurn){
                                 websocketGame.isPlayerTurn = true;
                                 $("#show-turn").append("Your turn to move.");
-                                let pieces = document.getElementsByClassName("piece");
-                                for (let i = 0; i < pieces.length; ++i) {
-                                    pieces.item(i).classList.toggle('not-clickable');
-                                }
+                                $('.white').each(function () {
+                                    $(this).removeClass('not-clickable');
 
+                                });
+                                $('.black').each(function () {
+                                    $(this).addClass('not-clickable');
+                                });
+
+                            }
+                            else{
+                                websocketGame.isPlayerTurn = false;
+                                $("#show-turn").append("Wait for your partner to move.");
+                                $('.white').each(function () {
+                                    $(this).addClass('not-clickable');
+
+                                });
+                                $('.black').each(function () {
+                                    $(this).addClass('not-clickable');
+                                });
                             }
                             $('.white').each(function () {
                                 $(this).removeClass('not-my-color');
+
                             });
                             $('.black').each(function () {
                                 $(this).addClass('not-my-color');
                             });
                         }
                         else{
-                            websocketGame.isPlayerTurn = false;
-                            $("#show-turn").append("Wait for your partner to move.");
+                            if(data.isPlayerTurn){
+                                websocketGame.isPlayerTurn = true;
+                                $("#show-turn").append("Your turn to move.");
+                                $('.black').each(function () {
+                                    $(this).removeClass('not-clickable');
+
+                                });
+                                $('.white').each(function () {
+                                    $(this).addClass('not-clickable');
+                                });
+
+                            }
+                            else{
+                                websocketGame.isPlayerTurn = false;
+                                $("#show-turn").append("Wait for your partner to move.");
+                                $('.black').each(function () {
+                                    $(this).addClass('not-clickable');
+
+                                });
+                                $('.white').each(function () {
+                                    $(this).addClass('not-clickable');
+                                });
+                            }
                             $('.black').each(function () {
                                 $(this).removeClass('not-my-color');
+
                             });
                             $('.white').each(function () {
                                 $(this).addClass('not-my-color');
                             });
                         }
                     }
-
 
                     if(data.load === false){
                         // white player

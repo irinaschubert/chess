@@ -75,7 +75,7 @@ import Rook from './pieces/rook.js';
         $piece.addClass(piece.constructor.name.toLowerCase());
         $piece.addClass(piece.color);
         $piece.addClass('not-clickable');
-        $piece.click(piece.prepareForMove);
+        //$piece.click(piece.prepareForMove);
         $field.append($piece);
     }
 
