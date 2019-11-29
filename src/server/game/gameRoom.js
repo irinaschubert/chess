@@ -244,7 +244,7 @@ export default class GameRoom extends Room {
                             resolve([0,user.id]);
                         }
                         else{
-                            let nameWhitePlayer = await (dbo.collection("users").findOne({"user": user.id}));
+                            //let nameWhitePlayer = await (dbo.collection("users").findOne({"user": user.id}));
                             //resolve([result.turn,nameWhitePlayer.username]);
                             resolve([result.turn,result.whitePlayer]);
                         }
@@ -284,7 +284,7 @@ export default class GameRoom extends Room {
                     }).then(function (value) {
                         return value.user;
                     }).then(function (value) {
-                        return dbo.collection("savedGames").find({"users.id": value});
+                        return ([dbo.collection("savedGames").find({"users.id": value}),value]);
                     }).then(async function (value) {
                         let gameRoomIds = [];
                         let boards = [];
@@ -294,7 +294,9 @@ export default class GameRoom extends Room {
                         let turns = [];
                         let whitePlayer = [];
                         let isMyTurn = [];
-                        for await (const item of value) {
+                        let userId = value[1];
+                        let iAmWhite = [];
+                        for await (const item of value[0]) {
                             if (item !== null) {
                                 gameRoomIds.push(item.gameRoomId);
                                 boards.push(item.board);
@@ -303,12 +305,22 @@ export default class GameRoom extends Room {
                                 gameTimestamps.push(item.timestamp);
                                 turns.push(item.turn);
                                 whitePlayer.push(item.whitePlayer);
-                                if(fullName.localeCompare(item.whitePlayer)){
+                                if(userId.localeCompare(item.whitePlayer) === 0){
+                                    iAmWhite.push(true);
+                                }
+                                else{
+                                    iAmWhite.push(false);
+                                }
+                                if(userId.localeCompare(item.whitePlayer) === 0 && item.turn === 1){
                                     isMyTurn.push(true);
-                                }else{isMyTurn.push(false)}
+                                }else if(userId.localeCompare(item.whitePlayer) === 1 && item.turn === 0){
+                                    isMyTurn.push(true)
+                                }else{
+                                    isMyTurn.push(false)
+                                }
                             }
                         }
-                        return [gameRoomIds, gameTimestamps, boards, fieldsCaptured, chatsHistory, turns, whitePlayer, isMyTurn];
+                        return [gameRoomIds, gameTimestamps, boards, fieldsCaptured, chatsHistory, turns, whitePlayer, isMyTurn, iAmWhite];
                     }).then(function (value) {
                         db.close();
                         room.showSavedGamesForUser(user.id, value);
@@ -318,7 +330,7 @@ export default class GameRoom extends Room {
 
             // Load Game
             if (data.dataType === LOAD_GAME){
-                room.loadGame(data.roomId, data.turn, data.whitePlayer, data.isMyTurn, data.sender);
+                room.loadGame(data.roomId, data.turn, data.whitePlayer, data.isMyTurn, data.sender, data.iAmWhite);
             }
         });
     };
@@ -326,14 +338,16 @@ export default class GameRoom extends Room {
     /**
      * Load the game, notify player's about their turn
      */
-    loadGame(roomId, turn, whitePlayer, isMyTurn, senderName) {
-        let room = this;
-        room.id = roomId;
+    loadGame(roomId, turn, whitePlayer, isMyTurn, senderName, iAmWhite) {
+        //let room = this;
+        //room.id = roomId;
+        //Create new Room with ID = roomID
 
         if(isMyTurn){
             console.log("[GameRoom] Load game with player " + senderName + "'s turn.");
         }
 
+        /*
         MongoClient.connect(url, {useUnifiedTopology: true}, function (err, db) {
             if (err) throw err;
             let dbo = db.db("webEchessDb");
@@ -343,33 +357,35 @@ export default class GameRoom extends Room {
             }).then(function (value) {
                 return value.user;
             }).then(function (value) {
-                if(whitePlayer.localeCompare(value)){
-
+                if(whitePlayer.localeCompare(value) && turn === 1){
+                    isPlayerTurn = true;
                 }
                 //return dbo.collection("...").find({"users.id": value});
             });
-        });
+        });*/
 
-        // send a message to all players with isPlayerTurn: false (black player)
-        let gameLogicDataForAllPlayers = {
+        // send a message to all players with reverse isMyTurn
+        /*let gameLogicDataForAllPlayers = {
             dataType: GAME_LOGIC,
             gameState: GAME_INIT,
-            isPlayerTurn: false,
+            isPlayerTurn: !isMyTurn,
             saveGame: false,
-            turn: WHITE
+            turn: turn
         };
-        this.sendAll(JSON.stringify(gameLogicDataForAllPlayers));
+        this.sendAll(JSON.stringify(gameLogicDataForAllPlayers));*/
 
-        // player who's turn it is, is notified with isPlayerTurn: true (white player)
+        // player who's turn it is, is notified with correct isMyTurn
         let gameLogicDataForPlayerTurn = {
             dataType: GAME_LOGIC,
             gameState: GAME_INIT,
-            isPlayerTurn: true,
-            saveGame: true,
-            turn: WHITE
+            isPlayerTurn: isMyTurn,
+            saveGame: false,
+            turn: turn,
+            iAmWhite : iAmWhite,
+            load: true
+
         };
-        let user = this.users[this.playerTurn];
-        let otherUser = this.users[0];
+        let user = this.users[turn];
         user.socket.send(JSON.stringify(gameLogicDataForPlayerTurn));
 
         this.currentGameState = GAME_START;
@@ -391,7 +407,8 @@ export default class GameRoom extends Room {
             gameState: GAME_INIT,
             isPlayerTurn: false,
             saveGame: false,
-            turn: WHITE
+            turn: WHITE,
+            load: false,
         };
         this.sendAll(JSON.stringify(gameLogicDataForAllPlayers));
 
@@ -401,7 +418,8 @@ export default class GameRoom extends Room {
             gameState: GAME_INIT,
             isPlayerTurn: true,
             saveGame: true,
-            turn: WHITE
+            turn: WHITE,
+            load: false,
         };
         let user = this.users[this.playerTurn];
         let otherUser = this.users[0];
@@ -456,7 +474,7 @@ export default class GameRoom extends Room {
      * Show saved games for current user
      */
     showSavedGamesForUser(userId, games){
-        //games : [gameRoomIds, gameTimestamps, boards, fieldsCaptured, chatsHistory, turns, whitePlayer, isMyTurn];
+        //games : [gameRoomIds, gameTimestamps, boards, fieldsCaptured, chatsHistory, turns, whitePlayer, isMyTurn, iAmWhite];
         let gameRoomIds = games[0];
         let gameTimestamps = games[1];
         let gameBoards = games[2];
@@ -465,6 +483,7 @@ export default class GameRoom extends Room {
         let gameTurns = games[5];
         let gameWhitePlayers = games[6];
         let gameIsMyTurns = games[7];
+        let gameIAmWhites = games[8];
         let currentUserId = userId;
         let currentUser;
         for (let i = 0; i < this.users.length; i++) {
@@ -483,7 +502,8 @@ export default class GameRoom extends Room {
             chatsHistory : gameChatHistory,
             turns : gameTurns,
             whitePlayers : gameWhitePlayers,
-            isMyTurns : gameIsMyTurns
+            isMyTurns : gameIsMyTurns,
+            iAmWhites : gameIAmWhites
         };
         currentUser.socket.send(JSON.stringify(savedGames));
     }

@@ -78,6 +78,7 @@ $(function(){
             // registration
             if(data.dataType === websocketGame.REGISTRATION){
                 if(data.message === websocketGame.SUCCESS){
+                    username = data.username;
                     $("#login").addClass("hide");
                     $("#username").append(data.username);
                     chat.appendToHistory(data.sender, data.username + " has joined the game");
@@ -95,7 +96,7 @@ $(function(){
                     $("#saved-games").empty();
                     for(let i = 0; i < data.timestamps.length; i++){
                         //savedGames.appendToGames(data.gameRoomId, data.timestamps[i], data.boards[i], data.fieldsCaptured[i], data.chatsHistory[i]);
-                        appendToGames(data.gameRoomIds[i], data.timestamps[i], data.boards[i], data.fieldsCaptured[i], data.chatsHistory[i], data.turns[i], data.whitePlayers[i], data.isMyTurns[i]);
+                        appendToGames(data.gameRoomIds[i], data.timestamps[i], data.boards[i], data.fieldsCaptured[i], data.chatsHistory[i], data.turns[i], data.whitePlayers[i], data.isMyTurns[i], data.iAmWhites[i]);
                     }
                     $("#show-saved-games").removeClass("hide");
                 }
@@ -152,38 +153,70 @@ $(function(){
                 }
 
                 if(data.gameState === websocketGame.GAME_INIT){
+                    //iAmWhite
                     $("#show-turn").html("");
-                    // white player
-                    if(data.isPlayerTurn){
-                        websocketGame.isPlayerTurn = true;
-                        $("#show-turn").append("Your turn to move.");
-                        let pieces = document.getElementsByClassName("piece");
-                        for (let i = 0; i < pieces.length; ++i) {
-                            pieces.item(i).classList.toggle('not-clickable');
+                    if(data.load === true){
+                        if(data.iAmWhite){
+                            if(data.isPlayerTurn){
+                                websocketGame.isPlayerTurn = true;
+                                $("#show-turn").append("Your turn to move.");
+                                let pieces = document.getElementsByClassName("piece");
+                                for (let i = 0; i < pieces.length; ++i) {
+                                    pieces.item(i).classList.toggle('not-clickable');
+                                }
+
+                            }
+                            $('.white').each(function () {
+                                $(this).removeClass('not-my-color');
+                            });
+                            $('.black').each(function () {
+                                $(this).addClass('not-my-color');
+                            });
                         }
-                        $('.white').each(function () {
-                            $(this).removeClass('not-my-color');
-                        });
-                        $('.black').each(function () {
-                            $(this).addClass('not-my-color');
-                        });
-
-                    }
-                    // black player
-                    else{
-                        websocketGame.isPlayerTurn = false;
-                        $("#show-turn").append("Wait for your partner to move.");
-                        $('.black').each(function () {
-                            $(this).removeClass('not-my-color');
-                        });
-                        $('.white').each(function () {
-                            $(this).addClass('not-my-color');
-                        });
-                    }
-                    if(data.saveGame === true){
-                        saveGame();
+                        else{
+                            websocketGame.isPlayerTurn = false;
+                            $("#show-turn").append("Wait for your partner to move.");
+                            $('.black').each(function () {
+                                $(this).removeClass('not-my-color');
+                            });
+                            $('.white').each(function () {
+                                $(this).addClass('not-my-color');
+                            });
+                        }
                     }
 
+
+                    if(data.load === false){
+                        // white player
+                        if(data.isPlayerTurn){
+                            websocketGame.isPlayerTurn = true;
+                            $("#show-turn").append("Your turn to move.");
+                            let pieces = document.getElementsByClassName("piece");
+                            for (let i = 0; i < pieces.length; ++i) {
+                                pieces.item(i).classList.toggle('not-clickable');
+                            }
+                            $('.white').each(function () {
+                                $(this).removeClass('not-my-color');
+                            });
+                            $('.black').each(function () {
+                                $(this).addClass('not-my-color');
+                            });
+                        }
+                        // black player
+                        else{
+                            websocketGame.isPlayerTurn = false;
+                            $("#show-turn").append("Wait for your partner to move.");
+                            $('.black').each(function () {
+                                $(this).removeClass('not-my-color');
+                            });
+                            $('.white').each(function () {
+                                $(this).addClass('not-my-color');
+                            });
+                        }
+                        if(data.saveGame === true){
+                            saveGame();
+                        }
+                    }
                 }
             }
         };
@@ -325,26 +358,26 @@ function loadGame(){
     websocketGame.socket.send(JSON.stringify(data));
 }
 
-// Load Button
+// Back Button in Load Window
 $("#back-button-savedGames").click(goBack);
 
 function goBack(){
     $("#show-saved-games").addClass("hide");
 }
 
-function appendToGames(roomId, gameTimestamp, gameBoard, gameFieldsCaptured, gameChatHistory, gameTurn, gameWhitePlayer, isMyTurn) {
-    //data.gameRoomIds[i], data.timestamps[i], data.boards[i], data.fieldsCaptured[i], data.chatsHistory[i], data.turns[i], data.whitePlayers[i], data.isMyTurns[i]
+function appendToGames(roomId, gameTimestamp, gameBoard, gameFieldsCaptured, gameChatHistory, gameTurn, gameWhitePlayer, isMyTurn, iAmWhite) {
+    //data.gameRoomIds[i], data.timestamps[i], data.boards[i], data.fieldsCaptured[i], data.chatsHistory[i], data.turns[i], data.whitePlayers[i], data.isMyTurns[i], data.iAmWhites[i
     let savedGames = this;
     let listElement = document.createElement('li');
     listElement.innerHTML = gameTimestamp;
     $("#saved-games").append(listElement);
     listElement.addEventListener('click', function(){
         //SavedGames.loadGame(roomId, gameBoard, gameFieldsCaptured, gameChatHistory);
-        loadSavedGame(roomId, gameTimestamp, gameBoard, gameFieldsCaptured, gameChatHistory, gameTurn, gameWhitePlayer, isMyTurn);
+        loadSavedGame(roomId, gameTimestamp, gameBoard, gameFieldsCaptured, gameChatHistory, gameTurn, gameWhitePlayer, isMyTurn, iAmWhite);
     });
 }
 
-function loadSavedGame(roomId, gameTimestamp, gameBoard, gameFieldsCaptured, gameChatHistory, gameTurn, gameWhitePlayer, isMyTurn) {
+function loadSavedGame(roomId, gameTimestamp, gameBoard, gameFieldsCaptured, gameChatHistory, gameTurn, gameWhitePlayer, isMyTurn, iAmWhite) {
     let usernameElement = document.getElementById("username");
     username = usernameElement.innerHTML;
     $("#board").empty();
@@ -360,6 +393,7 @@ function loadSavedGame(roomId, gameTimestamp, gameBoard, gameFieldsCaptured, gam
     data.turn = gameTurn;
     data.whitePlayer = gameWhitePlayer;
     data.isMyTurn = isMyTurn;
+    data.iAmWhite = iAmWhite;
     data.sender = username;
     websocketGame.socket.send(JSON.stringify(data));
 
