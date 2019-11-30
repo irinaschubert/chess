@@ -14,23 +14,26 @@ import Pawn from './pieces/pawn.js';
 import Queen from './pieces/queen.js';
 import Rook from './pieces/rook.js';
 
-(function($) {
-    const WON = 0;
-    const LOST = 1;
-    const START = 0;
-    const LOAD = 1;
-    let chessGame = {};
+const WON = 0;
+const LOST = 1;
+const START = 0;
+const LOAD = 1;
 
-    chessGame.savingObject = {};
-    chessGame.savingObject.fields = [];
-    chessGame.savingObject.capturedPieces = [];
+let chessGame = {};
 
-    let moveSavingObject = {};
-    moveSavingObject.moveObject = [];
+export default class GameController {
+    constructor(){
+        chessGame.savingObject = {};
+        chessGame.savingObject.fields = [];
+        chessGame.savingObject.capturedPieces = [];
 
-    let moveObject = [];
+        let moveObject = [];
 
-    function setupGame(boardElement) {
+        $(".load-when-clicked").click(this.loadFunctionality(LOAD));
+        $(document).ready(this.loadFunctionality(START));
+    }
+
+    setupGame(boardElement) {
         let board = new Board(boardElement);
         board.createBoard();
         let pieces = [];
@@ -66,10 +69,10 @@ import Rook from './pieces/rook.js';
         pieces.push(new Rook("black", [8, 8]));
         pieces.push(new King("black", [8, 5]));
         pieces.push(new Queen("black", [8, 4]));
-        pieces.forEach(placePieceOnBoard)
+        pieces.forEach(this.placePieceOnBoard)
     }
 
-    function placePieceOnBoard(piece) {
+    placePieceOnBoard(piece) {
         const i = piece.position[0];
         const j = piece.position[1];
         const $field = $(`.field[data-row = ${i}][data-col = ${j}]`);
@@ -80,7 +83,7 @@ import Rook from './pieces/rook.js';
         $field.append($piece);
     }
 
-    function checkForPiecesInbetween(fieldsToCheck) {
+    checkForPiecesInbetween(fieldsToCheck) {
         // if piece is inbetween, move should not be allowed
         let pieceInbetween = false;
         for (let i in fieldsToCheck) {
@@ -100,7 +103,8 @@ import Rook from './pieces/rook.js';
         return pieceInbetween;
     }
 
-    function validateMove(moveObject) {
+    validateMove(moveObject) {
+        let gC = this;
         let fromNode = moveObject[0];
         let from = moveObject[1];
         let to = moveObject[2];
@@ -171,27 +175,27 @@ import Rook from './pieces/rook.js';
             let piecesInbetween = true;
             // if piece is a knight, move anyway
             if (fromPiece instanceof Knight) {
-                move(to, from, toColor, fromColor, toNode, fromNode);
+                gC.move(to, from, toColor, fromColor, toNode, fromNode);
             }
             // if piece is a pawn, treat differently
             else if (fromPiece instanceof Pawn) {
-                movePawn(to, from, toColor, fromColor, toNode, fromNode);
+                gC.movePawn(to, from, toColor, fromColor, toNode, fromNode);
             }
             // if validMove is [], no piece is inbetween (also the case if piece moves just one field), move
             else if (validMove === []) {
-                move(to, from, toColor, fromColor, toNode, fromNode);
+                gC.move(to, from, toColor, fromColor, toNode, fromNode);
             }
             // for all other cases (piece is not a knight and more than 1 field is moved) check if a piece is inbetween, don't move in that case
             else {
-                piecesInbetween = checkForPiecesInbetween(validMove);
+                piecesInbetween = gc.checkForPiecesInbetween(validMove);
                 if (!piecesInbetween) {
-                    move(to, from, toColor, fromColor, toNode, fromNode);
+                    gC.move(to, from, toColor, fromColor, toNode, fromNode);
                 }
             }
         }
     }
 
-    function move(to, from, toColor, fromColor, toNode, fromNode) {
+    move(to, from, toColor, fromColor, toNode, fromNode) {
         // capture piece if color is different
         if (toColor !== '' && toColor !== fromColor) {
             $(toNode).children(".piece").each(function(){
@@ -211,19 +215,17 @@ import Rook from './pieces/rook.js';
         let toStr = to.join();
         let fromStr = from.join();
         $("#show-move").html(fromStr + " --> " + toStr);
-
-        moveSavingObject.moveObject = moveObject;
-        saveMoveSavingObject();
     }
 
-    function movePawn(to, from, toColor, fromColor, toNode, fromNode) {
+    movePawn(to, from, toColor, fromColor, toNode, fromNode) {
+        let gc = this;
         let distX = to[0] - from[0];
         let distY = to[1] - from[1];
         if (fromColor === "white") {
             // move diagonally only if there is a piece of the enemy
             if (distX === 1 && distY === 1 || distX === -1 && distY === 1) {
                 if (fromColor !== toColor && toColor !== '') {
-                    move(to, from, toColor, fromColor, toNode, fromNode);
+                    gc.move(to, from, toColor, fromColor, toNode, fromNode);
                 }
             }
             // move straigth forward
@@ -240,7 +242,7 @@ import Rook from './pieces/rook.js';
             // move diagonally only if there is a piece of the enemy
             if (distX === 1 && distY === -1 || distX === -1 && distY === -1) {
                 if (fromColor !== toColor && toColor !== '') {
-                    move(to, from, toColor, fromColor, toNode, fromNode);
+                    gc.move(to, from, toColor, fromColor, toNode, fromNode);
                 }
             }
             // move straigth forward
@@ -252,20 +254,12 @@ import Rook from './pieces/rook.js';
                 let toStr = to.join();
                 let fromStr = from.join();
                 $("#show-move").html(fromStr + " --> " + toStr);
-                moveSavingObject.moveObject = moveObject;
-                saveMoveSavingObject();
             }
         }
     }
 
-    function saveMoveSavingObject(){
-        localStorage["moveSavingObject"] = JSON.stringify(
-            moveSavingObject.moveObject
-        );
-    }
-
     //TODO: implement game over functionality
-    function gameOver(lostOrWon){
+    gameOver(lostOrWon){
         if(lostOrWon === LOST){
             $("#popup-loose").removeClass("hide");
         }
@@ -275,13 +269,12 @@ import Rook from './pieces/rook.js';
 
     }
 
-    $(".load-when-clicked").click(loadFunctionality(LOAD));
-    $(document).ready(loadFunctionality(START));
+    loadFunctionality(startOrLoad){
+        let gc = this;
 
-    function loadFunctionality(startOrLoad){
         const $board = $('#board');
         if(startOrLoad === START){
-            setupGame($board);
+            this.setupGame($board);
         }
         console.log("yes");
 
@@ -291,7 +284,7 @@ import Rook from './pieces/rook.js';
                     let clickedFieldsLength = $(".clicked").length;
                     // from (first click)
                     if (clickedFieldsLength === 0) {
-                        moveObject = [];
+                        this.moveObject = [];
                         if (e.target.classList.contains("piece")) {
                             $(e.target.parentNode.classList.toggle('clicked'));
                             moveObject.push(e.target);
@@ -317,7 +310,7 @@ import Rook from './pieces/rook.js';
                         [].forEach.call(elements, function (el) {
                             el.classList.remove('clicked');
                         });
-                        validateMove(moveObject);
+                        gc.validateMove(moveObject);
                     }
                 }
             });
@@ -333,8 +326,8 @@ import Rook from './pieces/rook.js';
         });
         //TODO: the other player has to be notified about winning
         $('#capitulate').click(() => {
-            gameOver(LOST);
+            this.gameOver(LOST);
         })
     }
-})(jQuery);
+}
 

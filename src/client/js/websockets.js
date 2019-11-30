@@ -8,6 +8,7 @@
 
 import Chat from './chat.js';
 import SavedGames from "./savedGames.js";
+import GameControllerClass from "./gameControllerClass";
 
 let websocketGame = {
     GAME_LOGIC : 0,
@@ -42,6 +43,7 @@ $(function(){
     if(window["WebSocket"]){
         let chat = new Chat();
         let savedGames = new SavedGames();
+        let gc = new GameControllerClass();
 
         // create connection
         websocketGame.socket = new WebSocket("ws://127.0.0.1:8000");
@@ -266,7 +268,8 @@ $(function(){
 });
 
 // new game button
-$("#new-game-button").click(reloadPage);
+$("#new-game-button-1").click(reloadPage);
+$("#new-game-button-2").click(reloadPage);
 
 function reloadPage(){
     location.reload();
@@ -392,7 +395,8 @@ function saveGame(){
 
 // Load Button
 $("#load").click(loadGame);
-$("#load-game-button").click(loadGame);
+$("#load-game-button-1").click(loadGame);
+$("#load-game-button-2").click(loadGame);
 
 function loadGame(){
     $("#popup-loose").addClass("hide");
@@ -416,6 +420,7 @@ function appendToGames(roomId, gameTimestamp, gameBoard, gameFieldsCaptured, gam
     let savedGames = this;
     let listElement = document.createElement('li');
     listElement.innerHTML = gameTimestamp;
+    listElement.classList.add("load-when-clicked");
     $("#saved-games").append(listElement);
     listElement.addEventListener('click', function(){
         //SavedGames.loadGame(roomId, gameBoard, gameFieldsCaptured, gameChatHistory);

@@ -25,7 +25,7 @@
     <section class="container" id="moves">
         <p id="show-move">--></p>
         <div id="moves-buttons">
-            <input type="button" value="Back" class="button" id="back">
+            <!--<input type="button" value="Back" class="button" id="back">-->
             <input type="button" value="Move" class="button" id="move">
         </div>
     </section>
@@ -54,10 +54,8 @@
         <div id="login-text"></div>
         <label for="username-input-login">username</label><input type="text" id="username-input-login" autocomplete="off" class="login">
         <label for="pw-input-login">password</label><input type="password" id="pw-input-login" autocomplete="off" class="login">
-        <div id="login-buttons">
-            <input type="button" value="Login" id="login-button" class="button login"/>
-            <input type="button" value="Register" id="register-button" class="button login"/>
-        </div>
+        <input type="button" value="Login" id="login-button" class="button"/>
+        <input type="button" value="Register" id="register-button" class="button"/>
     </form>
 </section>
 
@@ -67,8 +65,8 @@
         <div id="popup-box-content-win">
             <h1>You Won!</h1>
             <form>
-                <input type="button" value="New Game" class="button" />
-                <input type="button" value="Load Game" class="button" />
+                <input type="button" value="New Game" id="new-game-button-2" class="button" />
+                <input type="button" value="Load Game" id="load-game-button-2" class="button" />
             </form>
         </div>
     </div>
@@ -80,8 +78,8 @@
         <div id="popup-box-content-loose">
             <h1>You Lost!</h1>
             <form>
-                <input type="button" value="New Game" id="new-game-button" class="button" />
-                <input type="button" value="Load Game" id="load-game-button" class="button" />
+                <input type="button" value="New Game" id="new-game-button-1" class="button" />
+                <input type="button" value="Load Game" id="load-game-button-1" class="button" />
             </form>
         </div>
     </div>
@@ -91,7 +89,8 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script type="module" src="client/js/websockets.js"></script>
-<script type="module" src="client/js/gameController.js"></script>
+<script type="module" src="client/js/gameControllerClass.js"></script>
+<!--<script type="module" src="client/js/gameController.js"></script>-->
 <script type="module" src="client/js/login.js"></script>
 </body>
 </html>

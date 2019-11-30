@@ -249,7 +249,7 @@ footer {
     top: 0;
     left: 0;
 
-    background: rgba(0,0,0,.2);
+    background: rgba(0,0,0,.1);
 
     display: flex;
     justify-content: center;
@@ -432,6 +432,7 @@ footer {
 
 .login {
     display: block;
+    margin-bottom: 20px;
 }
 
 #login.hide {
