@@ -341,27 +341,13 @@ export default class GameRoom extends Room {
      * Load the game, notify player's about their turn
      */
     loadGame(roomId, turn, whitePlayer, isMyTurn, senderName, iAmWhite) {
-        //let room = this;
+        let thisRoom = this;
         //room.id = roomId;
         //Create new Room with ID = roomID
         let loadRoom = new GameRoom();
         loadRoom.id = roomId;
         let user;
 
-        if(iAmWhite === true){
-            user = this.users[1];
-        }
-        else{
-            user = this.users[0];
-        }
-
-        loadRoom.addUser(user);
-
-        if(isMyTurn){
-            console.log("[GameRoom] Load game with player " + senderName + "'s turn.");
-        }
-
-        /*
         MongoClient.connect(url, {useUnifiedTopology: true}, function (err, db) {
             if (err) throw err;
             let dbo = db.db("webEchessDb");
@@ -370,38 +356,39 @@ export default class GameRoom extends Room {
                 resolve(dbo.collection("users").findOne({"username": senderName}));
             }).then(function (value) {
                 return value.user;
-            }).then(function (value) {
-                if(whitePlayer.localeCompare(value) && turn === 1){
-                    isPlayerTurn = true;
+            }).then(async function (value) {
+                console.log("users: ", thisRoom.users);
+                for(let u in thisRoom.users){
+                    console.log("u: ", u);
+                    console.log("id: ", u.id);
+                    console.log("value: ", value);
+                    if(u.id === value){
+                        user = u;
+                    }
                 }
-                //return dbo.collection("...").find({"users.id": value});
+
+                await loadRoom.addUser(user);
+
+                if(isMyTurn){
+                    console.log("[GameRoom] Load game with player " + senderName + "'s turn.");
+                }
+
+                // player who's turn it is, is notified with correct isMyTurn
+                let gameLogicDataForPlayerTurn = {
+                    dataType: GAME_LOGIC,
+                    gameState: GAME_INIT,
+                    isPlayerTurn: isMyTurn,
+                    saveGame: false,
+                    turn: turn,
+                    iAmWhite : iAmWhite,
+                    load: true
+                };
+
+                user.socket.send(JSON.stringify(gameLogicDataForPlayerTurn));
+
+                thisRoom.currentGameState = GAME_START;
             });
-        });*/
-
-        // send a message to all players with reverse isMyTurn
-        /*let gameLogicDataForAllPlayers = {
-            dataType: GAME_LOGIC,
-            gameState: GAME_INIT,
-            isPlayerTurn: !isMyTurn,
-            saveGame: false,
-            turn: turn
-        };
-        this.sendAll(JSON.stringify(gameLogicDataForAllPlayers));*/
-
-        // player who's turn it is, is notified with correct isMyTurn
-        let gameLogicDataForPlayerTurn = {
-            dataType: GAME_LOGIC,
-            gameState: GAME_INIT,
-            isPlayerTurn: isMyTurn,
-            saveGame: false,
-            turn: turn,
-            iAmWhite : iAmWhite,
-            load: true
-        };
-
-        user.socket.send(JSON.stringify(gameLogicDataForPlayerTurn));
-
-        this.currentGameState = GAME_START;
+        });
     }
 
     /**

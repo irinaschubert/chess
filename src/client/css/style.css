@@ -459,3 +459,7 @@ footer {
 #login-buttons{
     display: inline;
 }
+
+#footer.hide {
+    visibility: hidden;
+}

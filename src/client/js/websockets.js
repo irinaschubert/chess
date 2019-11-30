@@ -68,6 +68,7 @@ $(function(){
                 if(data.message === websocketGame.SUCCESS){
                     username = $("#username-input-login").val();
                     $("#login").addClass("hide");
+                    $("#footer").removeClass("hide");
                     $("#username").append(data.username);
                     chat.appendToHistory(data.sender, data.username + " has joined the game");
                 }
@@ -83,6 +84,7 @@ $(function(){
                 if(data.message === websocketGame.SUCCESS){
                     username = data.username;
                     $("#login").addClass("hide");
+                    $("#footer").removeClass("hide");
                     $("#username").append(data.username);
                     chat.appendToHistory(data.sender, data.username + " has joined the game");
                 }
