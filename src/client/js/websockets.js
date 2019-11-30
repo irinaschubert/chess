@@ -8,7 +8,7 @@
 
 import Chat from './chat.js';
 import SavedGames from "./savedGames.js";
-import GameControllerClass from "./gameControllerClass";
+import GameControllerClass from "./gameControllerClass.js";
 
 let websocketGame = {
     GAME_LOGIC : 0,
@@ -38,6 +38,7 @@ let websocketGame = {
 };
 
 let username = "";
+const LOAD = 1;
 
 $(function(){
     if(window["WebSocket"]){
@@ -155,10 +156,10 @@ $(function(){
                 }
 
                 if(data.gameState === websocketGame.GAME_INIT){
-                    //iAmWhite
                     $("#show-turn").html("");
+
+                    //behave differently if game is loaded
                     if(data.load === true){
-                        console.log("loading the game...");
                         if(data.iAmWhite){
                             if(data.isPlayerTurn){
                                 websocketGame.isPlayerTurn = true;
@@ -223,6 +224,7 @@ $(function(){
                                 $(this).addClass('not-my-color');
                             });
                         }
+                        gc.loadFunctionality(LOAD);
                     }
 
                     if(data.load === false){

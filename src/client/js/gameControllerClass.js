@@ -20,14 +20,13 @@ const START = 0;
 const LOAD = 1;
 
 let chessGame = {};
+let moveObject = [];
 
 export default class GameController {
     constructor(){
         chessGame.savingObject = {};
         chessGame.savingObject.fields = [];
         chessGame.savingObject.capturedPieces = [];
-
-        let moveObject = [];
 
         $(".load-when-clicked").click(this.loadFunctionality(LOAD));
         $(document).ready(this.loadFunctionality(START));
@@ -284,7 +283,7 @@ export default class GameController {
                     let clickedFieldsLength = $(".clicked").length;
                     // from (first click)
                     if (clickedFieldsLength === 0) {
-                        this.moveObject = [];
+                        moveObject = [];
                         if (e.target.classList.contains("piece")) {
                             $(e.target.parentNode.classList.toggle('clicked'));
                             moveObject.push(e.target);
