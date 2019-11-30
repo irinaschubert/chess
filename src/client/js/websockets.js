@@ -265,6 +265,13 @@ $(function(){
     }
 });
 
+// new game button
+$("#new-game-button").click(reloadPage);
+
+function reloadPage(){
+    location.reload();
+}
+
 // Login / Registration
 $("#login-button").click(getLoginValues);
 $("#register-button").click(getRegisterValues);
@@ -385,8 +392,10 @@ function saveGame(){
 
 // Load Button
 $("#load").click(loadGame);
+$("#load-game-button").click(loadGame);
 
 function loadGame(){
+    $("#popup-loose").addClass("hide");
     let usernameElement = document.getElementById("username");
     username = usernameElement.innerHTML;
     let data = {};
@@ -435,5 +444,6 @@ function loadSavedGame(roomId, gameTimestamp, gameBoard, gameFieldsCaptured, gam
     websocketGame.socket.send(JSON.stringify(data));
 
     $("#show-saved-games").addClass("hide");
+    //location.reload();
 }
 
