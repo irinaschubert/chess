@@ -186,7 +186,7 @@ export default class GameController {
             }
             // for all other cases (piece is not a knight and more than 1 field is moved) check if a piece is inbetween, don't move in that case
             else {
-                piecesInbetween = gc.checkForPiecesInbetween(validMove);
+                piecesInbetween = gC.checkForPiecesInbetween(validMove);
                 if (!piecesInbetween) {
                     gC.move(to, from, toColor, fromColor, toNode, fromNode);
                 }

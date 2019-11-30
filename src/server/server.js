@@ -11,7 +11,10 @@ import {MongoClient} from "mongodb";
 let WebSocketServer = require('ws').Server;
 let url = "mongodb://localhost:27017/";
 
+let rooms = [];
 let room1 = new GameRoom();
+let room = new GameRoom();
+rooms.push(room1);
 let port = 8000;
 let server = new WebSocketServer({port:port});
 
@@ -21,28 +24,34 @@ let server = new WebSocketServer({port:port});
  */
 // Is executed when a new socket connects to the server. Adds user up to 2 users then makes a new room.
 server.on('connection', function(socket, client){
-    addUserToRoom(room1, socket);
+    addUserToRoom(rooms, socket);
 });
 
-function addUserToRoom(room, socket){
-    if(room.users.length < 2){
+function addUserToRoom(rooms, socket){
+    let i = rooms.length;
+    let lastRoom = rooms[i - 1];
+    if(lastRoom.users.length < 2){
         let user = new User(socket);
-        room.addUser(user);
+        lastRoom.addUser(user);
         MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
             if (err) throw err;
             let dbo = db.db("webEchessDb");
-            let gameRoomUser = { gameRoomId: room.id, user: user.id };
+            let gameRoomUser = { gameRoomId: lastRoom.id, user: user.id, socket: user.socket };
             dbo.collection("rooms").insertOne(gameRoomUser, function(err, res) {
                 if (err) throw err;
                 db.close();
             });
         });
         console.log("[Server] A new connection was established. " + user.id + " has joined the game. " +
-            "Total connections in room " + room.id + ": " + room.users.length);
+            "Total connections in room " + lastRoom.id + ": " + lastRoom.users.length);
+        if(lastRoom.users.length === 2){
+            lastRoom = new GameRoom();
+        }
     }
     else {
-        room1 = new GameRoom();
-        addUserToRoom(room1, socket);
+        //let room = new GameRoom();
+        rooms.push(lastRoom);
+        addUserToRoom(rooms, socket);
     }
 }
 

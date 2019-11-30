@@ -25,9 +25,9 @@ const LOAD_GAME = 13;
 const GAME_INIT = 1;
 const GAME_START = 2;
 const GAME_OVER = 3;
-const REVANCHE = 4;
+const RESTART = 40;
+const REVANCHE = 5;
 // condition
-const NORMAL = 0;
 const CHECK = 1;
 const CHECKMATE = 2;
 const REMIS = 3;
@@ -44,11 +44,20 @@ export default class GameRoom extends Room {
      /**
      * Create a game room for two players with default values, send a message to all users when done
       */
-    constructor() {
+    constructor(id, playerTurn) {
         super();
-        this.id = "1" + Math.floor(Math.random() * 1000000000);
-        this.playerTurn = 0;
-        this.condition = NORMAL;
+        if(id === undefined){
+            this.id = "1" + Math.floor(Math.random() * 1000000000);
+        }
+        else{
+            this.id = id;
+        }
+         if(id === undefined){
+             this.playerTurn = 0;
+         }
+         else{
+             this.playerTurn = playerTurn;
+         }
     }
 
     /**
@@ -88,7 +97,6 @@ export default class GameRoom extends Room {
             // Login message
             if (data.dataType === LOGIN) {
                 let dbUser = { user: user.id, username: data.username, password: data.password};
-                let games = [];
 
                 // check username and password
                 MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
@@ -122,7 +130,6 @@ export default class GameRoom extends Room {
 
             // Registration message
             if (data.dataType === REGISTRATION) {
-                //let dbUser = { user: user.id, username: data.username, password: data.password, white: true};
                 let dbUser = { user: user.id, username: data.username, password: data.password};
 
                 // write new user to mongodb if not exists already
@@ -330,6 +337,10 @@ export default class GameRoom extends Room {
                 });
             }
 
+            if (data.dataType === RESTART) {
+                this.startGame();
+            }
+
             // Load Game
             if (data.dataType === LOAD_GAME){
                 room.loadGame(data.roomId, data.turn, data.whitePlayer, data.isMyTurn, data.sender, data.iAmWhite);
@@ -342,10 +353,8 @@ export default class GameRoom extends Room {
      */
     loadGame(roomId, turn, whitePlayer, isMyTurn, senderName, iAmWhite) {
         let thisRoom = this;
-        //room.id = roomId;
         //Create new Room with ID = roomID
-        let loadRoom = new GameRoom();
-        loadRoom.id = roomId;
+        let loadRoom = new GameRoom(roomId, turn);
         let user;
 
         MongoClient.connect(url, {useUnifiedTopology: true}, function (err, db) {
@@ -358,12 +367,11 @@ export default class GameRoom extends Room {
                 return value.user;
             }).then(async function (value) {
                 console.log("users: ", thisRoom.users);
-                for(let u in thisRoom.users){
-                    console.log("u: ", u);
-                    console.log("id: ", u.id);
+                for(let i in thisRoom.users){
+                    console.log("id: ", thisRoom.users[i].id);
                     console.log("value: ", value);
-                    if(u.id === value){
-                        user = u;
+                    if(thisRoom.users[i].id === value){
+                        user = thisRoom.users[i];
                     }
                 }
 

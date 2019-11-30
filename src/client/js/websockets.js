@@ -7,7 +7,6 @@
 'use strict';
 
 import Chat from './chat.js';
-import SavedGames from "./savedGames.js";
 import GameControllerClass from "./gameControllerClass.js";
 
 let websocketGame = {
@@ -19,7 +18,8 @@ let websocketGame = {
     GAME_INIT : 1,
     GAME_START : 2,
     GAME_OVER : 3,
-    REVANCHE : 4,
+    RESTART : 40,
+    REVANCHE : 5,
     NORMAL : 0,
     CHECK : 1,
     CHECKMATE : 2,
@@ -41,9 +41,9 @@ let username = "";
 const LOAD = 1;
 
 $(function(){
+    //check if browser supports websockets
     if(window["WebSocket"]){
         let chat = new Chat();
-        let savedGames = new SavedGames();
         let gc = new GameControllerClass();
 
         // create connection
@@ -272,11 +272,49 @@ $(function(){
 });
 
 // new game button
-$("#new-game-button-1").click(reloadPage);
-$("#new-game-button-2").click(reloadPage);
+$("#new-game-button-1").click(startNewGame);
+$("#new-game-button-2").click(startNewGame);
 
-function reloadPage(){
-    location.reload();
+function startNewGame(){
+    let newWebsocketGame = {
+        GAME_LOGIC : 0,
+        CHAT_MESSAGE : 1,
+        MOVE : 2,
+        LOGIN : 3,
+        REGISTRATION : 4,
+        GAME_INIT : 1,
+        GAME_START : 2,
+        GAME_OVER : 3,
+        RESTART : 4,
+        REVANCHE : 5,
+        CHECK : 1,
+        CHECKMATE : 2,
+        REMIS : 3,
+        PATT : 4,
+        CAPITULATE : 5,
+        isPlayerTurn: false,
+        SAVE : 10,
+        LOAD : 11,
+        SHOW_GAMES: 12,
+        LOAD_GAME:13,
+        FAILURE : 0,
+        SUCCESS : 1,
+        WHITE : 1,
+        BLACK : 0
+    };
+
+    newWebsocketGame.socket = new WebSocket("ws://127.0.0.1:8000");
+
+    // on open event
+    newWebsocketGame.socket.onopen = function(e){
+        console.log('WebSocket connection established.');
+    };
+
+    let data = {};
+    data.dataType = newWebsocketGame.RESTART;
+    //newWebsocketGame.socket.send(JSON.stringify(data));
+
+    $("#popup-loose").addClass("hide");
 }
 
 // Login / Registration
@@ -286,7 +324,6 @@ $("#register-button").click(getRegisterValues);
 function getLoginValues(){
     let username = $("#username-input-login").val();
     let password = $("#pw-input-login").val();
-
     let data = {};
     data.dataType = websocketGame.LOGIN;
     data.username = username;
@@ -297,7 +334,6 @@ function getLoginValues(){
 function getRegisterValues(){
     let username = $("#username-input-login").val();
     let password = $("#pw-input-login").val();
-
     let data = {};
     data.dataType = websocketGame.REGISTRATION;
     data.username = username;
