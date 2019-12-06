@@ -366,10 +366,7 @@ export default class GameRoom extends Room {
             }).then(function (value) {
                 return value.user;
             }).then(async function (value) {
-                console.log("users: ", thisRoom.users);
                 for(let i in thisRoom.users){
-                    console.log("id: ", thisRoom.users[i].id);
-                    console.log("value: ", value);
                     if(thisRoom.users[i].id === value){
                         user = thisRoom.users[i];
                     }

@@ -275,7 +275,6 @@ export default class GameController {
         if(startOrLoad === START){
             this.setupGame($board);
         }
-        console.log("yes");
 
         $board.children().each(function() {
             $(this).click(function(e){
@@ -288,7 +287,7 @@ export default class GameController {
                             $(e.target.parentNode.classList.toggle('clicked'));
                             moveObject.push(e.target);
                             moveObject.push([$(e.target.parentNode).data('col'), $(e.target.parentNode).data('row')]);
-                            console.log("from: " + [$(e.target.parentNode).data('col'), $(e.target.parentNode).data('row')]);
+                            //console.log("from: " + [$(e.target.parentNode).data('col'), $(e.target.parentNode).data('row')]);
                         }
                     }
 
@@ -299,11 +298,11 @@ export default class GameController {
                         if (e.target.classList.contains("piece")) {
                             moveObject.push([$(e.target.parentNode).data('col'), $(e.target.parentNode).data('row')]);
                             moveObject.push(e.target);
-                            console.log("to: " + [$(e.target.parentNode).data('col'), $(e.target.parentNode).data('row')]);
+                            //console.log("to: " + [$(e.target.parentNode).data('col'), $(e.target.parentNode).data('row')]);
                         } else if (e.target.classList.contains("field")) {
                             moveObject.push([$(e.target).data('col'), $(e.target).data('row')]);
                             moveObject.push(e.target);
-                            console.log("to: " + [$(e.target).data('col'), $(e.target).data('row')]);
+                            //console.log("to: " + [$(e.target).data('col'), $(e.target).data('row')]);
                         }
                         let elements = document.querySelectorAll('.clicked');
                         [].forEach.call(elements, function (el) {
@@ -317,10 +316,10 @@ export default class GameController {
 
         //TODO: implement back button functionality
         $('#back').click(() => {
-            let lastMove = localStorage.getItem("moveSavingObject");
+            let lastMove = [];
             let lastMoveObj = JSON.parse(lastMove);
             if(lastMoveObj !== null){
-                console.log(lastMoveObj)
+                //console.log(lastMoveObj)
             }
         });
         //TODO: the other player has to be notified about winning

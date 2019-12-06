@@ -399,7 +399,7 @@ function movePiece(from, to){
                 if (this.classList.contains("piece")){
                     capturedPiece = this;
                     //TODO: if captured piece is king, end game
-                    console.log("cap: ", capturedPiece);
+                    //console.log("cap: ", capturedPiece);
                 }
             });
         }
