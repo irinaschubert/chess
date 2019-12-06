@@ -13,7 +13,6 @@ let url = "mongodb://localhost:27017/";
 
 let rooms = [];
 let room1 = new GameRoom();
-let room = new GameRoom();
 rooms.push(room1);
 let port = 8000;
 let server = new WebSocketServer({port:port});

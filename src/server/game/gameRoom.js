@@ -79,7 +79,7 @@ export default class GameRoom extends Room {
     handleOnUserMessage(user) {
         let room = this;
         user.socket.on("message", function (message) {
-            console.log("[GameRoom] Got message from " + user.id + ": " + message);
+            //console.log("[GameRoom] Got message from " + user.id + ": " + message);
 
             let data = JSON.parse(message);
 
