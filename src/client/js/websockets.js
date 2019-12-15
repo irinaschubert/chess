@@ -375,6 +375,8 @@ function sendMove(){
     // TODO data.gameState = ;
     data.from = [parseInt(message.charAt(0)), parseInt(message.charAt(2))];
     data.to = [parseInt(message.charAt(11)), parseInt(message.charAt(13))];
+    let gameId = document.getElementById("gameId");
+    data.gameId = gameId.innerHTML;
     websocketGame.socket.send(JSON.stringify(data));
     $("#show-move").html("-->");
 }

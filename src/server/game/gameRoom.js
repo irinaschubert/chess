@@ -86,8 +86,8 @@ export default class GameRoom extends Room {
             }
 
             // Move message
-            if (room.currentGameState === GAME_START && data.dataType === MOVE) {
-                room.makeMove(user.socketId, data.from, data.to);
+            if (data.dataType === MOVE) {
+                room.makeMove(user.socketId, data.from, data.to, data.gameId);
             }
 
             // Login message
@@ -471,12 +471,25 @@ export default class GameRoom extends Room {
     /**
      * Move pieces and notify player's about their turn
      */
-    makeMove(id, from, to){
+    makeMove(id, from, to, gameId){
         let room = this;
         let currentUserId = id;
         let currentUser;
         let nextUser;
-        for (let i = 0; i < this.users.length; i++) {
+        for (let i = 0; i < room.games.length; i++) {
+            if(room.games[i].gameId === gameId){
+                if(room.games[i].users[0].socketId === currentUserId){
+                    currentUser = room.games[i].users[0];
+                    nextUser = room.games[i].users[1];
+                }
+                else{
+                    currentUser = room.games[i].users[1];
+                    nextUser = room.games[i].users[0];
+                }
+            }
+
+        }
+        /*for (let i = 0; i < this.users.length; i++) {
             let user = this.users[i];
             if(user.id === currentUserId){
                 currentUser = user;
@@ -484,14 +497,17 @@ export default class GameRoom extends Room {
             else{
                 nextUser = user;
             }
-        }
+        }*/
 
         let moveData = {
             dataType: MOVE,
             from: from,
             to: to,
         };
-        room.sendAll(JSON.stringify(moveData));
+
+        currentUser.socket.send(JSON.stringify(moveData));
+        nextUser.socket.send(JSON.stringify(moveData));
+        //room.sendAll(JSON.stringify(moveData));
 
         // player who just moved, is sent a message with isPlayerTurn: false
         let gameLogicDataForPlayerTurn = {
