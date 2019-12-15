@@ -162,6 +162,7 @@ $(function(){
 
                 if(data.gameState === websocketGame.GAME_INIT){
                     $("#show-turn").html("");
+                    $("#gameId").html(data.gameId);
 
                     //behave differently if game is loaded
                     if(data.load === true){
@@ -259,6 +260,7 @@ $(function(){
                                 $(this).addClass('not-my-color');
                             });
                         }
+                        $("#main").removeClass("hide");
                         if(data.saveGame === true){
                             saveGame();
                         }
@@ -426,12 +428,14 @@ function saveGame(){
     let board = document.getElementById("board");
     let fieldCaptured = document.getElementById("field-captured");
     let chatHistory = document.getElementById("chat-history");
+    let gameId = document.getElementById("gameId");
     let data = {};
     data.dataType = websocketGame.SAVE;
     data.board = board.innerHTML;
     data.fieldCaptured = fieldCaptured.innerHTML;
     data.chatHistory = chatHistory.innerHTML;
     data.timestamp = dateTime;
+    data.gameId = gameId.innerHTML;
     //data.user = username;
     websocketGame.socket.send(JSON.stringify(data));
 }

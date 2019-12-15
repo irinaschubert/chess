@@ -75,7 +75,7 @@ export default class GameRoom extends Room {
         let room = this;
         user.socket.on("message", function (message) {
             //use this for debugging
-            console.log("[GameRoom] Got message from " + user.socketId + ": " + message);
+            //console.log("[GameRoom] Got message from " + user.socketId + ": " + message);
 
             let data = JSON.parse(message);
 
@@ -338,32 +338,10 @@ export default class GameRoom extends Room {
                 });
             }
 
+            // New Game
             if (data.dataType === NEW) {
                 room.startGame(user);
-                /*MongoClient.connect(url, {useUnifiedTopology: true}, function (err, db) {
-                    if (err) throw err;
-                    let dbo = db.db("webEchessDb");
-
-                    new Promise(function (resolve, reject) {
-                        resolve(dbo.collection("users").findOne({"username": data.username}));
-                    }).then(async function (dbUser) {
-                        let userSocket = await dbo.collection("userSockets").findOne({"socketId": dbUser.userId});
-                        return [userSocket, dbUser];
-                    }).then(function (user) {
-                        for(let i in room.users){
-                            console.log(room.users[i]);
-                            if(room.users[i].socket === user[0].socket){
-                                console.log("yes");
-                            }
-                        }
-                        room.startGame(user[0], user[1]);
-                    })
-                });*/
             }
-
-            /*if (data.dataType === RESTART) {
-                room.startGame();
-            }*/
 
             // Load Game
             if (data.dataType === LOAD_GAME){
@@ -423,62 +401,69 @@ export default class GameRoom extends Room {
     /**
      * Start the game, choose player which starts the game and notify only this player
      */
-    //startGame(userSession, dbUser) {
-    startGame(user) {
+    async startGame(user) {
         let room = this;
-        //let game = room.addUserToGame(userSession, dbUser);
-        let game = room.addUserToGame(user);
-        if(game.state === G_START){
+        let game = await room.addUserToGame(user);
+        if (game.state === G_START) {
             // player 1 will start the game (white)
-            //console.log("[Game] Start game with player " + game.users[1][1].username + "'s turn.");
             console.log("[Game] Start game with player " + game.users[1].socketId + "'s turn.");
 
             // send a message to black player
             let gameLogicDataForBlackPlayer = {
                 dataType: GAME_LOGIC,
                 gameState: GAME_INIT,
+                gameId: game.gameId,
                 isPlayerTurn: false,
                 saveGame: false,
                 turn: WHITE,
                 load: false,
             };
-            //let userBlack = game.users[0][0];
             let userBlack = game.users[0];
-            console.log("black: ", userBlack);
             userBlack.socket.send(JSON.stringify(gameLogicDataForBlackPlayer));
 
             // white player is notified to start the game
             let gameLogicDataForWhitePlayer = {
                 dataType: GAME_LOGIC,
                 gameState: GAME_INIT,
+                gameId: game.gameId,
                 isPlayerTurn: true,
                 saveGame: true,
                 turn: WHITE,
                 load: false,
             };
-            //let userWhite = game.users[1][0];
             let userWhite = game.users[1];
             userWhite.socket.send(JSON.stringify(gameLogicDataForWhitePlayer));
         }
     }
 
-    //addUserToGame(userSession, dbUser){
     addUserToGame(user){
         let room = this;
         let i = 0;
         for(let j in room.games){
             if(room.games[j].state === G_INIT){
-                //room.games[j].addUserToGame(userSession, dbUser);
                 room.games[j].addUserToGame(user);
                 i = i + 1;
+
+                MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
+                    if (err) throw err;
+                    let dbo = db.db("webEchessDb");
+                    dbo.collection("games").insertOne({"gameId": room.games[j].gameId, "users": user.socketId})
+                        .then(db.close());
+                });
                 return room.games[j];
             }
         }
         if(i === 0){
             let game = new Game();
-            //game.addUserToGame(userSession, dbUser);
             game.addUserToGame(user);
             room.games.push(game);
+
+            MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
+                if (err) throw err;
+                let dbo = db.db("webEchessDb");
+                dbo.collection("games").insertOne({"gameId": game.gameId, "users": user.socketId})
+                    .then(db.close());
+            });
             return game;
         }
     }
