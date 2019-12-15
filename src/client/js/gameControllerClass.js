@@ -257,7 +257,6 @@ export default class GameController {
         }
     }
 
-    //TODO: implement game over functionality
     gameOver(lostOrWon){
         if(lostOrWon === LOST){
             $("#popup-loose").removeClass("hide");
@@ -265,7 +264,6 @@ export default class GameController {
         else if(lostOrWon === WON){
             $("#popup-win").removeClass("hide");
         }
-
     }
 
     loadFunctionality(startOrLoad){
@@ -273,7 +271,7 @@ export default class GameController {
 
         const $board = $('#board');
         if(startOrLoad === START){
-            this.setupGame($board);
+            gc.setupGame($board);
         }
 
         $board.children().each(function() {
@@ -287,7 +285,6 @@ export default class GameController {
                             $(e.target.parentNode.classList.toggle('clicked'));
                             moveObject.push(e.target);
                             moveObject.push([$(e.target.parentNode).data('col'), $(e.target.parentNode).data('row')]);
-                            //console.log("from: " + [$(e.target.parentNode).data('col'), $(e.target.parentNode).data('row')]);
                         }
                     }
 

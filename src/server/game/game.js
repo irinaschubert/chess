@@ -36,4 +36,12 @@ export default class Game {
     endGame(){
         this.state = END;
     }
+
+    setGameId(id){
+        this.gameId = id;
+    }
+
+    setGameState(state){
+        this.state = state;
+    }
 }

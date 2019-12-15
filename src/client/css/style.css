@@ -19,6 +19,18 @@ p {
     text-align: center;
 }
 
+#new{
+    cursor: pointer;
+}
+
+#load{
+    cursor: pointer;
+}
+
+#capitulate{
+    cursor: pointer;
+}
+
 footer {
     font-size: 15px;
     text-align: right;
@@ -454,6 +466,10 @@ footer {
 
 #show-saved-games.hide {
     visibility: hidden;
+}
+
+.load-when-clicked{
+    cursor: pointer;
 }
 
 #login-buttons{

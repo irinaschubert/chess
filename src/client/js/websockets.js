@@ -104,7 +104,7 @@ $(function(){
                     $("#saved-games").empty();
                     for(let i = 0; i < data.timestamps.length; i++){
                         //savedGames.appendToGames(data.gameRoomId, data.timestamps[i], data.boards[i], data.fieldsCaptured[i], data.chatsHistory[i]);
-                        appendToGames(data.gameRoomIds[i], data.timestamps[i], data.boards[i], data.fieldsCaptured[i], data.chatsHistory[i], data.turns[i], data.whitePlayers[i], data.isMyTurns[i], data.iAmWhites[i]);
+                        appendToGames(data.gameIds[i], data.timestamps[i], data.boards[i], data.fieldsCaptured[i], data.chatsHistory[i], data.turns[i], data.whitePlayers[i], data.isMyTurns[i], data.iAmWhites[i]);
                     }
                     $("#show-saved-games").removeClass("hide");
                 }
@@ -230,7 +230,8 @@ $(function(){
                                 $(this).addClass('not-my-color');
                             });
                         }
-                        gc.loadFunctionality(LOAD);
+                        $("#main").removeClass("hide");
+                        gc.loadFunctionality(1);
                     }
 
                     if(data.load === false){
@@ -372,11 +373,11 @@ function sendMove(){
     let message = $("#show-move").html();
     let data = {};
     data.dataType = websocketGame.MOVE;
-    // TODO data.gameState = ;
     data.from = [parseInt(message.charAt(0)), parseInt(message.charAt(2))];
     data.to = [parseInt(message.charAt(11)), parseInt(message.charAt(13))];
     let gameId = document.getElementById("gameId");
     data.gameId = gameId.innerHTML;
+    console.log(data.gameId)
     websocketGame.socket.send(JSON.stringify(data));
     $("#show-move").html("-->");
 }
@@ -426,10 +427,11 @@ function saveGame(){
     let today = new Date();
     let date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
     let time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-    let dateTime = date+' '+time;
+
     let board = document.getElementById("board");
     let fieldCaptured = document.getElementById("field-captured");
     let chatHistory = document.getElementById("chat-history");
+    let dateTime = date+' '+time;
     let gameId = document.getElementById("gameId");
     let data = {};
     data.dataType = websocketGame.SAVE;
@@ -438,7 +440,6 @@ function saveGame(){
     data.chatHistory = chatHistory.innerHTML;
     data.timestamp = dateTime;
     data.gameId = gameId.innerHTML;
-    //data.user = username;
     websocketGame.socket.send(JSON.stringify(data));
 }
 
@@ -449,11 +450,8 @@ $("#load-game-button-2").click(loadGame);
 
 function loadGame(){
     $("#popup-loose").addClass("hide");
-    let usernameElement = document.getElementById("username");
-    username = usernameElement.innerHTML;
     let data = {};
     data.dataType = websocketGame.LOAD;
-    data.loadUser = username;
     websocketGame.socket.send(JSON.stringify(data));
 }
 
@@ -461,11 +459,8 @@ function loadGame(){
 $("#new").click(newGame);
 
 function newGame(){
-    let usernameElement = document.getElementById("username");
-    username = usernameElement.innerHTML;
     let data = {};
     data.dataType = websocketGame.NEW;
-    data.username = username;
     websocketGame.socket.send(JSON.stringify(data));
 }
 
@@ -476,22 +471,18 @@ function goBack(){
     $("#show-saved-games").addClass("hide");
 }
 
-function appendToGames(roomId, gameTimestamp, gameBoard, gameFieldsCaptured, gameChatHistory, gameTurn, gameWhitePlayer, isMyTurn, iAmWhite) {
-    //data.gameRoomIds[i], data.timestamps[i], data.boards[i], data.fieldsCaptured[i], data.chatsHistory[i], data.turns[i], data.whitePlayers[i], data.isMyTurns[i], data.iAmWhites[i
+function appendToGames(gameId, gameTimestamp, gameBoard, gameFieldsCaptured, gameChatHistory, gameTurn, gameWhitePlayer, isMyTurn, iAmWhite) {
     let savedGames = this;
     let listElement = document.createElement('li');
     listElement.innerHTML = gameTimestamp;
     listElement.classList.add("load-when-clicked");
     $("#saved-games").append(listElement);
     listElement.addEventListener('click', function(){
-        //SavedGames.loadGame(roomId, gameBoard, gameFieldsCaptured, gameChatHistory);
-        loadSavedGame(roomId, gameTimestamp, gameBoard, gameFieldsCaptured, gameChatHistory, gameTurn, gameWhitePlayer, isMyTurn, iAmWhite);
+        loadSavedGame(gameId, gameTimestamp, gameBoard, gameFieldsCaptured, gameChatHistory, gameTurn, gameWhitePlayer, isMyTurn, iAmWhite);
     });
 }
 
-function loadSavedGame(roomId, gameTimestamp, gameBoard, gameFieldsCaptured, gameChatHistory, gameTurn, gameWhitePlayer, isMyTurn, iAmWhite) {
-    let usernameElement = document.getElementById("username");
-    username = usernameElement.innerHTML;
+function loadSavedGame(gameId, gameTimestamp, gameBoard, gameFieldsCaptured, gameChatHistory, gameTurn, gameWhitePlayer, isMyTurn, iAmWhite) {
     $("#board").empty();
     $("#board").append(gameBoard);
     $("#field-captured").empty();
@@ -501,15 +492,13 @@ function loadSavedGame(roomId, gameTimestamp, gameBoard, gameFieldsCaptured, gam
 
     let data = {};
     data.dataType = websocketGame.LOAD_GAME;
-    data.roomId = roomId;
+    data.gameId = gameId;
     data.turn = gameTurn;
     data.whitePlayer = gameWhitePlayer;
     data.isMyTurn = isMyTurn;
     data.iAmWhite = iAmWhite;
-    data.sender = username;
     websocketGame.socket.send(JSON.stringify(data));
 
     $("#show-saved-games").addClass("hide");
-    //location.reload();
 }
 

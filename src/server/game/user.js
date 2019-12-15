@@ -13,4 +13,8 @@ export default class User {
         this.socketId = "1" + Math.floor(Math.random() * 1000000000);
         this.socket = socket;
     }
+
+    setUsername(username){
+        this.username = username;
+    }
 }
