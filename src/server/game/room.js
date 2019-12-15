@@ -26,12 +26,12 @@ export default class Room {
         let data = {
             dataType : CHAT_MESSAGE,
             sender : "Server",
-            message: user.id + " has joined the game. Total connections: " + this.users.length
+            message: user.socketId + " has joined the room. Total connections: " + this.users.length
         };
         room.sendAll(JSON.stringify(data));
 
         user.socket.onclose = function () {
-            console.log(user.id + ' left.');
+            console.log(user.socketId + ' left.');
             room.removeUser(user);
         };
 
@@ -52,7 +52,7 @@ export default class Room {
         let data = {
             dataType : CHAT_MESSAGE,
             sender : "Server",
-            message: user.id + " has left the game. Total connections: " + this.users.length
+            message: user.socketId + " has left the room. Total connections: " + this.users.length
         };
         room.sendAll(JSON.stringify(data));
     };

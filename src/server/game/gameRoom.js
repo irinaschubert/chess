@@ -8,6 +8,7 @@
 import Room from "./room.js";
 import {MongoClient} from "mongodb";
 import User from "./user";
+import Game from "./game";
 let url = "mongodb://localhost:27017/";
 
 // constants
@@ -21,6 +22,7 @@ const SAVE = 10;
 const LOAD = 11;
 const SHOW_GAMES = 12;
 const LOAD_GAME = 13;
+const NEW = 14;
 // game state
 const GAME_INIT = 1;
 const GAME_START = 2;
@@ -39,25 +41,18 @@ const SUCCESS = 1;
 // color
 const WHITE = 1;
 const BLACK = 0;
+// game
+const G_INIT = 0;
+const G_START = 1;
+const G_END = 2;
 
 export default class GameRoom extends Room {
      /**
-     * Create a game room for two players with default values, send a message to all users when done
+     * Create a game room
       */
-    constructor(id, playerTurn) {
+    constructor() {
         super();
-        if(id === undefined){
-            this.id = "1" + Math.floor(Math.random() * 1000000000);
-        }
-        else{
-            this.id = id;
-        }
-         if(id === undefined){
-             this.playerTurn = 0;
-         }
-         else{
-             this.playerTurn = playerTurn;
-         }
+        this.games = [];
     }
 
     /**
@@ -67,9 +62,9 @@ export default class GameRoom extends Room {
      */
     addUser(user) {
         super.addUser(user);
-        if (this.users.length === 2) {
+        /*if (this.users.length === 2) {
             this.startGame();
-        }
+        }*/
     };
 
     /**
@@ -79,24 +74,25 @@ export default class GameRoom extends Room {
     handleOnUserMessage(user) {
         let room = this;
         user.socket.on("message", function (message) {
-            //console.log("[GameRoom] Got message from " + user.id + ": " + message);
+            //use this for debugging
+            console.log("[GameRoom] Got message from " + user.socketId + ": " + message);
 
             let data = JSON.parse(message);
 
             // Chat message
             if (data.dataType === CHAT_MESSAGE) {
-                data.sender = user.id;
+                data.sender = user.socketId;
                 room.sendAll(JSON.stringify(data));
             }
 
             // Move message
             if (room.currentGameState === GAME_START && data.dataType === MOVE) {
-                room.makeMove(user.id, data.from, data.to);
+                room.makeMove(user.socketId, data.from, data.to);
             }
 
             // Login message
             if (data.dataType === LOGIN) {
-                let dbUser = { user: user.id, username: data.username, password: data.password};
+                let dbUser = { socketId: user.socketId, username: data.username, password: data.password};
 
                 // check username and password
                 MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
@@ -108,14 +104,19 @@ export default class GameRoom extends Room {
                     });
 
                     userCheck.then(function (value) {
+                        //user exists and password is correct
                         if (value !== null) {
-                            //user exists and password is correct
+                            let updateUserId = new Promise(function (resolve, reject) {
+                                resolve(dbo.collection("users").updateOne({"username": dbUser.username},{$set:{userId: dbUser.socketId}}));
+                            });
+
                             let loginMessage = {
                                 dataType: LOGIN,
                                 username: dbUser.username,
                                 message: SUCCESS,
                             };
                             user.socket.send(JSON.stringify(loginMessage));
+                        //user does not exist or password is wrong
                         } else {
                             let loginMessage = {
                                 dataType: LOGIN,
@@ -130,7 +131,7 @@ export default class GameRoom extends Room {
 
             // Registration message
             if (data.dataType === REGISTRATION) {
-                let dbUser = { user: user.id, username: data.username, password: data.password};
+                let dbUser = { userId: user.socketId, username: data.username, password: data.password};
 
                 // write new user to mongodb if not exists already
                 MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
@@ -337,9 +338,32 @@ export default class GameRoom extends Room {
                 });
             }
 
-            if (data.dataType === RESTART) {
-                this.startGame();
+            if (data.dataType === NEW) {
+                room.startGame(user);
+                /*MongoClient.connect(url, {useUnifiedTopology: true}, function (err, db) {
+                    if (err) throw err;
+                    let dbo = db.db("webEchessDb");
+
+                    new Promise(function (resolve, reject) {
+                        resolve(dbo.collection("users").findOne({"username": data.username}));
+                    }).then(async function (dbUser) {
+                        let userSocket = await dbo.collection("userSockets").findOne({"socketId": dbUser.userId});
+                        return [userSocket, dbUser];
+                    }).then(function (user) {
+                        for(let i in room.users){
+                            console.log(room.users[i]);
+                            if(room.users[i].socket === user[0].socket){
+                                console.log("yes");
+                            }
+                        }
+                        room.startGame(user[0], user[1]);
+                    })
+                });*/
             }
+
+            /*if (data.dataType === RESTART) {
+                room.startGame();
+            }*/
 
             // Load Game
             if (data.dataType === LOAD_GAME){
@@ -399,38 +423,64 @@ export default class GameRoom extends Room {
     /**
      * Start the game, choose player which starts the game and notify only this player
      */
-    startGame() {
+    //startGame(userSession, dbUser) {
+    startGame(user) {
         let room = this;
+        //let game = room.addUserToGame(userSession, dbUser);
+        let game = room.addUserToGame(user);
+        if(game.state === G_START){
+            // player 1 will start the game (white)
+            //console.log("[Game] Start game with player " + game.users[1][1].username + "'s turn.");
+            console.log("[Game] Start game with player " + game.users[1].socketId + "'s turn.");
 
-        // player this.users[this.playerTurn] will start the game --> spoiler: it's always player 1 :)
-        this.playerTurn = (this.playerTurn + 1) % this.users.length;
-        console.log("[GameRoom] Start game with player " + this.users[this.playerTurn].id + "'s turn.");
+            // send a message to black player
+            let gameLogicDataForBlackPlayer = {
+                dataType: GAME_LOGIC,
+                gameState: GAME_INIT,
+                isPlayerTurn: false,
+                saveGame: false,
+                turn: WHITE,
+                load: false,
+            };
+            //let userBlack = game.users[0][0];
+            let userBlack = game.users[0];
+            console.log("black: ", userBlack);
+            userBlack.socket.send(JSON.stringify(gameLogicDataForBlackPlayer));
 
-        // send a message to all players with isPlayerTurn: false (black player)
-        let gameLogicDataForAllPlayers = {
-            dataType: GAME_LOGIC,
-            gameState: GAME_INIT,
-            isPlayerTurn: false,
-            saveGame: false,
-            turn: WHITE,
-            load: false,
-        };
-        this.sendAll(JSON.stringify(gameLogicDataForAllPlayers));
+            // white player is notified to start the game
+            let gameLogicDataForWhitePlayer = {
+                dataType: GAME_LOGIC,
+                gameState: GAME_INIT,
+                isPlayerTurn: true,
+                saveGame: true,
+                turn: WHITE,
+                load: false,
+            };
+            //let userWhite = game.users[1][0];
+            let userWhite = game.users[1];
+            userWhite.socket.send(JSON.stringify(gameLogicDataForWhitePlayer));
+        }
+    }
 
-        // player who's turn it is, is notified with isPlayerTurn: true (white player)
-        let gameLogicDataForPlayerTurn = {
-            dataType: GAME_LOGIC,
-            gameState: GAME_INIT,
-            isPlayerTurn: true,
-            saveGame: true,
-            turn: WHITE,
-            load: false,
-        };
-        let user = this.users[this.playerTurn];
-        let otherUser = this.users[0];
-        user.socket.send(JSON.stringify(gameLogicDataForPlayerTurn));
-
-        room.currentGameState = GAME_START;
+    //addUserToGame(userSession, dbUser){
+    addUserToGame(user){
+        let room = this;
+        let i = 0;
+        for(let j in room.games){
+            if(room.games[j].state === G_INIT){
+                //room.games[j].addUserToGame(userSession, dbUser);
+                room.games[j].addUserToGame(user);
+                i = i + 1;
+                return room.games[j];
+            }
+        }
+        if(i === 0){
+            let game = new Game();
+            //game.addUserToGame(userSession, dbUser);
+            game.addUserToGame(user);
+            room.games.push(game);
+            return game;
+        }
     }
 
     /**

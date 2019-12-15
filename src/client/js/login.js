@@ -1,4 +1,5 @@
-/** representing the start page functionalities
+/**
+ *  representing the start page functionalities
  *  @author Irina
  *
  * */

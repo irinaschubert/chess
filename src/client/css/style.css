@@ -463,3 +463,7 @@ footer {
 #footer.hide {
     visibility: hidden;
 }
+
+#main.hide {
+    visibility: hidden;
+}

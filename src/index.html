@@ -9,6 +9,7 @@
 </head>
 <body>
 <div class="navbar">
+    <a id="new">New</a>
     <a id="load">Load</a>
     <a id="capitulate">Capitulate</a>
 </div>
@@ -17,7 +18,7 @@
     <p id="username"></p>
     <p id="show-turn"></p>
 </div>
-<div id="main" class="container">
+<div id="main" class="container hide">
     <section class="container" id="board">
         <!-- in here the rows and fields are appended -->
     </section>
@@ -39,7 +40,6 @@
         <label for="chat-input"></label><input type="text" id="chat-input" autocomplete="off">
         <input type="button" value="Send" class="button" id="send">
     </section>
-
 </div>
 
 <section id="show-saved-games" class="hide">

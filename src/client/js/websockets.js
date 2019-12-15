@@ -31,6 +31,7 @@ let websocketGame = {
     LOAD : 11,
     SHOW_GAMES: 12,
     LOAD_GAME:13,
+    NEW: 14,
     FAILURE : 0,
     SUCCESS : 1,
     WHITE : 1,
@@ -38,7 +39,6 @@ let websocketGame = {
 };
 
 let username = "";
-const LOAD = 1;
 
 $(function(){
     //check if browser supports websockets
@@ -51,7 +51,7 @@ $(function(){
 
         // on open event
         websocketGame.socket.onopen = function(e){
-            console.log('WebSocket connection established.');
+            console.log("WebSocket connection established.");
         };
 
         // on message event (executed when receiving a message from GameRoom)
@@ -60,6 +60,7 @@ $(function(){
             let data = JSON.parse(e.data);
 
             if(data.dataType !== websocketGame.LOGIN && data.dataType !== websocketGame.SHOW_GAMES){
+                // use the console output for debugging
                 console.log("Got message: ", e.data);
             }
 
@@ -70,7 +71,8 @@ $(function(){
                     $("#login").addClass("hide");
                     $("#footer").removeClass("hide");
                     $("#username").append(data.username);
-                    chat.appendToHistory(data.sender, data.username + " has joined the game");
+                    $("#show-turn").append("Welcome to Chess. Please choose what to do.");
+                    //chat.appendToHistory(data.sender, data.username + " has joined the game");
                 }
                 else if(data.message === websocketGame.FAILURE){
                     let loginText = document.getElementById("login-text");
@@ -86,7 +88,8 @@ $(function(){
                     $("#login").addClass("hide");
                     $("#footer").removeClass("hide");
                     $("#username").append(data.username);
-                    chat.appendToHistory(data.sender, data.username + " has joined the game");
+                    $("#show-turn").append("Welcome to Chess. Please choose what to do.");
+                    //chat.appendToHistory(data.sender, data.username + " has joined the game");
                 }
                 else if(data.message === websocketGame.FAILURE){
                     let loginText = document.getElementById("login-text");
@@ -272,10 +275,10 @@ $(function(){
 });
 
 // new game button
-$("#new-game-button-1").click(startNewGame);
-$("#new-game-button-2").click(startNewGame);
+//$("#new-game-button-1").click(startNewGame);
+//$("#new-game-button-2").click(startNewGame);
 
-function startNewGame(){
+/*function startNewGame(){
     let newWebsocketGame = {
         GAME_LOGIC : 0,
         CHAT_MESSAGE : 1,
@@ -315,7 +318,7 @@ function startNewGame(){
     //newWebsocketGame.socket.send(JSON.stringify(data));
 
     $("#popup-loose").addClass("hide");
-}
+}*/
 
 // Login / Registration
 $("#login-button").click(getLoginValues);
@@ -445,6 +448,18 @@ function loadGame(){
     let data = {};
     data.dataType = websocketGame.LOAD;
     data.loadUser = username;
+    websocketGame.socket.send(JSON.stringify(data));
+}
+
+// New Button
+$("#new").click(newGame);
+
+function newGame(){
+    let usernameElement = document.getElementById("username");
+    username = usernameElement.innerHTML;
+    let data = {};
+    data.dataType = websocketGame.NEW;
+    data.username = username;
     websocketGame.socket.send(JSON.stringify(data));
 }
 
