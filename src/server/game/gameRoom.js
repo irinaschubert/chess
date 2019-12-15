@@ -79,7 +79,18 @@ export default class GameRoom extends Room {
             // Chat message
             if (data.dataType === CHAT_MESSAGE) {
                 data.sender = user.socketId;
-                room.sendAll(JSON.stringify(data));
+                if(data.toAll === true){
+                    room.sendAll(JSON.stringify(data));
+                }
+                else{
+                    for(let i in this.games){
+                        if(this.games[i].gameId === data.gameId){
+                            for(let u in this.games[i].users){
+                                this.games[i].users[u].socket.send(JSON.stringify(data));
+                            }
+                        }
+                    }
+                }
             }
 
             // Move message
@@ -105,7 +116,7 @@ export default class GameRoom extends Room {
                         //user exists and password is correct
                         if (value !== null) {
                             let updateUserId = new Promise(function (resolve, reject) {
-                                resolve(dbo.collection("users").updateOne({"username": dbUser.username},{$set:{userId: dbUser.socketId}}));
+                                resolve(dbo.collection("users").updateOne({"username": dbUser.username},{$set:{"userId": dbUser.socketId}}));
                             });
 
                             let loginMessage = {
@@ -334,53 +345,6 @@ export default class GameRoom extends Room {
                         db.close();
                         room.showSavedGamesForUser(user, value);
                     });
-
-                    /*new Promise(function (resolve, reject) {
-                        resolve(dbo.collection("savedGames").findOne({"users.username": user.username}));
-                    }).then(function (value) {
-                        return value.user;
-                    }).then(function (value) {
-                        return (dbo.collection("savedGames").find({"users.username": user.username}));
-                    }).then(async function (value) {
-                        let gameRoomIds = [];
-                        let boards = [];
-                        let fieldsCaptured = [];
-                        let chatsHistory = [];
-                        let gameTimestamps = [];
-                        let turns = [];
-                        let whitePlayer = [];
-                        let isMyTurn = [];
-                        let userId = value[1];
-                        let iAmWhite = [];
-                        for await (const item of value[0]) {
-                            if (item !== null) {
-                                gameRoomIds.push(item.gameRoomId);
-                                boards.push(item.board);
-                                fieldsCaptured.push(item.fieldCaptured);
-                                chatsHistory.push(item.chatHistory);
-                                gameTimestamps.push(item.timestamp);
-                                turns.push(item.turn);
-                                whitePlayer.push(item.whitePlayer);
-                                if(userId.localeCompare(item.whitePlayer) === 0){
-                                    iAmWhite.push(true);
-                                }
-                                else{
-                                    iAmWhite.push(false);
-                                }
-                                if(userId.localeCompare(item.whitePlayer) === 0 && item.turn === 1){
-                                    isMyTurn.push(true);
-                                }else if(userId.localeCompare(item.whitePlayer) === 1 && item.turn === 0){
-                                    isMyTurn.push(true)
-                                }else{
-                                    isMyTurn.push(false)
-                                }
-                            }
-                        }
-                        return [gameRoomIds, gameTimestamps, boards, fieldsCaptured, chatsHistory, turns, whitePlayer, isMyTurn, iAmWhite];
-                    }).then(function (value) {
-                        db.close();
-                        room.showSavedGamesForUser(user.id, value);
-                    });*/
                 });
             }
 
@@ -495,7 +459,8 @@ export default class GameRoom extends Room {
                 MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
                     if (err) throw err;
                     let dbo = db.db("webEchessDb");
-                    dbo.collection("games").insertOne({"gameId": room.games[j].gameId, "gameState": room.games[j].state, "userId": user.socketId, "username": user.username})
+                    dbo.collection("games").insertOne({"gameId": room.games[j].gameId, "gameState": room.games[j].state, "username": user.username})
+                        .then(dbo.collection("games").updateOne({"gameId": room.games[j].gameId, "username": user.username}, {$set:{"gameState": G_START}}))
                         .then(db.close());
                 });
                 return room.games[j];
@@ -509,7 +474,7 @@ export default class GameRoom extends Room {
             MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
                 if (err) throw err;
                 let dbo = db.db("webEchessDb");
-                dbo.collection("games").insertOne({"gameId": game.gameId, "gameState": game.state, "userId": user.socketId, "username": user.username})
+                dbo.collection("games").insertOne({"gameId": game.gameId, "gameState": game.state, "username": user.username})
                     .then(db.close());
             });
             return game;

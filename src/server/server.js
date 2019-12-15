@@ -26,7 +26,7 @@ server.on('connection', function(socket, client){
 
 function addUserToRoom(rooms, socket){
     let user = new User(socket);
-    MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
+    /*MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
         if (err) throw err;
         let dbo = db.db("webEchessDb");
         let userSocket = { socketId: user.socketId, socket: user.socket };
@@ -34,7 +34,7 @@ function addUserToRoom(rooms, socket){
             if (err) throw err;
             db.close();
         });
-    });
+    });*/
     room.addUser(user);
 }
 

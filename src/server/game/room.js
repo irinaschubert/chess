@@ -6,7 +6,7 @@
 'use strict';
 
 // constants
-const CHAT_MESSAGE = 1;
+//const CHAT_MESSAGE = 1;
 
 export default class Room {
     /**
@@ -23,12 +23,12 @@ export default class Room {
     addUser(user) {
         this.users.push(user);
         let room = this;
-        let data = {
+        /*let data = {
             dataType : CHAT_MESSAGE,
             sender : "Server",
             message: user.socketId + " has joined the room. Total connections: " + this.users.length
         };
-        room.sendAll(JSON.stringify(data));
+        room.sendAll(JSON.stringify(data));*/
 
         user.socket.onclose = function () {
             console.log(user.socketId + ' left.');
@@ -43,18 +43,18 @@ export default class Room {
      * @param  {User} user - user to remove
      */
     removeUser(user) {
-        let room = this;
         for (let i = this.users.length; i >= 0; i--) {
             if (this.users[i] === user) {
                 this.users.splice(i, 1);
             }
         }
-        let data = {
+
+        /*let data = {
             dataType : CHAT_MESSAGE,
             sender : "Server",
             message: user.socketId + " has left the room. Total connections: " + this.users.length
         };
-        room.sendAll(JSON.stringify(data));
+        room.sendAll(JSON.stringify(data));*/
     };
 
     /**

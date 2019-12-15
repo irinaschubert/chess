@@ -348,19 +348,33 @@ function getRegisterValues(){
 }
 
 // Chat Button / Field
-$("#send").click(sendMessage);
+$("#send").click(sendMessageToAll);
+$("#send-to-partner").click(sendMessageToPartner);
 
 $("#chat-input").keypress(function(event){
     let key = event.which || event.keyCode;
     if(key === 13){
-        sendMessage();
+        sendMessageToAll();
     }
 });
 
-function sendMessage(){
+function sendMessageToAll(){
     let message = $("#chat-input").val();
     let data = {};
     data.dataType = websocketGame.CHAT_MESSAGE;
+    data.toAll = true;
+    data.message = message;
+    websocketGame.socket.send(JSON.stringify(data));
+    $("#chat-input").val("");
+}
+
+function sendMessageToPartner(){
+    let message = $("#chat-input").val();
+    let data = {};
+    data.dataType = websocketGame.CHAT_MESSAGE;
+    data.toAll = false;
+    let gameId = document.getElementById("gameId");
+    data.gameId = gameId.innerHTML;
     data.message = message;
     websocketGame.socket.send(JSON.stringify(data));
     $("#chat-input").val("");
