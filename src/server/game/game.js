@@ -24,13 +24,17 @@ export default class Game {
         if(this.users.length < 2){
             this.users.push(user);
             if(this.users.length === 2){
-                this.state = START;
+                this.setGameState(START);
             }
         }
         else{
             let game = new Game();
             game.addUserToGame(user);
         }
+    }
+
+    addUserToGameLoad(user){
+        this.users.push(user);
     }
 
     endGame(){

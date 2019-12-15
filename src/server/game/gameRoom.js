@@ -370,7 +370,7 @@ export default class GameRoom extends Room {
         for(let i in this.games){
             if(this.games[i].gameId === gameId && this.games[i].state === G_START){
                 game = this.games[i];
-                game.addUserToGame(user);
+                game.addUserToGameLoad(user);
                 j = j + 1;
             }
         }
@@ -379,17 +379,17 @@ export default class GameRoom extends Room {
         if(j < 1){
             game = new Game();
             game.setGameId(gameId);
-            game.addUserToGame(user);
+            game.addUserToGameLoad(user);
             game.setGameState(G_START);
             this.games.push(game);
         }
 
-        MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
+        /*MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
             if (err) throw err;
             let dbo = db.db("webEchessDb");
-            dbo.collection("games").insertOne({"gameId": game.gameId, "gameState": game.state, "userId": user.socketId, "username": user.username})
+            dbo.collection("games").insertOne({"gameId": game.gameId, "gameState": game.state, "username": user.username})
                 .then(db.close());
-        });
+        });*/
 
         if(isMyTurn){
             console.log("[GameRoom] Load game with player " + user.username + "'s turn.");
@@ -486,18 +486,24 @@ export default class GameRoom extends Room {
      */
     makeMove(user, from, to, gameId){
         let room = this;
-        let currentUserId = user.socketId;
+        let currentUsername = user.username;
         let currentUser;
+        let currentUsers = [];
         let nextUser;
+        let nextUsers = [];
         for (let i = 0; i < room.games.length; i++) {
             if(room.games[i].gameId === gameId){
-                if(room.games[i].users[0].socketId === currentUserId){
+                if(room.games[i].users[0].username === currentUsername){
                     currentUser = room.games[i].users[0];
+                    currentUsers.push(currentUser);
                     nextUser = room.games[i].users[1];
+                    nextUsers.push(nextUser);
                 }
                 else{
                     currentUser = room.games[i].users[1];
+                    currentUsers.push(currentUser);
                     nextUser = room.games[i].users[0];
+                    nextUsers.push(nextUser);
                 }
             }
         }
@@ -508,10 +514,18 @@ export default class GameRoom extends Room {
             to: to,
         };
 
-        currentUser.socket.send(JSON.stringify(moveData));
-        if(nextUser !== undefined){
-            nextUser.socket.send(JSON.stringify(moveData));
+        for(let i in currentUsers){
+            currentUsers[i].socket.send(JSON.stringify(moveData));
         }
+        //currentUser.socket.send(JSON.stringify(moveData));
+        for(let i in currentUsers){
+            if(nextUsers[i] !== undefined){
+                nextUsers[i].socket.send(JSON.stringify(moveData));
+            }
+        }
+        /*if(nextUser !== undefined){
+            nextUser.socket.send(JSON.stringify(moveData));
+        }*/
 
         // player who just moved, is sent a message with isPlayerTurn: false
         let gameLogicDataForPlayerTurn = {
@@ -519,7 +533,10 @@ export default class GameRoom extends Room {
             gameState: GAME_START,
             isPlayerTurn: false,
         };
-        currentUser.socket.send(JSON.stringify(gameLogicDataForPlayerTurn));
+        //currentUser.socket.send(JSON.stringify(gameLogicDataForPlayerTurn));
+        for(let i in currentUsers){
+            currentUsers[i].socket.send(JSON.stringify(gameLogicDataForPlayerTurn));
+        }
 
         // player who's turn it is, is notified with isPlayerTurn: true
         let gameLogicDataForNextPlayerTurn = {
@@ -527,8 +544,13 @@ export default class GameRoom extends Room {
             gameState: GAME_START,
             isPlayerTurn: true,
         };
-        if(nextUser !== undefined){
-            nextUser.socket.send(JSON.stringify(gameLogicDataForNextPlayerTurn));
+        /*if(nextUser !== undefined){
+            nextUser.socket.send(JSON.stringify(moveData));
+        }*/
+        for(let i in nextUsers){
+            if(nextUsers[i] !== undefined){
+                nextUsers[i].socket.send(JSON.stringify(gameLogicDataForNextPlayerTurn));
+            }
         }
     }
 

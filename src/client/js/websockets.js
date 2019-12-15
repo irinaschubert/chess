@@ -235,6 +235,7 @@ $(function(){
                     }
 
                     if(data.load === false){
+                        gc.loadFunctionality(0);
                         // white player
                         if(data.isPlayerTurn){
                             websocketGame.isPlayerTurn = true;
