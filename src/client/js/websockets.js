@@ -101,7 +101,7 @@ $(function(){
                 if(data.timestamps !== []){
                     $("#saved-games").empty();
                     for(let i = 0; i < data.timestamps.length; i++){
-                        appendToGames(data.gameIds[i], data.timestamps[i], data.boards[i], data.fieldsCaptured[i], data.chatsHistory[i], data.turns[i], data.whitePlayers[i], data.isMyTurns[i], data.iAmWhites[i]);
+                        appendToGames(data.gameIds[i], data.timestamps[i], data.boards[i], data.fieldsCaptured[i], data.chatsHistory[i], data.turns[i], data.whitePlayers[i], data.isMyTurns[i], data.iAmWhites[i], data.users[i]);
                     }
                     $("#show-saved-games").removeClass("hide");
                 }
@@ -173,6 +173,7 @@ $(function(){
                                 $('.black').each(function () {
                                     $(this).addClass('not-clickable');
                                 });
+                                document.getElementById("move").disabled = false;
 
                             }
                             else{
@@ -185,6 +186,7 @@ $(function(){
                                 $('.black').each(function () {
                                     $(this).addClass('not-clickable');
                                 });
+                                document.getElementById("move").disabled = true;
                             }
                             $('.white').each(function () {
                                 $(this).removeClass('not-my-color');
@@ -205,6 +207,7 @@ $(function(){
                                 $('.white').each(function () {
                                     $(this).addClass('not-clickable');
                                 });
+                                document.getElementById("move").disabled = false;
 
                             }
                             else{
@@ -217,6 +220,7 @@ $(function(){
                                 $('.white').each(function () {
                                     $(this).addClass('not-clickable');
                                 });
+                                document.getElementById("move").disabled = true;
                             }
                             $('.black').each(function () {
                                 $(this).removeClass('not-my-color');
@@ -346,7 +350,6 @@ function sendMove(){
     data.to = [parseInt(message.charAt(11)), parseInt(message.charAt(13))];
     let gameId = document.getElementById("gameId");
     data.gameId = gameId.innerHTML;
-    console.log(data.gameId)
     websocketGame.socket.send(JSON.stringify(data));
     $("#show-move").html("-->");
 }
@@ -439,9 +442,9 @@ function goBack(){
     $("#show-saved-games").addClass("hide");
 }
 
-function appendToGames(gameId, gameTimestamp, gameBoard, gameFieldsCaptured, gameChatHistory, gameTurn, gameWhitePlayer, isMyTurn, iAmWhite) {
+function appendToGames(gameId, gameTimestamp, gameBoard, gameFieldsCaptured, gameChatHistory, gameTurn, gameWhitePlayer, isMyTurn, iAmWhite, user) {
     let listElement = document.createElement('li');
-    listElement.innerHTML = gameTimestamp + "     " + gameId;
+    listElement.innerHTML = user[0] + " vs. " + user[1] + ", " + gameTimestamp + " (" + gameId + ")";
     listElement.classList.add("load-when-clicked");
     $("#saved-games").append(listElement);
     listElement.addEventListener('click', function(){

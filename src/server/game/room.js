@@ -23,12 +23,6 @@ export default class Room {
     addUser(user) {
         this.users.push(user);
         let room = this;
-        /*let data = {
-            dataType : CHAT_MESSAGE,
-            sender : "Server",
-            message: user.socketId + " has joined the room. Total connections: " + this.users.length
-        };
-        room.sendAll(JSON.stringify(data));*/
 
         user.socket.onclose = function () {
             console.log(user.socketId + ' left.');
@@ -48,13 +42,6 @@ export default class Room {
                 this.users.splice(i, 1);
             }
         }
-
-        /*let data = {
-            dataType : CHAT_MESSAGE,
-            sender : "Server",
-            message: user.socketId + " has left the room. Total connections: " + this.users.length
-        };
-        room.sendAll(JSON.stringify(data));*/
     };
 
     /**

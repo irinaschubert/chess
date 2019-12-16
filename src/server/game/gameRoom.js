@@ -83,10 +83,10 @@ export default class GameRoom extends Room {
                     room.sendAll(JSON.stringify(data));
                 }
                 else{
-                    for(let i in this.games){
-                        if(this.games[i].gameId === data.gameId){
-                            for(let u in this.games[i].users){
-                                this.games[i].users[u].socket.send(JSON.stringify(data));
+                    for(let i in room.games){
+                        if(room.games[i].gameId === data.gameId){
+                            for(let u in room.games[i].users){
+                                room.games[i].users[u].socket.send(JSON.stringify(data));
                             }
                         }
                     }
@@ -278,7 +278,8 @@ export default class GameRoom extends Room {
 
                         for(let i in room.games){
                             if(room.games[i].gameId === gameId){
-                                users = [room.games[i].users[0], room.games[i].users[1]];
+                                //users = [room.games[i].users[0], room.games[i].users[1]];
+                                users = [room.games[i].users[0].username, room.games[i].users[1].username];
                             }
                         }
 
@@ -302,7 +303,7 @@ export default class GameRoom extends Room {
                     let dbo = db.db("webEchessDb");
 
                     new Promise(function (resolve, reject) {
-                        resolve(dbo.collection("savedGames").find({"users.username": user.username}));
+                        resolve(dbo.collection("savedGames").find({"users": user.username}));
                     }).then(async function (value) {
                         let gameIds = [];
                         let boards = [];
@@ -314,6 +315,7 @@ export default class GameRoom extends Room {
                         let isMyTurn = [];
                         let username = user.username;
                         let iAmWhite = [];
+                        let users = [];
 
                         while (await value.hasNext()){
                             let item = await value.next();
@@ -325,6 +327,7 @@ export default class GameRoom extends Room {
                                 gameTimestamps.push(item.timestamp);
                                 turns.push(item.turn);
                                 whitePlayer.push(item.whitePlayer);
+                                users.push(item.users);
                                 if(username === item.whitePlayer){
                                     iAmWhite.push(true);
                                 }
@@ -340,7 +343,7 @@ export default class GameRoom extends Room {
                                 }
                             }
                         }
-                        return [gameIds, gameTimestamps, boards, fieldsCaptured, chatsHistory, turns, whitePlayer, isMyTurn, iAmWhite];
+                        return [gameIds, gameTimestamps, boards, fieldsCaptured, chatsHistory, turns, whitePlayer, isMyTurn, iAmWhite, users];
                     }).then(function (value) {
                         db.close();
                         room.showSavedGamesForUser(user, value);
@@ -383,13 +386,6 @@ export default class GameRoom extends Room {
             game.setGameState(G_START);
             this.games.push(game);
         }
-
-        /*MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
-            if (err) throw err;
-            let dbo = db.db("webEchessDb");
-            dbo.collection("games").insertOne({"gameId": game.gameId, "gameState": game.state, "username": user.username})
-                .then(db.close());
-        });*/
 
         if(isMyTurn){
             console.log("[GameRoom] Load game with player " + user.username + "'s turn.");
@@ -560,6 +556,7 @@ export default class GameRoom extends Room {
         let gameIAmWhites = games[8];
         let currentUsername = user.username;
         let currentUser;
+        let users = games[9];
 
         for (let i = 0; i < this.users.length; i++) {
             let user = this.users[i];
@@ -578,7 +575,8 @@ export default class GameRoom extends Room {
             turns : gameTurns,
             whitePlayers : gameWhitePlayers,
             isMyTurns : gameIsMyTurns,
-            iAmWhites : gameIAmWhites
+            iAmWhites : gameIAmWhites,
+            users : users
         };
         currentUser.socket.send(JSON.stringify(savedGames));
     }
