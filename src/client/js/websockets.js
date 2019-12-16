@@ -162,6 +162,7 @@ $(function(){
                 if(data.gameState === websocketGame.GAME_INIT){
                     $("#show-turn").html("");
                     $("#gameId").html(data.gameId);
+                    $("#send-to-partner").removeClass("hide");
 
                     //behave differently if game is loaded
                     if(data.load === true){
@@ -266,7 +267,6 @@ $(function(){
                             });
                         }
                         $("#main").removeClass("hide");
-                        $("#send-to-partner").removeClass("hide");
                         if(data.saveGame === true){
                             saveGame();
                         }
