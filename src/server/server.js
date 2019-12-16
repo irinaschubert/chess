@@ -7,19 +7,17 @@
 
 import User from './game/user.js';
 import GameRoom from './game/gameRoom.js';
-import {MongoClient} from "mongodb";
 
 let WebSocketServer = require('ws').Server;
-let url = "mongodb://localhost:27017/";
 let room = new GameRoom();
 let port = 8000;
 let server = new WebSocketServer({port:port});
 
 /**
- * Establish a connection and add users to room
+ * Establish a connection and add users to game room
  * @param {WebSocket} socket
  */
-// Is executed when a new socket connects to the server. Adds user up to 2 users then makes a new room.
+// Is executed when a new socket connects to the server.
 server.on('connection', function(socket, client){
     addUserToRoom(room, socket);
 });

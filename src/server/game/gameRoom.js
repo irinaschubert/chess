@@ -482,7 +482,7 @@ export default class GameRoom extends Room {
     }
 
     /**
-     * Move pieces and notify player's about their turn
+     * Move pieces and notify players about their turn
      */
     makeMove(user, from, to, gameId){
         let room = this;
@@ -493,17 +493,15 @@ export default class GameRoom extends Room {
         let nextUsers = [];
         for (let i = 0; i < room.games.length; i++) {
             if(room.games[i].gameId === gameId){
-                if(room.games[i].users[0].username === currentUsername){
-                    currentUser = room.games[i].users[0];
-                    currentUsers.push(currentUser);
-                    nextUser = room.games[i].users[1];
-                    nextUsers.push(nextUser);
-                }
-                else{
-                    currentUser = room.games[i].users[1];
-                    currentUsers.push(currentUser);
-                    nextUser = room.games[i].users[0];
-                    nextUsers.push(nextUser);
+                for(let j in room.games[i].users){
+                    if(room.games[i].users[j].username === currentUsername){
+                        currentUser = room.games[i].users[j];
+                        currentUsers.push(currentUser);
+                    }
+                    else{
+                        nextUser = room.games[i].users[j];
+                        nextUsers.push(nextUser);
+                    }
                 }
             }
         }
@@ -517,15 +515,11 @@ export default class GameRoom extends Room {
         for(let i in currentUsers){
             currentUsers[i].socket.send(JSON.stringify(moveData));
         }
-        //currentUser.socket.send(JSON.stringify(moveData));
-        for(let i in currentUsers){
+        for(let i in nextUsers){
             if(nextUsers[i] !== undefined){
                 nextUsers[i].socket.send(JSON.stringify(moveData));
             }
         }
-        /*if(nextUser !== undefined){
-            nextUser.socket.send(JSON.stringify(moveData));
-        }*/
 
         // player who just moved, is sent a message with isPlayerTurn: false
         let gameLogicDataForPlayerTurn = {
@@ -533,7 +527,6 @@ export default class GameRoom extends Room {
             gameState: GAME_START,
             isPlayerTurn: false,
         };
-        //currentUser.socket.send(JSON.stringify(gameLogicDataForPlayerTurn));
         for(let i in currentUsers){
             currentUsers[i].socket.send(JSON.stringify(gameLogicDataForPlayerTurn));
         }
@@ -544,9 +537,6 @@ export default class GameRoom extends Room {
             gameState: GAME_START,
             isPlayerTurn: true,
         };
-        /*if(nextUser !== undefined){
-            nextUser.socket.send(JSON.stringify(moveData));
-        }*/
         for(let i in nextUsers){
             if(nextUsers[i] !== undefined){
                 nextUsers[i].socket.send(JSON.stringify(gameLogicDataForNextPlayerTurn));
@@ -559,7 +549,6 @@ export default class GameRoom extends Room {
      */
     showSavedGamesForUser(user, games){
         let room = this;
-        //games : [gameIds, gameTimestamps, boards, fieldsCaptured, chatsHistory, turns, whitePlayer, isMyTurn, iAmWhite];
         let gameIds = games[0];
         let gameTimestamps = games[1];
         let gameBoards = games[2];

@@ -72,7 +72,6 @@ $(function(){
                     $("#footer").removeClass("hide");
                     $("#username").append(data.username);
                     $("#show-turn").append("Welcome to Chess. Please choose what to do.");
-                    //chat.appendToHistory(data.sender, data.username + " has joined the game");
                 }
                 else if(data.message === websocketGame.FAILURE){
                     let loginText = document.getElementById("login-text");
@@ -89,7 +88,6 @@ $(function(){
                     $("#footer").removeClass("hide");
                     $("#username").append(data.username);
                     $("#show-turn").append("Welcome to Chess. Please choose what to do.");
-                    //chat.appendToHistory(data.sender, data.username + " has joined the game");
                 }
                 else if(data.message === websocketGame.FAILURE){
                     let loginText = document.getElementById("login-text");
@@ -103,7 +101,6 @@ $(function(){
                 if(data.timestamps !== []){
                     $("#saved-games").empty();
                     for(let i = 0; i < data.timestamps.length; i++){
-                        //savedGames.appendToGames(data.gameRoomId, data.timestamps[i], data.boards[i], data.fieldsCaptured[i], data.chatsHistory[i]);
                         appendToGames(data.gameIds[i], data.timestamps[i], data.boards[i], data.fieldsCaptured[i], data.chatsHistory[i], data.turns[i], data.whitePlayers[i], data.isMyTurns[i], data.iAmWhites[i]);
                     }
                     $("#show-saved-games").removeClass("hide");
@@ -122,12 +119,11 @@ $(function(){
                 if(websocketGame.isPlayerTurn === false){
                     // if it was not players turn, synchronize enemy's move
                     movePiece(data.from, data.to);
-                    //save game after each move
-                    //saveGame(username);
                     // enable move button
                     document.getElementById("move").disabled = false;
                 }
                 else{
+                    movePiece(data.from, data.to);
                     //save game after each move
                     saveGame();
                     document.getElementById("move").disabled = true;
@@ -282,53 +278,11 @@ $(function(){
 //$("#new-game-button-1").click(startNewGame);
 //$("#new-game-button-2").click(startNewGame);
 
-/*function startNewGame(){
-    let newWebsocketGame = {
-        GAME_LOGIC : 0,
-        CHAT_MESSAGE : 1,
-        MOVE : 2,
-        LOGIN : 3,
-        REGISTRATION : 4,
-        GAME_INIT : 1,
-        GAME_START : 2,
-        GAME_OVER : 3,
-        RESTART : 4,
-        REVANCHE : 5,
-        CHECK : 1,
-        CHECKMATE : 2,
-        REMIS : 3,
-        PATT : 4,
-        CAPITULATE : 5,
-        isPlayerTurn: false,
-        SAVE : 10,
-        LOAD : 11,
-        SHOW_GAMES: 12,
-        LOAD_GAME:13,
-        FAILURE : 0,
-        SUCCESS : 1,
-        WHITE : 1,
-        BLACK : 0
-    };
-
-    newWebsocketGame.socket = new WebSocket("ws://127.0.0.1:8000");
-
-    // on open event
-    newWebsocketGame.socket.onopen = function(e){
-        console.log('WebSocket connection established.');
-    };
-
-    let data = {};
-    data.dataType = newWebsocketGame.RESTART;
-    //newWebsocketGame.socket.send(JSON.stringify(data));
-
-    $("#popup-loose").addClass("hide");
-}*/
-
 // Login / Registration
-$("#login-button").click(getLoginValues);
-$("#register-button").click(getRegisterValues);
+$("#login-button").click(login);
+$("#register-button").click(register);
 
-function getLoginValues(){
+function login(){
     let username = $("#username-input-login").val();
     let password = $("#pw-input-login").val();
     let data = {};
@@ -338,7 +292,7 @@ function getLoginValues(){
     websocketGame.socket.send(JSON.stringify(data));
 }
 
-function getRegisterValues(){
+function register(){
     let username = $("#username-input-login").val();
     let password = $("#pw-input-login").val();
     let data = {};
@@ -442,7 +396,6 @@ function saveGame(){
     let today = new Date();
     let date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
     let time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-
     let board = document.getElementById("board");
     let fieldCaptured = document.getElementById("field-captured");
     let chatHistory = document.getElementById("chat-history");
@@ -487,9 +440,8 @@ function goBack(){
 }
 
 function appendToGames(gameId, gameTimestamp, gameBoard, gameFieldsCaptured, gameChatHistory, gameTurn, gameWhitePlayer, isMyTurn, iAmWhite) {
-    let savedGames = this;
     let listElement = document.createElement('li');
-    listElement.innerHTML = gameTimestamp;
+    listElement.innerHTML = gameTimestamp + "     " + gameId;
     listElement.classList.add("load-when-clicked");
     $("#saved-games").append(listElement);
     listElement.addEventListener('click', function(){

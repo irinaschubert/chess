@@ -1,4 +1,4 @@
-/** Class representing the user
+/** Class representing the user / socket
  *  @author Irina
  * */
 
