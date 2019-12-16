@@ -495,3 +495,11 @@ footer {
 #king.hide {
     visibility: hidden;
 }
+
+#capitulate.hide {
+    visibility: hidden;
+}
+
+#color.hide {
+    visibility: hidden;
+}

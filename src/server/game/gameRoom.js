@@ -187,6 +187,8 @@ export default class GameRoom extends Room {
                 let chatHistory = data.chatHistory;
                 let timestamp = data.timestamp;
                 let gameId = data.gameId;
+                let userColor = data.userColor;
+                let turnColor = userColor + 1 % 2;
 
                 MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
                     if (err) throw err;
@@ -194,12 +196,12 @@ export default class GameRoom extends Room {
                     let updateSave = new Promise(async function(resolve, reject){
                         let result = await (dbo.collection("savedGames").findOne({"gameId": gameId}));
                         if(result === null){
-                            //when game is saved for the first time, initialise correctly with 0
-                            resolve([0,user.username]);
+                            //when game is saved for the first time
+                            resolve([turnColor,user.username]);
                         }
                         else{
                             //when game exists, replace last saved game
-                            resolve([result.turn,result.whitePlayer]);
+                            resolve([result.turn,result.whitePlayer,result.users]);
                         }
 
                     });
@@ -210,21 +212,27 @@ export default class GameRoom extends Room {
                         let newTurn = (turn + 1) % 2;
                         let whitePlayer = value[1];
                         let users = [];
+                        if(value[2] !== undefined){
+                            users = value[2];
+                        }
 
                         for(let i in room.games){
                             if(room.games[i].gameId === gameId){
-                                //users = [room.games[i].users[0], room.games[i].users[1]];
-                                users = [room.games[i].users[0].username, room.games[i].users[1].username];
+                                if(users === []){
+                                    users = [room.games[i].users[0].username];
+                                }
+                                else{
+                                    users = [room.games[i].users[0].username, room.games[i].users[1].username];
+                                }
                             }
                         }
 
                         dbo.collection("savedGames").updateOne(
                             {"gameId" : gameId},
                             {$set:{
-                                "gameId": gameId, "users": users, "board": board, "fieldCaptured": fieldCaptured, "chatHistory": chatHistory, "timestamp": timestamp, "turn": newTurn, "whitePlayer": whitePlayer,
-                            }},
+                                    "gameId": gameId, "users": users, "board": board, "fieldCaptured": fieldCaptured, "chatHistory": chatHistory, "timestamp": timestamp, "turn": newTurn, "whitePlayer": whitePlayer,
+                                }},
                             { upsert: true });
-                        db.close()
 
                     });
                 });
@@ -527,6 +535,7 @@ export default class GameRoom extends Room {
 
         for (let i = 0; i < room.games.length; i++) {
             if(room.games[i].gameId === gameId){
+                room.games[i].state === G_END;
                 for(let j in room.games[i].users){
                     if(room.games[i].users[j].username === currentUsername){
                         currentUser = room.games[i].users[j];

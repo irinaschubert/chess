@@ -95,24 +95,25 @@ $(function(){
                 }
             }
 
-            // show saved games
+            // load
             else if (data.dataType === websocketGame.SHOW_GAMES){
                 if(data.timestamps !== []){
                     $("#saved-games").empty();
                     for(let i = 0; i < data.timestamps.length; i++){
-                        appendToGames(data.gameIds[i], data.timestamps[i], data.boards[i], data.fieldsCaptured[i], data.chatsHistory[i], data.turns[i], data.whitePlayers[i], data.isMyTurns[i], data.iAmWhites[i], data.users[i]);
+                        appendToGames(data.gameIds[i], data.timestamps[i], data.boards[i],
+                            data.fieldsCaptured[i], data.chatsHistory[i], data.turns[i],
+                            data.whitePlayers[i], data.isMyTurns[i], data.iAmWhites[i], data.users[i]);
                     }
                     $("#show-saved-games").removeClass("hide");
                 }
-
             }
 
-            // print on chat panel if it is a chat message
+            // chat
             if(data.dataType === websocketGame.CHAT_MESSAGE){
                 chat.appendToHistory(data.sender, data.message);
             }
 
-            // make move if it is a move
+            // move
             else if (data.dataType === websocketGame.MOVE){
                 // if it was not the players turn before, it is now the players turn
                 if(websocketGame.isPlayerTurn === false){
@@ -129,9 +130,10 @@ $(function(){
                 }
             }
 
-            // take action if it is a game logic message
+            // logic message
             else if (data.dataType === websocketGame.GAME_LOGIC){
 
+                // game over
                 if(data.gameState === websocketGame.GAME_OVER){
                     if(data.message === websocketGame.WON){
                         $("#popup-win").removeClass("hide");
@@ -141,6 +143,7 @@ $(function(){
                     }
                 }
 
+                // game play
                 if(data.gameState === websocketGame.GAME_START){
                     $("#show-turn").html("");
                     $("#chat-history").html("");
@@ -161,6 +164,7 @@ $(function(){
                     $("#send-to-partner").removeClass("hide");
                 }
 
+                // game initialisation
                 if(data.gameState === websocketGame.GAME_INIT){
                     $("#show-turn").html("");
                     $("#gameId").html(data.gameId);
@@ -169,6 +173,7 @@ $(function(){
                     //behave differently if game is loaded
                     if(data.load === true){
                         if(data.iAmWhite){
+                            $("#color").html("1");
                             if(data.isPlayerTurn){
                                 websocketGame.isPlayerTurn = true;
                                 $("#show-turn").append("Your turn to move.");
@@ -203,6 +208,7 @@ $(function(){
                             });
                         }
                         else{
+                            $("#color").html("0");
                             if(data.isPlayerTurn){
                                 websocketGame.isPlayerTurn = true;
                                 $("#show-turn").append("Your turn to move.");
@@ -244,6 +250,7 @@ $(function(){
                         gc.loadFunctionality(0);
                         // white player
                         if(data.isPlayerTurn){
+                            $("#color").html("1");
                             websocketGame.isPlayerTurn = true;
                             $("#show-turn").append("Your turn to move.");
                             let pieces = document.getElementsByClassName("piece");
@@ -259,6 +266,7 @@ $(function(){
                         }
                         // black player
                         else{
+                            $("#color").html("0");
                             websocketGame.isPlayerTurn = false;
                             $("#show-turn").append("Wait for your partner to move.");
                             $('.black').each(function () {
@@ -288,7 +296,7 @@ $(function(){
 $("#new-game-button-1").click(newGame);
 $("#new-game-button-2").click(newGame);
 
-// Login / Registration
+// login / registration buttons
 $("#login-button").click(login);
 $("#register-button").click(register);
 
@@ -312,7 +320,7 @@ function register(){
     websocketGame.socket.send(JSON.stringify(data));
 }
 
-// Chat Button / Field
+// chat button / field
 $("#send").click(sendMessageToAll);
 $("#send-to-partner").click(sendMessageToPartner);
 
@@ -345,14 +353,14 @@ function sendMessageToPartner(){
     $("#chat-input").val("");
 }
 
-// Move Button
+// move button
 $("#move").click(sendMove);
 
 function sendMove(){
     let won = document.getElementById("king");
     if(won.innerHTML === "1"){
         gameOver(websocketGame.WON);
-        won.html("");
+        $("king").html("");
     }
     else{
         let message = $("#show-move").html();
@@ -408,6 +416,7 @@ function movePiece(from, to){
     }
 }
 
+// save
 function saveGame(){
     let today = new Date();
     let date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
@@ -424,15 +433,18 @@ function saveGame(){
     data.chatHistory = chatHistory.innerHTML;
     data.timestamp = dateTime;
     data.gameId = gameId.innerHTML;
+    let color = document.getElementById("color");
+    data.userColor = color.innerHTML;
     websocketGame.socket.send(JSON.stringify(data));
 }
 
-// Load Button
+// load buttons
 $("#load").click(loadGame);
 $("#load-game-button-1").click(loadGame);
 $("#load-game-button-2").click(loadGame);
 
 function loadGame(){
+    $("#capitulate").removeClass("hide");
     $("#popup-loose").addClass("hide");
     $("#popup-win").addClass("hide");
     let data = {};
@@ -440,10 +452,11 @@ function loadGame(){
     websocketGame.socket.send(JSON.stringify(data));
 }
 
-// New Button
+// new button
 $("#new").click(newGame);
 
 function newGame(){
+    $("#capitulate").removeClass("hide");
     $("#show-turn").html("Wait for another user...");
     $("#main").addClass("hide");
     $("#send-to-partner").addClass("hide");
@@ -454,16 +467,17 @@ function newGame(){
     websocketGame.socket.send(JSON.stringify(data));
 }
 
-// Back Button in Load Window
+// back button in load window
 $("#back-button-savedGames").click(goBack);
 
 function goBack(){
     $("#show-saved-games").addClass("hide");
 }
 
+// show saved games
 function appendToGames(gameId, gameTimestamp, gameBoard, gameFieldsCaptured, gameChatHistory, gameTurn, gameWhitePlayer, isMyTurn, iAmWhite, user) {
     let listElement = document.createElement('li');
-    listElement.innerHTML = user[0] + " vs. " + user[1] + ", " + gameTimestamp + " (" + gameId + ")";
+    listElement.innerHTML = user[0] + " vs. " + user[1] + ", " + gameTimestamp;
     listElement.classList.add("load-when-clicked");
     $("#saved-games").append(listElement);
     listElement.addEventListener('click', function(){
@@ -471,6 +485,7 @@ function appendToGames(gameId, gameTimestamp, gameBoard, gameFieldsCaptured, gam
     });
 }
 
+// load game
 function loadSavedGame(gameId, gameTimestamp, gameBoard, gameFieldsCaptured, gameChatHistory, gameTurn, gameWhitePlayer, isMyTurn, iAmWhite) {
     $("#board").empty();
     $("#board").append(gameBoard);
@@ -491,11 +506,14 @@ function loadSavedGame(gameId, gameTimestamp, gameBoard, gameFieldsCaptured, gam
     $("#show-saved-games").addClass("hide");
 }
 
+// capitulate button
 $('#capitulate').click(() => {
     gameOver(websocketGame.LOST);
 });
 
+// game over
 function gameOver(lostOrWon){
+    $("#capitulate").addClass("hide");
     if(lostOrWon === websocketGame.LOST){
         $("#popup-loose").removeClass("hide");
         let data = {};
