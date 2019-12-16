@@ -187,8 +187,6 @@ export default class GameRoom extends Room {
                 let chatHistory = data.chatHistory;
                 let timestamp = data.timestamp;
                 let gameId = data.gameId;
-                let userColor = data.userColor;
-                let turnColor = userColor + 1 % 2;
 
                 MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
                     if (err) throw err;
@@ -196,8 +194,8 @@ export default class GameRoom extends Room {
                     let updateSave = new Promise(async function(resolve, reject){
                         let result = await (dbo.collection("savedGames").findOne({"gameId": gameId}));
                         if(result === null){
-                            //when game is saved for the first time
-                            resolve([turnColor,user.username]);
+                            //when game is saved for the first time, it is saved by the black player
+                            resolve([0,user.username]);
                         }
                         else{
                             //when game exists, replace last saved game

@@ -433,8 +433,6 @@ function saveGame(){
     data.chatHistory = chatHistory.innerHTML;
     data.timestamp = dateTime;
     data.gameId = gameId.innerHTML;
-    let color = document.getElementById("color");
-    data.userColor = color.innerHTML;
     websocketGame.socket.send(JSON.stringify(data));
 }
 
