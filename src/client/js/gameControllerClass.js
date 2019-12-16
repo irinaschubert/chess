@@ -14,8 +14,6 @@ import Pawn from './pieces/pawn.js';
 import Queen from './pieces/queen.js';
 import Rook from './pieces/rook.js';
 
-const WON = 0;
-const LOST = 1;
 const START = 0;
 const LOAD = 1;
 
@@ -257,15 +255,6 @@ export default class GameController {
         }
     }
 
-    gameOver(lostOrWon){
-        if(lostOrWon === LOST){
-            $("#popup-loose").removeClass("hide");
-        }
-        else if(lostOrWon === WON){
-            $("#popup-win").removeClass("hide");
-        }
-    }
-
     loadFunctionality(startOrLoad){
         let gc = this;
 
@@ -319,10 +308,7 @@ export default class GameController {
                 //console.log(lastMoveObj)
             }
         });
-        //TODO: the other player has to be notified about winning
-        $('#capitulate').click(() => {
-            this.gameOver(LOST);
-        })
+
     }
 }
 

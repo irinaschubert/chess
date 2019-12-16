@@ -23,9 +23,6 @@ let websocketGame = {
     NORMAL : 0,
     CHECK : 1,
     CHECKMATE : 2,
-    REMIS : 3,
-    PATT : 4,
-    CAPITULATE : 5,
     isPlayerTurn: false,
     SAVE : 10,
     LOAD : 11,
@@ -35,7 +32,9 @@ let websocketGame = {
     FAILURE : 0,
     SUCCESS : 1,
     WHITE : 1,
-    BLACK : 0
+    BLACK : 0,
+    WON : 0,
+    LOST : 1
 };
 
 let username = "";
@@ -134,9 +133,12 @@ $(function(){
             else if (data.dataType === websocketGame.GAME_LOGIC){
 
                 if(data.gameState === websocketGame.GAME_OVER){
-                    websocketGame.isPlayerTurn = false;
-                    $("#show-turn").append(data.winner+" wins!");
-                    $("#capitulate").show();
+                    if(data.message === websocketGame.WON){
+                        $("#popup-win").removeClass("hide");
+                    }
+                    else{
+                        $("#popup-loose").removeClass("hide");
+                    }
                 }
 
                 if(data.gameState === websocketGame.GAME_START){
@@ -283,8 +285,8 @@ $(function(){
 });
 
 // new game button
-//$("#new-game-button-1").click(startNewGame);
-//$("#new-game-button-2").click(startNewGame);
+$("#new-game-button-1").click(newGame);
+$("#new-game-button-2").click(newGame);
 
 // Login / Registration
 $("#login-button").click(login);
@@ -425,6 +427,7 @@ $("#load-game-button-2").click(loadGame);
 
 function loadGame(){
     $("#popup-loose").addClass("hide");
+    $("#popup-win").addClass("hide");
     let data = {};
     data.dataType = websocketGame.LOAD;
     websocketGame.socket.send(JSON.stringify(data));
@@ -434,6 +437,11 @@ function loadGame(){
 $("#new").click(newGame);
 
 function newGame(){
+    $("#show-turn").html("Wait for another user...");
+    $("#main").addClass("hide");
+    $("#send-to-partner").addClass("hide");
+    $("#popup-loose").addClass("hide");
+    $("#popup-win").addClass("hide");
     let data = {};
     data.dataType = websocketGame.NEW;
     websocketGame.socket.send(JSON.stringify(data));
@@ -476,3 +484,29 @@ function loadSavedGame(gameId, gameTimestamp, gameBoard, gameFieldsCaptured, gam
     $("#show-saved-games").addClass("hide");
 }
 
+$('#capitulate').click(() => {
+    gameOver(websocketGame.LOST);
+});
+
+function gameOver(lostOrWon){
+    if(lostOrWon === websocketGame.LOST){
+        $("#popup-loose").removeClass("hide");
+        let data = {};
+        data.dataType = websocketGame.GAME_LOGIC;
+        data.gameState = websocketGame.GAME_OVER;
+        data.lostOrWon = websocketGame.LOST;
+        let gameId = document.getElementById("gameId");
+        data.gameId = gameId.innerHTML;
+        websocketGame.socket.send(JSON.stringify(data));
+    }
+    else if(lostOrWon === websocketGame.WON){
+        $("#popup-win").removeClass("hide");
+        let data = {};
+        data.dataType = websocketGame.GAME_LOGIC;
+        data.gameState = websocketGame.GAME_OVER;
+        data.lostOrWon = websocketGame.WON;
+        let gameId = document.getElementById("gameId");
+        data.gameId = gameId.innerHTML;
+        websocketGame.socket.send(JSON.stringify(data));
+    }
+}

@@ -27,24 +27,22 @@ const NEW = 14;
 const GAME_INIT = 1;
 const GAME_START = 2;
 const GAME_OVER = 3;
-const RESTART = 40;
-const REVANCHE = 5;
 // condition
 const CHECK = 1;
 const CHECKMATE = 2;
-const REMIS = 3;
-const PATT = 4;
-const CAPITULATE = 5;
+//const CAPITULATE = 5;
 // message
 const FAILURE = 0;
 const SUCCESS = 1;
 // color
 const WHITE = 1;
-const BLACK = 0;
 // game
 const G_INIT = 0;
 const G_START = 1;
 const G_END = 2;
+// win conditions
+const WON = 0;
+const LOST = 1;
 
 export default class GameRoom extends Room {
      /**
@@ -177,75 +175,12 @@ export default class GameRoom extends Room {
                 });
             }
 
-            // Game logic message
-            if (data.dataType === GAME_LOGIC){
-                // Check
-                if (room.currentGameState === GAME_START && room.condition === CHECK) {
-                    let gameLogicData = {
-                        dataType: GAME_LOGIC,
-                        condition: CHECK,
-                    };
-                    room.sendAll(JSON.stringify(gameLogicData));
-                }
-
-                // Check mate
-                if (room.currentGameState === GAME_START && room.condition === CHECKMATE) {
-                    let gameLogicData = {
-                        dataType: GAME_LOGIC,
-                        condition: CHECKMATE,
-                        winner: user.id,
-                    };
-
-                    room.sendAll(JSON.stringify(gameLogicData));
-                    room.currentGameState = GAME_OVER;
-                }
-
-                // Remis
-                if (room.currentGameState === GAME_START && room.condition === REMIS) {
-                    let gameLogicData = {
-                        dataType: GAME_LOGIC,
-                        condition: REMIS,
-                        winner: user.id,
-                    };
-
-                    room.sendAll(JSON.stringify(gameLogicData));
-                    room.currentGameState = GAME_OVER;
-                }
-
-                // Patt
-                if (room.currentGameState === GAME_START && room.condition === PATT) {
-                    let gameLogicData = {
-                        dataType: GAME_LOGIC,
-                        condition: PATT,
-                        winner: user.id,
-                    };
-
-                    room.sendAll(JSON.stringify(gameLogicData));
-                    room.currentGameState = GAME_OVER;
-                }
-
-                // Revanche
-                if (room.currentGameState === GAME_OVER) {
-                    let gameLogicData = {
-                        dataType: REVANCHE,
-                    };
-
-                    room.sendAll(JSON.stringify(gameLogicData));
-                    room.currentGameState = GAME_START;
-                }
-
-                // Capitulate
-                if (room.currentGameState === GAME_START) {
-                    let gameLogicData = {
-                        dataType: CAPITULATE,
-                    };
-
-                    room.sendAll(JSON.stringify(gameLogicData));
-                    room.currentGameState = GAME_OVER;
-                }
+            // Game over message
+            if (data.dataType === GAME_LOGIC && data.gameState === GAME_OVER) {
+                room.notifyAboutEnd(user, data.lostOrWon, data.gameId);
             }
 
-            // Save
+            // Save the Game
             if (data.dataType === SAVE){
                 let board = data.board;
                 let fieldCaptured = data.fieldCaptured;
@@ -425,6 +360,7 @@ export default class GameRoom extends Room {
                 saveGame: false,
                 turn: WHITE,
                 load: false,
+                message: "Wait for another user..."
             };
             let userBlack = game.users[0];
             userBlack.socket.send(JSON.stringify(gameLogicDataForBlackPlayer));
@@ -452,13 +388,13 @@ export default class GameRoom extends Room {
                 room.games[j].addUserToGame(user);
                 i = i + 1;
 
-                MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
+               /* MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
                     if (err) throw err;
                     let dbo = db.db("webEchessDb");
                     dbo.collection("games").insertOne({"gameId": room.games[j].gameId, "gameState": room.games[j].state, "username": user.username})
                         .then(dbo.collection("games").updateOne({"gameId": room.games[j].gameId, "username": user.username}, {$set:{"gameState": G_START}}))
                         .then(db.close());
-                });
+                });*/
                 return room.games[j];
             }
         }
@@ -467,12 +403,12 @@ export default class GameRoom extends Room {
             game.addUserToGame(user);
             room.games.push(game);
 
-            MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
+            /*MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
                 if (err) throw err;
                 let dbo = db.db("webEchessDb");
                 dbo.collection("games").insertOne({"gameId": game.gameId, "gameState": game.state, "username": user.username})
                     .then(db.close());
-            });
+            });*/
             return game;
         }
     }
@@ -579,5 +515,63 @@ export default class GameRoom extends Room {
             users : users
         };
         currentUser.socket.send(JSON.stringify(savedGames));
+    }
+
+    notifyAboutEnd(user, lostOrWon, gameId){
+        let room = this;
+        let currentUsername = user.username;
+        let currentUser;
+        let currentUsers = [];
+        let nextUser;
+        let nextUsers = [];
+
+        for (let i = 0; i < room.games.length; i++) {
+            if(room.games[i].gameId === gameId){
+                for(let j in room.games[i].users){
+                    if(room.games[i].users[j].username === currentUsername){
+                        currentUser = room.games[i].users[j];
+                        currentUsers.push(currentUser);
+                    }
+                    else{
+                        nextUser = room.games[i].users[j];
+                        nextUsers.push(nextUser);
+                    }
+                }
+            }
+        }
+
+        let dataWinner = {
+            dataType: GAME_LOGIC,
+            gameState: GAME_OVER,
+            message: WON
+        };
+
+        let dataLoser = {
+            dataType: GAME_LOGIC,
+            gameState: GAME_OVER,
+            message: LOST
+        };
+
+        if(lostOrWon === WON){
+            for(let i in currentUsers){
+                currentUsers[i].socket.send(JSON.stringify(dataWinner));
+            }
+            for(let i in nextUsers){
+                if(nextUsers[i] !== undefined){
+                    nextUsers[i].socket.send(JSON.stringify(dataLoser));
+                }
+            }
+        }
+
+        else{
+            for(let i in currentUsers){
+                currentUsers[i].socket.send(JSON.stringify(dataLoser));
+            }
+            for(let i in nextUsers){
+                if(nextUsers[i] !== undefined){
+                    nextUsers[i].socket.send(JSON.stringify(dataWinner));
+                }
+            }
+        }
     }
 }

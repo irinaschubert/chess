@@ -5,9 +5,6 @@
 
 'use strict';
 
-// constants
-//const CHAT_MESSAGE = 1;
-
 export default class Room {
     /**
      * Abstract, create a Room with an array of users
