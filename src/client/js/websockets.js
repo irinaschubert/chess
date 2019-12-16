@@ -141,6 +141,8 @@ $(function(){
 
                 if(data.gameState === websocketGame.GAME_START){
                     $("#show-turn").html("");
+                    $("#chat-history").html("");
+                    $("#field-captured").html("");
                     let pieces = document.getElementsByClassName("piece");
                     for (let i = 0; i < pieces.length; ++i) {
                         pieces.item(i).classList.toggle('not-clickable');
@@ -154,6 +156,7 @@ $(function(){
                         websocketGame.isPlayerTurn = false;
                         $("#show-turn").append("Wait for your partner to move.");
                     }
+                    $("#send-to-partner").removeClass("hide");
                 }
 
                 if(data.gameState === websocketGame.GAME_INIT){
@@ -263,6 +266,7 @@ $(function(){
                             });
                         }
                         $("#main").removeClass("hide");
+                        $("#send-to-partner").removeClass("hide");
                         if(data.saveGame === true){
                             saveGame();
                         }
