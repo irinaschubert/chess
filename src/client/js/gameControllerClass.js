@@ -196,6 +196,9 @@ export default class GameController {
         // capture piece if color is different
         if (toColor !== '' && toColor !== fromColor) {
             $(toNode).children(".piece").each(function(){
+                if ($(this).hasClass("king")) {
+                    $("#king").html(1);
+                }
                 if ($(this).hasClass(toColor)) {
                     $(this).removeClass("piece not-clickable not-my-color");
                     $(this).addClass("captured");
@@ -225,7 +228,7 @@ export default class GameController {
                     gc.move(to, from, toColor, fromColor, toNode, fromNode);
                 }
             }
-            // move straigth forward
+            // move straight forward
             else if (distY === 1 && distX === 0 || distY === 2 && distX === 0 && from[1] === 2) {
                 // move only if field is not occupied by another piece of same color
                 if (toColor === '') {
@@ -242,7 +245,7 @@ export default class GameController {
                     gc.move(to, from, toColor, fromColor, toNode, fromNode);
                 }
             }
-            // move straigth forward
+            // move straight forward
             else if (distY === -1 && distX === 0 || distY === -2 && distX === 0 && from[1] === 7) {
                 // move only if field is not occupied by another piece
                 if (toColor === '') {

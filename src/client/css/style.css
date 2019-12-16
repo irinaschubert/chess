@@ -491,3 +491,7 @@ footer {
 #send-to-partner.hide {
     visibility: hidden;
 }
+
+#king.hide {
+    visibility: hidden;
+}

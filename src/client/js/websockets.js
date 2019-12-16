@@ -349,15 +349,22 @@ function sendMessageToPartner(){
 $("#move").click(sendMove);
 
 function sendMove(){
-    let message = $("#show-move").html();
-    let data = {};
-    data.dataType = websocketGame.MOVE;
-    data.from = [parseInt(message.charAt(0)), parseInt(message.charAt(2))];
-    data.to = [parseInt(message.charAt(11)), parseInt(message.charAt(13))];
-    let gameId = document.getElementById("gameId");
-    data.gameId = gameId.innerHTML;
-    websocketGame.socket.send(JSON.stringify(data));
-    $("#show-move").html("-->");
+    let won = document.getElementById("king");
+    if(won.innerHTML === "1"){
+        gameOver(websocketGame.WON);
+        won.html("");
+    }
+    else{
+        let message = $("#show-move").html();
+        let data = {};
+        data.dataType = websocketGame.MOVE;
+        data.from = [parseInt(message.charAt(0)), parseInt(message.charAt(2))];
+        data.to = [parseInt(message.charAt(11)), parseInt(message.charAt(13))];
+        let gameId = document.getElementById("gameId");
+        data.gameId = gameId.innerHTML;
+        websocketGame.socket.send(JSON.stringify(data));
+        $("#show-move").html("-->");
+    }
 }
 
 /**

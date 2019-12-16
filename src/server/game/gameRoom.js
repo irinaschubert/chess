@@ -113,9 +113,9 @@ export default class GameRoom extends Room {
                     userCheck.then(function (value) {
                         //user exists and password is correct
                         if (value !== null) {
-                            let updateUserId = new Promise(function (resolve, reject) {
+                            /*let updateUserId = new Promise(function (resolve, reject) {
                                 resolve(dbo.collection("users").updateOne({"username": dbUser.username},{$set:{"userId": dbUser.socketId}}));
-                            });
+                            });*/
 
                             let loginMessage = {
                                 dataType: LOGIN,
@@ -138,7 +138,7 @@ export default class GameRoom extends Room {
 
             // Registration message
             if (data.dataType === REGISTRATION) {
-                let dbUser = { userId: user.socketId, username: data.username, password: data.password};
+                let dbUser = { /*userId: user.socketId,*/ username: data.username, password: data.password};
                 user.setUsername(dbUser.username);
 
                 // write new user to mongodb if not exists already
