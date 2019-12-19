@@ -10,20 +10,14 @@ import Chat from './chat.js';
 import GameControllerClass from "./gameControllerClass.js";
 
 let websocketGame = {
+    GAME_INIT : 1,
+    GAME_START : 2,
+    GAME_OVER : 3,
     GAME_LOGIC : 0,
     CHAT_MESSAGE : 1,
     MOVE : 2,
     LOGIN : 3,
     REGISTRATION : 4,
-    GAME_INIT : 1,
-    GAME_START : 2,
-    GAME_OVER : 3,
-    RESTART : 40,
-    REVANCHE : 5,
-    NORMAL : 0,
-    CHECK : 1,
-    CHECKMATE : 2,
-    isPlayerTurn: false,
     SAVE : 10,
     LOAD : 11,
     SHOW_GAMES: 12,
@@ -31,10 +25,9 @@ let websocketGame = {
     NEW: 14,
     FAILURE : 0,
     SUCCESS : 1,
-    WHITE : 1,
-    BLACK : 0,
     WON : 0,
-    LOST : 1
+    LOST : 1,
+    isPlayerTurn: false
 };
 
 let username = "";
@@ -59,8 +52,8 @@ $(function(){
             let data = JSON.parse(e.data);
 
             if(data.dataType !== websocketGame.LOGIN && data.dataType !== websocketGame.SHOW_GAMES){
-                // use the console output for debugging
-                console.log("Got message: ", e.data);
+                // use the console output for debugging - but don't show password or game board
+                //console.log("Got message: ", e.data);
             }
 
             // login
@@ -117,7 +110,7 @@ $(function(){
             else if (data.dataType === websocketGame.MOVE){
                 // if it was not the players turn before, it is now the players turn
                 if(websocketGame.isPlayerTurn === false){
-                    // if it was not players turn, synchronize enemy's move
+                    // if it was not players turn, synchronize partner's move
                     movePiece(data.from, data.to);
                     // enable move button
                     document.getElementById("move").disabled = false;
@@ -146,8 +139,6 @@ $(function(){
                 // game play
                 if(data.gameState === websocketGame.GAME_START){
                     $("#show-turn").html("");
-                    $("#chat-history").html("");
-                    $("#field-captured").html("");
                     let pieces = document.getElementsByClassName("piece");
                     for (let i = 0; i < pieces.length; ++i) {
                         pieces.item(i).classList.toggle('not-clickable');
@@ -357,6 +348,7 @@ function sendMessageToPartner(){
 $("#move").click(sendMove);
 
 function sendMove(){
+    // check if king was captured
     let won = document.getElementById("king");
     if(won.innerHTML === "1"){
         gameOver(websocketGame.WON);
@@ -399,8 +391,6 @@ function movePiece(from, to){
             $(field).children('div').each(function(){
                 if (this.classList.contains("piece")){
                     capturedPiece = this;
-                    //TODO: if captured piece is king, end game
-                    //console.log("cap: ", capturedPiece);
                 }
             });
         }
@@ -454,6 +444,7 @@ function loadGame(){
 $("#new").click(newGame);
 
 function newGame(){
+    $("#field-captured").empty();
     $("#capitulate").removeClass("hide");
     $("#show-turn").html("Wait for another user...");
     $("#main").addClass("hide");

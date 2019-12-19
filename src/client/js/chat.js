@@ -6,7 +6,7 @@
 
 export default class Chat {
     /**
-     * Bind methods
+     * Bind method
      */
     constructor() {
         this.appendToHistory = this.appendToHistory.bind(this);

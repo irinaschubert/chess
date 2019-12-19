@@ -23,23 +23,29 @@ const LOAD = 11;
 const SHOW_GAMES = 12;
 const LOAD_GAME = 13;
 const NEW = 14;
+
 // game state
 const GAME_INIT = 1;
 const GAME_START = 2;
 const GAME_OVER = 3;
-// condition
-const CHECK = 1;
-const CHECKMATE = 2;
+
+// condition - not used yet but here for later use
+//const CHECK = 1;
+//const CHECKMATE = 2;
 //const CAPITULATE = 5;
+
 // message
 const FAILURE = 0;
 const SUCCESS = 1;
+
 // color
 const WHITE = 1;
+
 // game
 const G_INIT = 0;
 const G_START = 1;
 const G_END = 2;
+
 // win conditions
 const WON = 0;
 const LOST = 1;
@@ -76,10 +82,12 @@ export default class GameRoom extends Room {
 
             // Chat message
             if (data.dataType === CHAT_MESSAGE) {
-                data.sender = user.socketId;
+                data.sender = user.username;
+                // send message to all users
                 if(data.toAll === true){
                     room.sendAll(JSON.stringify(data));
                 }
+                // send message to partner only
                 else{
                     for(let i in room.games){
                         if(room.games[i].gameId === data.gameId){
@@ -469,7 +477,7 @@ export default class GameRoom extends Room {
             currentUsers[i].socket.send(JSON.stringify(gameLogicDataForPlayerTurn));
         }
 
-        // player who's turn it is, is notified with isPlayerTurn: true
+        // player who's turn it is now, is notified with isPlayerTurn: true
         let gameLogicDataForNextPlayerTurn = {
             dataType: GAME_LOGIC,
             gameState: GAME_START,
@@ -486,7 +494,6 @@ export default class GameRoom extends Room {
      * Show saved games for current user
      */
     showSavedGamesForUser(user, games){
-        let room = this;
         let gameIds = games[0];
         let gameTimestamps = games[1];
         let gameBoards = games[2];
