@@ -221,7 +221,7 @@ export default class GameController {
         let gc = this;
         let distX = to[0] - from[0];
         let distY = to[1] - from[1];
-        if (fromColor === "white") {
+        if (fromColor === 'white') {
             // move diagonally only if there is a piece of the enemy
             if (distX === 1 && distY === 1 || distX === -1 && distY === 1) {
                 if (fromColor !== toColor && toColor !== '') {
@@ -236,7 +236,7 @@ export default class GameController {
                 }
                 let toStr = to.join();
                 let fromStr = from.join();
-                $("#show-move").html(fromStr + " --> " + toStr);
+                $('#show-move').html(fromStr + " --> " + toStr);
             }
         } else if (fromColor === "black") {
             // move diagonally only if there is a piece of the enemy
@@ -253,7 +253,7 @@ export default class GameController {
                 }
                 let toStr = to.join();
                 let fromStr = from.join();
-                $("#show-move").html(fromStr + " --> " + toStr);
+                $('#show-move').html(fromStr + " --> " + toStr);
             }
         }
     }
@@ -268,12 +268,12 @@ export default class GameController {
 
         $board.children().each(function() {
             $(this).click(function(e){
-                if (e.target.classList.contains("piece") || e.target.classList.contains("field")) {
-                    let clickedFieldsLength = $(".clicked").length;
+                if (e.target.classList.contains('piece') || e.target.classList.contains('field')) {
+                    let clickedFieldsLength = $('.clicked').length;
                     // from (first click)
                     if (clickedFieldsLength === 0) {
                         moveObject = [];
-                        if (e.target.classList.contains("piece")) {
+                        if (e.target.classList.contains('piece')) {
                             $(e.target.parentNode.classList.toggle('clicked'));
                             moveObject.push(e.target);
                             moveObject.push([$(e.target.parentNode).data('col'), $(e.target.parentNode).data('row')]);
@@ -284,14 +284,12 @@ export default class GameController {
                     else if (clickedFieldsLength === 1) {
                         $(e.target.classList.toggle('clicked'));
 
-                        if (e.target.classList.contains("piece")) {
+                        if (e.target.classList.contains('piece')) {
                             moveObject.push([$(e.target.parentNode).data('col'), $(e.target.parentNode).data('row')]);
                             moveObject.push(e.target);
-                            //console.log("to: " + [$(e.target.parentNode).data('col'), $(e.target.parentNode).data('row')]);
-                        } else if (e.target.classList.contains("field")) {
+                        } else if (e.target.classList.contains('field')) {
                             moveObject.push([$(e.target).data('col'), $(e.target).data('row')]);
                             moveObject.push(e.target);
-                            //console.log("to: " + [$(e.target).data('col'), $(e.target).data('row')]);
                         }
                         let elements = document.querySelectorAll('.clicked');
                         [].forEach.call(elements, function (el) {

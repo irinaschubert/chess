@@ -20,7 +20,8 @@ export default class Game {
         this.state = INIT;
     }
 
-    addUserToGame(user){
+    // Add user to game if new game is created
+    addUserToNewGame(user){
         if(this.users.length < 2){
             this.users.push(user);
             if(this.users.length === 2){
@@ -29,20 +30,26 @@ export default class Game {
         }
         else{
             let game = new Game();
-            game.addUserToGame(user);
+            game.addUserToNewGame(user);
         }
     }
 
+    // Add user to game if game is loaded
     addUserToGameLoad(user){
         this.users.push(user);
     }
 
+    // set state correctly when game ends
     endGame(){
         this.state = END;
     }
 
     setGameId(id){
         this.gameId = id;
+    }
+
+    getGameState(){
+        return this.state;
     }
 
     setGameState(state){

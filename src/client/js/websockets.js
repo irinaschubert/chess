@@ -90,36 +90,34 @@ $(function(){
 
             // load
             else if (data.dataType === websocketGame.SHOW_GAMES){
-                if(data.timestamps !== []){
+                if(data.gameIds !== []){
                     $("#saved-games").empty();
-                    for(let i = 0; i < data.timestamps.length; i++){
+                    for(let i in data.gameIds){
                         appendToGames(data.gameIds[i], data.timestamps[i], data.boards[i],
                             data.fieldsCaptured[i], data.chatsHistory[i], data.turns[i],
-                            data.whitePlayers[i], data.isMyTurns[i], data.iAmWhites[i], data.users[i]);
+                            data.isMyTurns[i], data.iAmWhites[i], data.users[i]);
                     }
                     $("#show-saved-games").removeClass("hide");
+                    $("#capitulate").addClass("hide");
                 }
             }
 
             // chat
             if(data.dataType === websocketGame.CHAT_MESSAGE){
-                chat.appendToHistory(data.sender, data.message);
+                chat.appendToHistory(data.sender, data.message, data.toAll);
             }
 
             // move
             else if (data.dataType === websocketGame.MOVE){
-                // if it was not the players turn before, it is now the players turn
+                movePiece(data.from, data.to);
                 if(websocketGame.isPlayerTurn === false){
-                    // if it was not players turn, synchronize partner's move
-                    movePiece(data.from, data.to);
                     // enable move button
                     document.getElementById("move").disabled = false;
                 }
                 else{
-                    movePiece(data.from, data.to);
-                    //save game after each move
-                    saveGame();
+                    // disable move button
                     document.getElementById("move").disabled = true;
+                    saveGame();
                 }
             }
 
@@ -242,8 +240,8 @@ $(function(){
                         // white player
                         if(data.isPlayerTurn){
                             $("#color").html("1");
-                            websocketGame.isPlayerTurn = true;
                             $("#show-turn").append("Your turn to move.");
+                            websocketGame.isPlayerTurn = true;
                             let pieces = document.getElementsByClassName("piece");
                             for (let i = 0; i < pieces.length; ++i) {
                                 pieces.item(i).classList.toggle('not-clickable');
@@ -254,18 +252,20 @@ $(function(){
                             $('.black').each(function () {
                                 $(this).addClass('not-my-color');
                             });
+                            document.getElementById("move").disabled = false;
                         }
                         // black player
                         else{
                             $("#color").html("0");
-                            websocketGame.isPlayerTurn = false;
                             $("#show-turn").append("Wait for your partner to move.");
+                            websocketGame.isPlayerTurn = false;
                             $('.black').each(function () {
                                 $(this).removeClass('not-my-color');
                             });
                             $('.white').each(function () {
                                 $(this).addClass('not-my-color');
                             });
+                            document.getElementById("move").disabled = true;
                         }
                         $("#main").removeClass("hide");
                         if(data.saveGame === true){
@@ -432,7 +432,6 @@ $("#load-game-button-1").click(loadGame);
 $("#load-game-button-2").click(loadGame);
 
 function loadGame(){
-    $("#capitulate").removeClass("hide");
     $("#popup-loose").addClass("hide");
     $("#popup-win").addClass("hide");
     let data = {};
@@ -461,21 +460,28 @@ $("#back-button-savedGames").click(goBack);
 
 function goBack(){
     $("#show-saved-games").addClass("hide");
+    if($("#main").hasClass("hide")){
+        $("#capitulate").addClass("hide");
+    }else{
+        $("#capitulate").removeClass("hide");
+    }
+
 }
 
 // show saved games
-function appendToGames(gameId, gameTimestamp, gameBoard, gameFieldsCaptured, gameChatHistory, gameTurn, gameWhitePlayer, isMyTurn, iAmWhite, user) {
+function appendToGames(gameId, gameTimestamp, gameBoard, gameFieldsCaptured, gameChatHistory, gameTurn, isMyTurn, iAmWhite, user) {
     let listElement = document.createElement('li');
     listElement.innerHTML = user[0] + " vs. " + user[1] + ", " + gameTimestamp;
     listElement.classList.add("load-when-clicked");
     $("#saved-games").append(listElement);
     listElement.addEventListener('click', function(){
-        loadSavedGame(gameId, gameTimestamp, gameBoard, gameFieldsCaptured, gameChatHistory, gameTurn, gameWhitePlayer, isMyTurn, iAmWhite);
+        loadSavedGame(gameId, gameTimestamp, gameBoard, gameFieldsCaptured, gameChatHistory, gameTurn, isMyTurn, iAmWhite);
     });
 }
 
 // load game
-function loadSavedGame(gameId, gameTimestamp, gameBoard, gameFieldsCaptured, gameChatHistory, gameTurn, gameWhitePlayer, isMyTurn, iAmWhite) {
+function loadSavedGame(gameId, gameTimestamp, gameBoard, gameFieldsCaptured, gameChatHistory, gameTurn, isMyTurn, iAmWhite) {
+    $("#capitulate").removeClass("hide");
     $("#board").empty();
     $("#board").append(gameBoard);
     $("#field-captured").empty();
@@ -487,7 +493,6 @@ function loadSavedGame(gameId, gameTimestamp, gameBoard, gameFieldsCaptured, gam
     data.dataType = websocketGame.LOAD_GAME;
     data.gameId = gameId;
     data.turn = gameTurn;
-    data.whitePlayer = gameWhitePlayer;
     data.isMyTurn = isMyTurn;
     data.iAmWhite = iAmWhite;
     websocketGame.socket.send(JSON.stringify(data));

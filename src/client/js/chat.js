@@ -17,12 +17,19 @@ export default class Chat {
      * @param {String} sender - sender's ID
      * @param {String} message - message to append
      */
-    appendToHistory(sender, message) {
+    appendToHistory(sender, message, toAll) {
+        let prefix;
+        if(toAll){
+            prefix = "[All] ";
+        }
+        else{
+            prefix = "[Private] ";
+        }
         if(sender === undefined){
-            $("#chat-history").append("<li>" + message + "</li>");
+            $("#chat-history").append("<li>" + prefix + message + "</li>");
         }
         else {
-            $("#chat-history").append("<li>" + sender + ": " + message + "</li>");
+            $("#chat-history").append("<li>" + prefix + sender + ": " + message + "</li>");
         }
 
     }
