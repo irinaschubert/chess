@@ -222,7 +222,7 @@ export default class GameRoom extends Room {
 
                         for(let i in room.games){
                             if(room.games[i].gameId === gameId){
-                                if(users === []){
+                                if(users === [] || room.games[i].users[1].username === undefined){
                                     users = [room.games[i].users[0].username];
                                 }
                                 else{
@@ -249,7 +249,7 @@ export default class GameRoom extends Room {
                 let chatsHistory = [];
                 let gameTimestamps = [];
                 let turns = [];
-                let whitePlayer = [];
+                //let whitePlayer = [];
                 let isMyTurn = [];
                 let username = user.username;
                 let iAmWhite = [];
@@ -281,16 +281,15 @@ export default class GameRoom extends Room {
                                 }
                                 if(username === item.whitePlayer && item.turn === 1){
                                     isMyTurn.push(true);
-                                }/*else if(username === item.whitePlayer && item.turn === 0){
+                                }else if(username !== item.whitePlayer && item.turn === 0){
                                     isMyTurn.push(true)
-                                }*/else{
+                                }else{
                                     isMyTurn.push(false)
                                 }
                             }
                         }
                         return [gameIds, gameTimestamps, boards, fieldsCaptured, chatsHistory, turns, isMyTurn, iAmWhite, users];
                     }).then(function (value) {
-                        // db.close();
                         room.showSavedGamesForUser(user, value);
                     });
                 });
