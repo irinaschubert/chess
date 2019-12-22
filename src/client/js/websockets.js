@@ -117,7 +117,6 @@ $(function(){
             // move
             else if (data.dataType === websocketGame.MOVE){
                 movePiece(data.from, data.to);
-                //saveGame();
                 if(websocketGame.isPlayerTurn === false){
                     // enable move button
                     document.getElementById("move").disabled = false;
