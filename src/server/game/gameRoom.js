@@ -18,6 +18,7 @@ const CHAT_MESSAGE = 1;
 const MOVE = 2;
 const LOGIN = 3;
 const REGISTRATION = 4;
+const ALREADY_LOGGED_IN = 5;
 const SAVE = 10;
 const LOAD = 11;
 const SHOW_GAMES = 12;
@@ -117,20 +118,34 @@ export default class GameRoom extends Room {
                     let dbo = db.db("webEchessDb");
 
                     let userCheck = new Promise(function (resolve, reject) {
-                        resolve(dbo.collection("users").findOne({"username": dbUser.username, "password":dbUser.password}));
+                        resolve(dbo.collection("users").findOne({"username": dbUser.username, "password": dbUser.password}));
                     });
 
                     userCheck.then(function (value) {
                         //user exists and password is correct
                         if (value !== null) {
-                            let loginMessage = {
-                                dataType: LOGIN,
-                                username: dbUser.username,
-                                message: SUCCESS,
-                            };
-                            user.socket.send(JSON.stringify(loginMessage));
+                            if(value.loggedIn === true){
+                                let loginMessage = {
+                                    dataType: LOGIN,
+                                    username: dbUser.username,
+                                    message: ALREADY_LOGGED_IN,
+                                };
+                                user.socket.send(JSON.stringify(loginMessage))
+                            }
+                            else{
+                                dbo.collection("users").updateOne(
+                                    {"username" : dbUser.username}, { $set:{ "loggedIn": true }},{ upsert: false }
+                                );
+                                let loginMessage = {
+                                    dataType: LOGIN,
+                                    username: dbUser.username,
+                                    message: SUCCESS,
+                                };
+                                user.socket.send(JSON.stringify(loginMessage))
+                            }
+                        }
                         //user does not exist or password is wrong
-                        } else {
+                        else {
                             let loginMessage = {
                                 dataType: LOGIN,
                                 username: dbUser.username,
@@ -144,7 +159,7 @@ export default class GameRoom extends Room {
 
             // Registration message
             if (data.dataType === REGISTRATION) {
-                let dbUser = { username: data.username, password: data.password};
+                let dbUser = { username: data.username, password: data.password, loggedIn: true};
                 user.setUsername(dbUser.username);
 
                 // write new user to mongodb if not exists already
@@ -200,14 +215,13 @@ export default class GameRoom extends Room {
                     let updateSave = new Promise(async function(resolve, reject){
                         let result = await (dbo.collection("savedGames").findOne({"gameId": gameId}));
                         if(result === null){
-                            //when game is saved for the first time, assume it is saved by the white player
-                            resolve([1,user.username]);
+                            //when game is saved for the first time, assume it is saved by the white player, therefore initialize with 0
+                            resolve([0,user.username]);
                         }
                         else{
                             //when game exists, replace last saved game
                             resolve([result.turn,result.whitePlayer,result.users]);
                         }
-
                     });
 
                     updateSave.then( async function(value){
@@ -222,7 +236,7 @@ export default class GameRoom extends Room {
 
                         for(let i in room.games){
                             if(room.games[i].gameId === gameId){
-                                if(users === [] || room.games[i].users[1].username === undefined){
+                                if(users === [] || room.games[i].users[1] === undefined){
                                     users = [room.games[i].users[0].username];
                                 }
                                 else{
@@ -249,7 +263,6 @@ export default class GameRoom extends Room {
                 let chatsHistory = [];
                 let gameTimestamps = [];
                 let turns = [];
-                //let whitePlayer = [];
                 let isMyTurn = [];
                 let username = user.username;
                 let iAmWhite = [];
@@ -481,15 +494,6 @@ export default class GameRoom extends Room {
         let gameIsMyTurns = games[6];
         let gameIAmWhites = games[7];
         let users = games[8];
-        //let currentUsername = user.username;
-        //let currentUsers = [];
-
-
-        /*for (let i in this.users) {
-            if(this.users[i] === currentUsername){
-                currentUsers.push(this.users[i]);
-            }
-        }*/
 
         let savedGames = {
             dataType: SHOW_GAMES,
@@ -565,5 +569,16 @@ export default class GameRoom extends Room {
                 }
             }
         }
+    }
+
+    logOutUser(user){
+        // set loggedIn state to false
+        MongoClient.connect(url, {useUnifiedTopology: true}, function(err, db) {
+            if (err) throw err;
+            let dbo = db.db("webEchessDb");
+            dbo.collection("users").updateOne(
+                {"username": user.username}, {$set: {"loggedIn": false}}, {upsert: false}
+            );
+        });
     }
 }

@@ -18,6 +18,7 @@ let websocketGame = {
     MOVE : 2,
     LOGIN : 3,
     REGISTRATION : 4,
+    ALREADY_LOGGED_IN : 5,
     SAVE : 10,
     LOAD : 11,
     SHOW_GAMES: 12,
@@ -52,7 +53,7 @@ $(function(){
             let data = JSON.parse(e.data);
 
             if(data.dataType !== websocketGame.LOGIN && data.dataType !== websocketGame.SHOW_GAMES){
-                // use the console output for debugging - but don't show password or game board
+                // use the console output for debugging - but don't show password (because it's secret) or game board (because it's too much...)
                 //console.log("Got message: ", e.data);
             }
 
@@ -62,12 +63,17 @@ $(function(){
                     username = $("#username-input-login").val();
                     $("#login").addClass("hide");
                     $("#footer").removeClass("hide");
+                    $("#navbar").removeClass("hide");
                     $("#username").append(data.username);
                     $("#show-turn").append("Welcome to Chess. Please choose what to do.");
                 }
+                else if(data.message === websocketGame.ALREADY_LOGGED_IN){
+                    let loginText = document.getElementById("login-text");
+                    loginText.innerHTML = "Already logged in. Please log out of your open session before logging in.";
+                }
                 else if(data.message === websocketGame.FAILURE){
                     let loginText = document.getElementById("login-text");
-                    loginText.innerHTML = "Wrong username or password";
+                    loginText.innerHTML = "Wrong username or password.";
                     $("#pw-input-login").val("");
                 }
             }
@@ -78,6 +84,7 @@ $(function(){
                     username = data.username;
                     $("#login").addClass("hide");
                     $("#footer").removeClass("hide");
+                    $("#navbar").removeClass("hide");
                     $("#username").append(data.username);
                     $("#show-turn").append("Welcome to Chess. Please choose what to do.");
                 }
@@ -110,6 +117,7 @@ $(function(){
             // move
             else if (data.dataType === websocketGame.MOVE){
                 movePiece(data.from, data.to);
+                //saveGame();
                 if(websocketGame.isPlayerTurn === false){
                     // enable move button
                     document.getElementById("move").disabled = false;

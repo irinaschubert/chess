@@ -30,16 +30,31 @@ export default class Room {
     };
 
     /**
-     * Removes a user from the room, notify all users
+     * Removes a user from the room
      * @param  {User} user - user to remove
      */
     removeUser(user) {
+        let username = user.username;
+        let userCheck = [];
         for (let i = this.users.length; i >= 0; i--) {
             if (this.users[i] === user) {
                 this.users.splice(i, 1);
             }
         }
+        for(let i in this.users){
+            if(this.users[i].username === username){
+                userCheck.push(1);
+            }
+        }
+
+        if(userCheck.length < 1){
+            this.logOutUser(user);
+        }
     };
+
+    logOutUser(user){
+
+    }
 
     /**
      * Sends a message to all users
