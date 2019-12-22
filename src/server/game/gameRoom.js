@@ -245,7 +245,6 @@ export default class GameRoom extends Room {
                             }
                         }
 
-                        console.log("save game");
                         dbo.collection("savedGames").updateOne(
                             {"gameId" : gameId},
                             {$set:{
